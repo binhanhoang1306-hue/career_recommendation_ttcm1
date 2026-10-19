@@ -34,7 +34,14 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-API_URL = os.environ.get("API_URL", "http://127.0.0.1:8000").strip().rstrip("/")
+api_url = os.environ.get("API_URL")
+if not api_url:
+    try:
+        api_url = st.secrets.get("API_URL")
+    except FileNotFoundError:
+        api_url = None
+
+API_URL = (api_url or "http://127.0.0.1:8000").strip().rstrip("/")
 if not API_URL.startswith(("http://", "https://")):
     API_URL = "http://" + API_URL  # Render chỉ cấp host:port, không kèm scheme
 

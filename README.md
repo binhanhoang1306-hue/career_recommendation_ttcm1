@@ -260,11 +260,11 @@ python -m unittest discover -s tests -v
 2. Truy cập [share.streamlit.io](https://share.streamlit.io/) và đăng nhập bằng tài khoản GitHub.
 3. Nhấp **"New app"**, chọn kho lưu trữ và nhánh tương ứng.
 4. Tại mục **Main file path**, điền: `web/app.py`.
-5. Trong phần **Advanced settings -> Secrets**, thêm các biến:
+5. Trong phần **Advanced settings -> Secrets**, thêm địa chỉ backend API:
    ```toml
    API_URL = "https://your-api-service.onrender.com"
-   GROQ_API_KEY = "your-groq-key"
    ```
+   `API_URL` được đọc trực tiếp từ Streamlit Secrets. Không đặt `GROQ_API_KEY` ở giao diện; khóa Groq chỉ cấu hình trong biến môi trường của dịch vụ FastAPI backend.
 6. Bấm **Deploy**. Sau 2-3 phút, bạn sẽ có đường link trực tuyến công khai (dạng `https://career-ai.streamlit.app`).
 
 ### Lựa chọn 2: Triển khai toàn bộ trên Render (render.com)
