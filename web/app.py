@@ -26,7 +26,34 @@ import time
 import requests
 import streamlit as st
 import pandas as pd
+import subprocess, sys, time, socket
+from pathlib import Path
+import streamlit as st
 
+ROOT = Path(__file__).resolve().parent.parent  # thư mục gốc của repo
+
+@st.cache_resource
+def start_backend():
+    s = socket.socket()
+    if s.connect_ex(("127.0.0.1", 8000)) == 0:  # đã chạy rồi
+        s.close()
+        return True
+    s.close()
+    subprocess.Popen(
+        [sys.executable, "-m", "uvicorn", "api.main:app",
+         "--host", "127.0.0.1", "--port", "8000"],
+        cwd=ROOT,
+    )
+    for _ in range(30):  # chờ tối đa ~30 giây
+        time.sleep(1)
+        s = socket.socket()
+        ok = s.connect_ex(("127.0.0.1", 8000)) == 0
+        s.close()
+        if ok:
+            return True
+    return False
+
+start_backend()
 # Thiết lập cấu hình trang
 st.set_page_config(
     page_title="AI Career Compass — Cổng Định Hướng Nghề Nghiệp CNTT",
