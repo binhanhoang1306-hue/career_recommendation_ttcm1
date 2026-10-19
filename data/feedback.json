@@ -1,0 +1,284 @@
+[
+  {
+    "id": "71e64c51-10b7-4660-8198-3f9976a17683",
+    "timestamp": "2026-10-09T15:13:27",
+    "student_name": "Sinh viên Test",
+    "top_group": "Dữ liệu & AI",
+    "top_prob": 0.88,
+    "rating": 5,
+    "liked_careers": [
+      "DA01"
+    ],
+    "disliked_careers": [],
+    "comment": "Kiểm thử SQLite",
+    "scores": {
+      "ai": 9.0,
+      "db": 8.5
+    }
+  },
+  {
+    "id": "6f88507a-88b8-465d-aa31-74d9bea69bd8",
+    "timestamp": "2026-10-09T15:16:34",
+    "student_name": "Sinh viên Test",
+    "top_group": "Dữ liệu & AI",
+    "top_prob": 0.88,
+    "rating": 5,
+    "liked_careers": [
+      "DA01"
+    ],
+    "disliked_careers": [],
+    "comment": "Kiểm thử SQLite",
+    "scores": {
+      "ai": 9.0,
+      "db": 8.5
+    }
+  },
+  {
+    "id": "17e4968e-6671-4308-9dee-e1d2aac67a8f",
+    "timestamp": "2026-10-09T15:27:14",
+    "student_name": "Sinh viên Test",
+    "top_group": "Dữ liệu & AI",
+    "top_prob": 0.88,
+    "rating": 5,
+    "liked_careers": [
+      "DA01"
+    ],
+    "disliked_careers": [],
+    "comment": "Kiểm thử SQLite",
+    "scores": {
+      "ai": 9.0,
+      "db": 8.5
+    }
+  },
+  {
+    "id": "0375e691-d18e-4117-ad9f-6ccb14bcb15c",
+    "timestamp": "2026-10-09T15:28:54",
+    "student_name": "Sinh viên Test",
+    "top_group": "Dữ liệu & AI",
+    "top_prob": 0.88,
+    "rating": 5,
+    "liked_careers": [
+      "DA01"
+    ],
+    "disliked_careers": [],
+    "comment": "Kiểm thử SQLite",
+    "scores": {
+      "ai": 9.0,
+      "db": 8.5
+    }
+  },
+  {
+    "id": "eadfc38e-40be-4c09-9a85-61ca70d89374",
+    "timestamp": "2026-10-09T20:06:33",
+    "student_name": "Sinh viên Test",
+    "top_group": "Dữ liệu & AI",
+    "top_prob": 0.88,
+    "rating": 5,
+    "liked_careers": [
+      "DA01"
+    ],
+    "disliked_careers": [],
+    "comment": "Kiểm thử SQLite",
+    "scores": {
+      "ai": 9.0,
+      "db": 8.5
+    }
+  },
+  {
+    "id": "f2cd5fc4-8a7a-484f-8eba-bc353307454c",
+    "timestamp": "2026-10-13T20:58:44",
+    "student_name": "Sinh viên Test",
+    "top_group": "Dữ liệu & AI",
+    "top_prob": 0.88,
+    "rating": 5,
+    "liked_careers": [
+      "DA01"
+    ],
+    "disliked_careers": [],
+    "comment": "Kiểm thử SQLite",
+    "scores": {
+      "ai": 9.0,
+      "db": 8.5
+    }
+  },
+  {
+    "id": "1f4c3f51-cae2-499b-ae18-ef5d54ed076d",
+    "timestamp": "2026-10-13T21:19:16",
+    "student_name": "Sinh viên Test",
+    "top_group": "Dữ liệu & AI",
+    "top_prob": 0.88,
+    "rating": 5,
+    "liked_careers": [
+      "DA01"
+    ],
+    "disliked_careers": [],
+    "comment": "Kiểm thử SQLite",
+    "scores": {
+      "ai": 9.0,
+      "db": 8.5
+    }
+  },
+  {
+    "id": "62ae7d21-b129-4446-b8c1-8a48601ddf17",
+    "timestamp": "2026-10-13T21:22:19",
+    "student_name": "Sinh viên Test",
+    "top_group": "Dữ liệu & AI",
+    "top_prob": 0.88,
+    "rating": 5,
+    "liked_careers": [
+      "DA01"
+    ],
+    "disliked_careers": [],
+    "comment": "Kiểm thử SQLite",
+    "scores": {
+      "ai": 9.0,
+      "db": 8.5
+    }
+  },
+  {
+    "id": "174400b1-b979-4354-b7a0-2af5771546cd",
+    "timestamp": "2026-10-13T21:37:20",
+    "student_name": "Sinh viên Test",
+    "top_group": "Dữ liệu & AI",
+    "top_prob": 0.88,
+    "rating": 5,
+    "liked_careers": [
+      "DA01"
+    ],
+    "disliked_careers": [],
+    "comment": "Kiểm thử SQLite",
+    "scores": {
+      "ai": 9.0,
+      "db": 8.5
+    }
+  },
+  {
+    "id": "6318a6ca-d5fd-4ec7-b252-c4d7f0b52284",
+    "timestamp": "2026-10-13T21:44:28",
+    "student_name": "Sinh viên Test",
+    "top_group": "Dữ liệu & AI",
+    "top_prob": 0.88,
+    "rating": 5,
+    "liked_careers": [
+      "DA01"
+    ],
+    "disliked_careers": [],
+    "comment": "Kiểm thử SQLite",
+    "scores": {
+      "ai": 9.0,
+      "db": 8.5
+    }
+  },
+  {
+    "id": "521a0b0c-9475-46be-b5e1-e91378b31e45",
+    "timestamp": "2026-10-15T13:05:48",
+    "student_name": "Sinh viên",
+    "top_group": "An toàn thông tin",
+    "top_prob": 0.6633,
+    "rating": 5,
+    "liked_careers": [
+      "SG01"
+    ],
+    "disliked_careers": [],
+    "comment": "",
+    "scores": {
+      "network": 8.0,
+      "linux": 9.0,
+      "sec": 9.7,
+      "db": 7.9,
+      "analysis": 8.1,
+      "se": 9.7,
+      "java": 7.9,
+      "csharp": 8.3,
+      "web": 8.9,
+      "graphics": 10.0,
+      "ai": 9.4,
+      "image": 9.2
+    },
+    "survey": {}
+  },
+  {
+    "id": "880458ea-3367-4859-8e13-13b4e957c99a",
+    "timestamp": "2026-10-15T13:05:49",
+    "student_name": "Sinh viên",
+    "top_group": "An toàn thông tin",
+    "top_prob": 0.6633,
+    "rating": 5,
+    "liked_careers": [],
+    "disliked_careers": [
+      "SG01"
+    ],
+    "comment": "",
+    "scores": {
+      "network": 8.0,
+      "linux": 9.0,
+      "sec": 9.7,
+      "db": 7.9,
+      "analysis": 8.1,
+      "se": 9.7,
+      "java": 7.9,
+      "csharp": 8.3,
+      "web": 8.9,
+      "graphics": 10.0,
+      "ai": 9.4,
+      "image": 9.2
+    },
+    "survey": {}
+  },
+  {
+    "id": "4a8369ab-6125-4f4e-9550-263438918e27",
+    "timestamp": "2026-10-15T13:05:51",
+    "student_name": "Sinh viên",
+    "top_group": "An toàn thông tin",
+    "top_prob": 0.6633,
+    "rating": 5,
+    "liked_careers": [
+      "SG01"
+    ],
+    "disliked_careers": [],
+    "comment": "",
+    "scores": {
+      "network": 8.0,
+      "linux": 9.0,
+      "sec": 9.7,
+      "db": 7.9,
+      "analysis": 8.1,
+      "se": 9.7,
+      "java": 7.9,
+      "csharp": 8.3,
+      "web": 8.9,
+      "graphics": 10.0,
+      "ai": 9.4,
+      "image": 9.2
+    },
+    "survey": {}
+  },
+  {
+    "id": "9f07183c-aa74-4912-9e8a-bf0adea1c5d7",
+    "timestamp": "2026-10-15T13:51:04",
+    "student_name": "Sinh viên",
+    "top_group": "An toàn thông tin",
+    "top_prob": 0.6570999999999999,
+    "rating": 5,
+    "liked_careers": [
+      "SG01"
+    ],
+    "disliked_careers": [],
+    "comment": "",
+    "scores": {
+      "network": 8.0,
+      "linux": 9.0,
+      "sec": 9.7,
+      "db": 7.9,
+      "analysis": 8.1,
+      "se": 9.7,
+      "java": 7.9,
+      "csharp": 8.3,
+      "web": 8.9,
+      "graphics": 10.0,
+      "ai": 9.4,
+      "image": 9.2
+    },
+    "survey": {}
+  }
+]

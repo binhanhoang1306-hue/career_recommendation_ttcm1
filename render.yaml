@@ -1,0 +1,39 @@
+services:
+  # 1. FastAPI REST API Backend
+  - type: web
+    name: career-ai-api
+    runtime: python
+    buildCommand: pip install -r requirements.txt && python -m career_ai.prepare_data && python -m career_ai.train
+    startCommand: uvicorn api.main:app --host 0.0.0.0 --port $PORT
+    disk:
+      name: career-ai-data
+      mountPath: /var/data
+      sizeGB: 1
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.8
+      - key: CAREER_AI_DATA_DIR
+        value: /var/data
+      - key: GROQ_API_KEY
+        sync: false
+      - key: GROQ_MODEL
+        value: openai/gpt-oss-120b
+      - key: ADMIN_USERNAME
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+
+  # 2. Streamlit Web Frontend
+  - type: web
+    name: career-ai-web
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: streamlit run web/app.py --server.port $PORT --server.address 0.0.0.0
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.8
+      - key: API_URL
+        fromService:
+          type: web
+          name: career-ai-api
+          property: hostport

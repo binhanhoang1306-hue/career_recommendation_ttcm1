@@ -1,0 +1,107 @@
+{
+  "BE01": {
+    "career_id": "BE01",
+    "career_name": "Lập trình viên Backend",
+    "career_group": "Phát triển phần mềm"
+  },
+  "FE01": {
+    "career_id": "FE01",
+    "career_name": "Lập trình viên Frontend",
+    "career_group": "Phát triển Web"
+  },
+  "FS01": {
+    "career_id": "FS01",
+    "career_name": "Lập trình viên Full-stack",
+    "career_group": "Phát triển Web"
+  },
+  "UD01": {
+    "career_id": "UD01",
+    "career_name": "Chuyên viên thiết kế UI/UX",
+    "career_group": "Đồ họa & Game"
+  },
+  "MB01": {
+    "career_id": "MB01",
+    "career_name": "Lập trình viên ứng dụng di động",
+    "career_group": "Phát triển phần mềm"
+  },
+  "DA01": {
+    "career_id": "DA01",
+    "career_name": "Chuyên viên phân tích dữ liệu / Nhà khoa học dữ liệu",
+    "career_group": "Dữ liệu & AI"
+  },
+  "AI01": {
+    "career_id": "AI01",
+    "career_name": "Kỹ sư Trí tuệ nhân tạo / Máy học",
+    "career_group": "Dữ liệu & AI"
+  },
+  "DO01": {
+    "career_id": "DO01",
+    "career_name": "Kỹ sư vận hành và tự động hóa hệ thống",
+    "career_group": "Hạ tầng & Bảo mật"
+  },
+  "QA01": {
+    "career_id": "QA01",
+    "career_name": "Chuyên viên kiểm thử phần mềm",
+    "career_group": "Kiểm thử & Quản lý dự án"
+  },
+  "BA01": {
+    "career_id": "BA01",
+    "career_name": "Chuyên viên phân tích nghiệp vụ",
+    "career_group": "Kiểm thử & Quản lý dự án"
+  },
+  "SA01": {
+    "career_id": "SA01",
+    "career_name": "Quản trị viên hệ thống",
+    "career_group": "Hạ tầng & Bảo mật"
+  },
+  "DG01": {
+    "career_id": "DG01",
+    "career_name": "Lập trình viên đồ họa/Game",
+    "career_group": "Đồ họa & Game"
+  },
+  "SE01": {
+    "career_id": "SE01",
+    "career_name": "Kỹ sư phần mềm",
+    "career_group": "Phát triển phần mềm"
+  },
+  "SY01": {
+    "career_id": "SY01",
+    "career_name": "Chuyên viên phân tích hệ thống",
+    "career_group": "Kiểm thử & Quản lý dự án"
+  },
+  "IT01": {
+    "career_id": "IT01",
+    "career_name": "Tư vấn viên công nghệ thông tin",
+    "career_group": "Kiểm thử & Quản lý dự án"
+  },
+  "CV01": {
+    "career_id": "CV01",
+    "career_name": "Kỹ sư thị giác máy tính",
+    "career_group": "Dữ liệu & AI"
+  },
+  "NW01": {
+    "career_id": "NW01",
+    "career_name": "Kỹ sư/Quản trị viên mạng máy tính",
+    "career_group": "Hạ tầng & Bảo mật"
+  },
+  "SC01": {
+    "career_id": "SC01",
+    "career_name": "Chuyên viên phân tích an ninh mạng",
+    "career_group": "An toàn thông tin"
+  },
+  "PT01": {
+    "career_id": "PT01",
+    "career_name": "Chuyên viên kiểm thử xâm nhập",
+    "career_group": "An toàn thông tin"
+  },
+  "SG01": {
+    "career_id": "SG01",
+    "career_name": "Kỹ sư an toàn thông tin",
+    "career_group": "An toàn thông tin"
+  },
+  "GR01": {
+    "career_id": "GR01",
+    "career_name": "Chuyên viên thiết kế đồ họa 2D/3D",
+    "career_group": "Đồ họa & Game"
+  }
+}
