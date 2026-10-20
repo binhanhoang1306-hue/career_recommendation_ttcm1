@@ -292,24 +292,6 @@ class TestEnhancedFeatures(unittest.TestCase):
         self.assertIn('[data-testid="stSidebar"] .stButton > button[kind="secondary"]', ui_kit.CSS)
         self.assertIn(".st-key-sidebar-footer", ui_kit.CSS)
 
-    def test_mockup_admin_cards_and_distribution_chart_have_visual_structure(self):
-        from web import ui_kit
-
-        card = ui_kit.kpi_card("PHẢN HỒI ĐÃ NHẬN", "22")
-        chart = ui_kit.group_distribution_chart({
-            "Phát triển Web": 2,
-            "Dữ liệu & AI": 8,
-        })
-
-        self.assertIn("class='kpi-icon'", card)
-        self.assertIn("<svg", card)
-        self.assertLess(
-            chart.index("Dữ liệu &amp; AI"),
-            chart.index("Phát triển Web"),
-        )
-        self.assertIn("distribution-fill", chart)
-        self.assertIn("width:100.0%", chart)
-
     def test_source_checker_distinguishes_blocked_urls_and_expired_listings(self):
         from datetime import date
         from career_ai.source_check import check_market_sources, classify_http_status

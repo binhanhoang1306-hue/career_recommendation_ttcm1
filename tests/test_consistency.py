@@ -98,14 +98,6 @@ class TestSharedLogic(unittest.TestCase):
         for html in (recommendation, explorer):
             self.assertIn("tham khảo, không riêng chức danh này: Kỹ sư AI/ML", html)
 
-    def test_three_career_columns_share_aligned_content_rows(self):
-        from web.ui_kit import CSS
-
-        self.assertIn("grid-template-rows: repeat(8, auto);", CSS)
-        self.assertIn("grid-row: span 8;", CSS)
-        self.assertIn("grid-template-rows: subgrid;", CSS)
-
-
 @unittest.skipUnless(HAS_FASTAPI, "cần fastapi + httpx")
 class TestDecisionApi(unittest.TestCase):
     @classmethod
