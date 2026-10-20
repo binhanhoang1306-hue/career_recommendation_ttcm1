@@ -682,20 +682,22 @@ a[aria-label="Link to heading"],
 }
 [data-testid="stSidebar"] [data-testid="stSidebarContent"] {
     padding: 0.5rem 1.6rem 1rem !important;
+    overflow: hidden !important;
 }
 [data-testid="stSidebar"] [data-testid="stLayoutWrapper"]:has(> .st-key-sidebar-sticky-top) {
-    position: sticky;
-    top: 3rem;
-    z-index: 20;
+    position: relative;
 }
 .st-key-sidebar-sticky-top {
     position: relative;
-    margin: -0.5rem -0.25rem 0;
-    padding: 0.5rem 0.25rem 0.75rem;
-    background:
-        radial-gradient(circle at 10% 95%, rgba(67, 83, 232, 0.22) 0%, transparent 45%),
-        radial-gradient(circle at -15% 90%, rgba(99, 102, 241, 0.18) 0%, transparent 55%),
-        linear-gradient(165deg, #11152F 0%, #151B42 45%, #182046 100%);
+    margin: 0;
+    padding: 0.5rem 0 0.75rem;
+}
+.st-key-sidebar-menu-scroll {
+    max-height: max(7rem, calc(100vh - 14rem));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.24) transparent;
 }
 [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] h1,
 [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] h2,

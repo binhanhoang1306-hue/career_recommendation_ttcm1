@@ -637,6 +637,9 @@ class TestStudentSurveyUI(unittest.TestCase):
         self.assertIn("admin-login-card", web_app.ui.CSS)
         self.assertIn('content: "☰"', web_app.ui.CSS)
         self.assertIn(".st-key-sidebar-sticky-top", web_app.ui.CSS)
+        self.assertIn(".st-key-sidebar-menu-scroll", web_app.ui.CSS)
+        self.assertIn("overflow: hidden !important", web_app.ui.CSS)
+        self.assertIn("overscroll-behavior: contain", web_app.ui.CSS)
         self.assertNotIn(
             "Thông tin đăng nhập được máy chủ API xác thực an toàn",
             " ".join(element.value for element in test_app.markdown),

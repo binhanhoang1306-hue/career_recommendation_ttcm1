@@ -445,47 +445,48 @@ def render_student_portal(meta, error):
                 st.session_state["explore_career_group"] = None
                 st.rerun()
 
-        st.markdown("---")
-        st.markdown("#### Khám phá thử", help="Chọn nhóm nghề để xem các lựa chọn và thông tin tham khảo.")
-        st.caption("Chọn một nhóm ngành để xem các nghề và thông tin liên quan:")
+        with st.container(key="sidebar-menu-scroll"):
+            st.markdown("---")
+            st.markdown("#### Khám phá thử", help="Chọn nhóm nghề để xem các lựa chọn và thông tin tham khảo.")
+            st.caption("Chọn một nhóm ngành để xem các nghề và thông tin liên quan:")
 
-        if catalog_error:
-            st.error(catalog_error)
-        else:
-            career_groups = list(dict.fromkeys(
-                str(career.get("career_group", "")).strip()
-                for career in career_catalog
-                if str(career.get("career_group", "")).strip()
-            ))
-            group_icons = {
-                "Phát triển phần mềm": ":material/code:",
-                "Phát triển Web": ":material/language:",
-                "Đồ họa & Game": ":material/sports_esports:",
-                "Dữ liệu & AI": ":material/bar_chart:",
-                "Hạ tầng & Bảo mật": ":material/dns:",
-                "Kiểm thử & Quản lý dự án": ":material/task_alt:",
-                "An toàn thông tin": ":material/shield:",
-            }
-            for idx, group in enumerate(career_groups):
+            if catalog_error:
+                st.error(catalog_error)
+            else:
+                career_groups = list(dict.fromkeys(
+                    str(career.get("career_group", "")).strip()
+                    for career in career_catalog
+                    if str(career.get("career_group", "")).strip()
+                ))
+                group_icons = {
+                    "Phát triển phần mềm": ":material/code:",
+                    "Phát triển Web": ":material/language:",
+                    "Đồ họa & Game": ":material/sports_esports:",
+                    "Dữ liệu & AI": ":material/bar_chart:",
+                    "Hạ tầng & Bảo mật": ":material/dns:",
+                    "Kiểm thử & Quản lý dự án": ":material/task_alt:",
+                    "An toàn thông tin": ":material/shield:",
+                }
+                for idx, group in enumerate(career_groups):
+                    if st.button(
+                        group,
+                        key=f"btn_explore_group_{idx}",
+                        type="primary" if group == selected_group else "secondary",
+                        width="stretch",
+                        icon=group_icons.get(group, ":material/chevron_right:"),
+                    ):
+                        st.session_state["explore_career_group"] = group
+                        st.rerun()
+
+            with st.container(key="sidebar-footer"):
                 if st.button(
-                    group,
-                    key=f"btn_explore_group_{idx}",
-                    type="primary" if group == selected_group else "secondary",
+                    "Đăng nhập",
+                    key="btn_goto_admin_login",
                     width="stretch",
-                    icon=group_icons.get(group, ":material/chevron_right:"),
+                    icon=":material/login:",
                 ):
-                    st.session_state["explore_career_group"] = group
+                    st.session_state["view_mode"] = "admin"
                     st.rerun()
-
-        with st.container(key="sidebar-footer"):
-            if st.button(
-                "Đăng nhập",
-                key="btn_goto_admin_login",
-                width="stretch",
-                icon=":material/login:",
-            ):
-                st.session_state["view_mode"] = "admin"
-                st.rerun()
 
     selected_group = st.session_state.get("explore_career_group")
     if selected_group:
@@ -1061,17 +1062,18 @@ def render_admin_portal(meta, error):
                 st.session_state["explore_career_group"] = None
                 st.rerun()
 
-        if st.button("Đăng Xuất", key="btn_admin_logout", width="stretch", icon=":material/logout:"):
-            st.session_state["admin_authenticated"] = False
-            st.session_state.pop("admin_api_auth", None)
-            st.session_state["view_mode"] = "student"
-            st.toast("Đã đăng xuất khỏi tài khoản Quản trị viên.")
-            st.rerun()
+        with st.container(key="sidebar-menu-scroll"):
+            if st.button("Đăng Xuất", key="btn_admin_logout", width="stretch", icon=":material/logout:"):
+                st.session_state["admin_authenticated"] = False
+                st.session_state.pop("admin_api_auth", None)
+                st.session_state["view_mode"] = "student"
+                st.toast("Đã đăng xuất khỏi tài khoản Quản trị viên.")
+                st.rerun()
 
-        st.markdown("---")
-        st.markdown("#### Thao tác nhanh")
-        if st.button("Làm mới dữ liệu", key="btn_refresh_admin_data", width="stretch", icon=":material/refresh:"):
-            st.rerun()
+            st.markdown("---")
+            st.markdown("#### Thao tác nhanh")
+            if st.button("Làm mới dữ liệu", key="btn_refresh_admin_data", width="stretch", icon=":material/refresh:"):
+                st.rerun()
 
     st.markdown("## Bảng Điều Khiển Quản Trị Hệ Thống")
     st.caption("Theo dõi hoạt động hệ thống, xem phản hồi sinh viên và cập nhật gợi ý từ ý kiến nhận được.")
