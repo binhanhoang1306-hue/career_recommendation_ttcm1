@@ -478,7 +478,6 @@ def render_student_portal(meta, error):
                     st.rerun()
 
         with st.container(key="sidebar-footer"):
-            st.markdown("---")
             if st.button(
                 "Đăng nhập",
                 key="btn_goto_admin_login",
@@ -1095,13 +1094,27 @@ def render_admin_portal(meta, error):
     st.caption("Theo dõi hoạt động hệ thống, xem phản hồi sinh viên và cập nhật gợi ý từ ý kiến nhận được.")
 
     stats = fetch_admin_stats() or {}
+    total_preds = stats.get('total_predictions') or 0
+    total_feedbacks = stats.get('total_feedbacks') or 0
+    satisfaction = stats.get('feedback_satisfaction_pct') or 0
+    raw_latency = stats.get('avg_latency_ms') or 0
+    try:
+        latency_val = float(raw_latency) / 1000.0
+    except (ValueError, TypeError):
+        latency_val = 0.0
+
+    def _render_kpi(t: str, v: str, s: str = "", ic: str = "bar") -> str:
+        try:
+            return ui.kpi_card(t, v, s, ic)
+        except TypeError:
+            return ui.kpi_card(t, v, s)
 
     # 4 Thẻ KPI thống kê nhanh
     st.markdown("<div class='kpi-grid'>"
-                + ui.kpi_card("LƯỢT TƯ VẤN ĐÃ THỰC HIỆN", str(stats.get('total_predictions', 0)), "Tổng số phiên tư vấn DSS", "bar")
-                + ui.kpi_card("PHẢN HỒI ĐÃ NHẬN", str(stats.get('total_feedbacks', 0)), "Ý kiến từ sinh viên", "mail")
-                + ui.kpi_card("MỨC HÀI LÒNG", f"{stats.get('feedback_satisfaction_pct', 0)}%", "Đánh giá tích cực", "smile")
-                + ui.kpi_card("THỜI GIAN PHẢN HỒI", f"{stats.get('avg_latency_ms', 0) / 1000:.2f}s", "Độ trễ trung bình", "clock")
+                + _render_kpi("LƯỢT TƯ VẤN ĐÃ THỰC HIỆN", str(total_preds), "Tổng số phiên tư vấn DSS", "bar")
+                + _render_kpi("PHẢN HỒI ĐÃ NHẬN", str(total_feedbacks), "Ý kiến từ sinh viên", "mail")
+                + _render_kpi("MỨC HÀI LÒNG", f"{satisfaction}%", "Đánh giá tích cực", "smile")
+                + _render_kpi("THỜI GIAN PHẢN HỒI", f"{latency_val:.2f}s", "Độ trễ trung bình", "clock")
                 + "</div>", unsafe_allow_html=True)
 
     tab_overview, tab_feedbacks, tab_logs, tab_retrain = st.tabs([

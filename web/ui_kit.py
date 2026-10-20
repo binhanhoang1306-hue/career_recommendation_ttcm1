@@ -666,11 +666,22 @@ a[aria-label="Link to heading"],
 [data-testid="stSidebar"] [data-testid="stSidebarContent"] {
     padding: 1.4rem 1.6rem 1rem !important;
 }
+[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] h1,
+[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] h2,
 [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] h3,
 [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] h4,
 [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p,
-[data-testid="stSidebar"] [data-testid="stCaptionContainer"] {
-    color: #F8FAFC !important;
+[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] span,
+[data-testid="stSidebar"] [data-testid="stCaptionContainer"],
+[data-testid="stSidebar"] [data-testid="stCaptionContainer"] *,
+.sidebar-header,
+.sidebar-title,
+.sidebar-tagline,
+.sidebar-desc,
+.sidebar-admin-title,
+.sidebar-admin-sub,
+.sidebar-admin-sub * {
+    color: #FFFFFF !important;
 }
 [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] h3 {
     margin: 0.8rem 0 0.35rem;
@@ -683,7 +694,8 @@ a[aria-label="Link to heading"],
     font-weight: 700;
 }
 [data-testid="stSidebar"] [data-testid="stCaptionContainer"] {
-    color: #94A3B8 !important;
+    color: #FFFFFF !important;
+    opacity: 0.92;
     line-height: 1.5;
 }
 [data-testid="stSidebar"] hr,
@@ -697,6 +709,7 @@ a[aria-label="Link to heading"],
 .sidebar-header {
     padding: 0.2rem 0 1.15rem;
 }
+[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] h2,
 .sidebar-title {
     color: #FFFFFF !important;
     font-size: 1.48rem !important;
@@ -705,12 +718,14 @@ a[aria-label="Link to heading"],
     margin: 0 0 0.35rem !important;
     line-height: 1.25 !important;
 }
+.sidebar-tagline,
 .sidebar-desc {
-    color: #94A3B8 !important;
-    font-size: 0.86rem !important;
+    color: #FFFFFF !important;
+    opacity: 0.95;
+    font-size: 0.88rem !important;
     line-height: 1.5 !important;
     margin: 0 !important;
-    font-weight: 450 !important;
+    font-weight: 500 !important;
 }
 .sidebar-admin-header {
     display: flex;
@@ -737,7 +752,8 @@ a[aria-label="Link to heading"],
     line-height: 1.2;
 }
 .sidebar-admin-sub {
-    color: #94A3B8;
+    color: #FFFFFF !important;
+    opacity: 0.92;
     font-size: 0.82rem;
     margin-top: 0.2rem;
 }
@@ -778,7 +794,7 @@ a[aria-label="Link to heading"],
 .sidebar-brand small {
     display: block;
     margin-top: 0.2rem;
-    color: #94A3B8;
+    color: #E2E8F0;
     font-size: 0.6rem;
     font-weight: 700;
     letter-spacing: 0.14em;
@@ -795,7 +811,7 @@ a[aria-label="Link to heading"],
     line-height: 1.3 !important;
     text-align: left !important;
     white-space: normal !important;
-    color: #F8FAFC !important;
+    color: #FFFFFF !important;
 }
 [data-testid="stSidebar"] .stButton > button > div {
     width: 100% !important;
@@ -835,11 +851,32 @@ a[aria-label="Link to heading"],
     color: #FFFFFF !important;
     flex-shrink: 0 !important;
 }
+
+/* Center-aligned Buttons: Trang chủ & Đăng nhập */
+[data-testid="stSidebar"] div[class*="st-key-btn_student_home"] .stButton > button,
+[data-testid="stSidebar"] div[class*="st-key-btn_admin_login_home"] .stButton > button,
+[data-testid="stSidebar"] div[class*="st-key-btn_admin_home"] .stButton > button,
+[data-testid="stSidebar"] div[class*="st-key-btn_goto_admin_login"] .stButton > button,
+[data-testid="stSidebar"] div[class*="st-key-btn_admin_logout"] .stButton > button,
+[data-testid="stSidebar"] div[class*="st-key-btn_refresh_admin_data"] .stButton > button,
+[data-testid="stSidebar"] .st-key-sidebar-footer .stButton > button {
+    text-align: center !important;
+}
+[data-testid="stSidebar"] div[class*="st-key-btn_student_home"] .stButton > button > div,
+[data-testid="stSidebar"] div[class*="st-key-btn_admin_login_home"] .stButton > button > div,
+[data-testid="stSidebar"] div[class*="st-key-btn_admin_home"] .stButton > button > div,
+[data-testid="stSidebar"] div[class*="st-key-btn_goto_admin_login"] .stButton > button > div,
+[data-testid="stSidebar"] div[class*="st-key-btn_admin_logout"] .stButton > button > div,
+[data-testid="stSidebar"] div[class*="st-key-btn_refresh_admin_data"] .stButton > button > div,
+[data-testid="stSidebar"] .st-key-sidebar-footer .stButton > button > div {
+    justify-content: center !important;
+}
+
 [data-testid="stSidebar"] div[class*="st-key-btn_explore_group_"] button::after {
     content: "›";
     font-size: 1.35rem;
     line-height: 1;
-    color: #94A3B8;
+    color: #FFFFFF;
     margin-left: auto;
     padding-left: 0.35rem;
     transition: transform 0.2s ease, color 0.2s ease;
@@ -856,23 +893,27 @@ a[aria-label="Link to heading"],
 
 /* Sidebar Sticky Footer */
 [data-testid="stSidebar"] .st-key-sidebar-footer {
-    position: sticky;
-    bottom: 0;
-    z-index: 2;
-    margin-top: 2rem;
+    position: relative;
+    margin-top: 1.8rem;
     padding-top: 0.85rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    background: rgba(15, 23, 42, 0.95);
-    backdrop-filter: blur(8px);
+    padding-bottom: 0.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    background: transparent !important;
+}
+[data-testid="stSidebar"] .st-key-sidebar-footer hr {
+    display: none !important;
 }
 [data-testid="stSidebar"] .st-key-sidebar-footer .stButton > button {
-    background: rgba(255, 255, 255, 0.06) !important;
-    border: 1px solid rgba(255, 255, 255, 0.16) !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+    border: 1px solid rgba(255, 255, 255, 0.18) !important;
     box-shadow: none !important;
+    color: #FFFFFF !important;
+    font-weight: 700 !important;
 }
 [data-testid="stSidebar"] .st-key-sidebar-footer .stButton > button:hover {
-    background: rgba(255, 255, 255, 0.15) !important;
-    border-color: rgba(255, 255, 255, 0.3) !important;
+    background: rgba(255, 255, 255, 0.16) !important;
+    border-color: rgba(255, 255, 255, 0.35) !important;
+    color: #FFFFFF !important;
 }
 
 /* ================== Tabs System ================== */
@@ -2431,7 +2472,7 @@ def tags(items, kind: str, empty: str, title: str) -> str:
     )
 
 
-def kpi_card(title: str, val: str, sub: str = "", icon_type: str = "bar") -> str:
+def kpi_card(title: str, val: str, sub: str = "", icon_type: str = "bar", *args, **kwargs) -> str:
     """Card thống kê KPI cho bảng điều khiển Admin theo phong cách Góc Khám Phá."""
     icons = {
         "message": "<svg width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='#4F46E5' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z'></path></svg>",
