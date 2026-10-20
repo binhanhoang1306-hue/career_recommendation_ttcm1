@@ -587,8 +587,8 @@ class TestStudentSurveyUI(unittest.TestCase):
             if button.key in {f"fb_rating_star_{value}" for value in range(1, 6)}
         ]
         self.assertEqual(len(star_buttons), 5)
-        self.assertEqual(test_app.session_state["fb_rating"], 5)
-        self.assertEqual([button.label for button in star_buttons], ["★"] * 5)
+        self.assertEqual(test_app.session_state["fb_rating"], 0)
+        self.assertEqual([button.label for button in star_buttons], ["☆"] * 5)
 
         next(button for button in star_buttons if button.key == "fb_rating_star_3").click().run()
         self.assertFalse(test_app.exception, test_app.exception)
@@ -603,8 +603,15 @@ class TestStudentSurveyUI(unittest.TestCase):
             ["★", "★", "★", "☆", "☆"],
         )
         from web import ui_kit
-        self.assertIn("font-size: 2.35rem", ui_kit.CSS)
+        self.assertIn("font-size: 1.35rem", ui_kit.CSS)
         self.assertIn("border: 0 !important", ui_kit.CSS)
+        self.assertIn("st-key-fb_submit", ui_kit.CSS)
+        self.assertIsNone(test_app.session_state.get("fb_liked"))
+
+        next(button for button in test_app.button if button.key == "fb_like").click().run()
+        self.assertFalse(test_app.exception, test_app.exception)
+        self.assertIs(test_app.session_state["fb_liked"], True)
+        self.assertIn("fb_submit", [button.key for button in test_app.button])
 
     def test_admin_login_is_available_from_sidebar(self):
         from streamlit.testing.v1 import AppTest

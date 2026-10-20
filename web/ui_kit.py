@@ -356,49 +356,70 @@ a[aria-label="Link to heading"],
     box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.13) !important;
 }
 .st-key-feedback-panel [data-testid="stVerticalBlockBorderWrapper"] {
-    border: 1px solid #DCE3F0 !important;
-    border-radius: 22px !important;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(247, 249, 255, 0.96)) !important;
-    box-shadow: 0 18px 42px -32px rgba(30, 41, 59, 0.38);
+    border: 1px solid #E5E9F2 !important;
+    border-radius: 20px !important;
+    background: #FFFFFF !important;
+    box-shadow: 0 10px 32px -26px rgba(30, 41, 59, 0.28);
 }
 .feedback-heading {
-    margin: 0 0 1.25rem;
+    margin: 0 0 1rem;
 }
 .feedback-eyebrow {
-    margin: 0 0 0.45rem;
-    color: #6366F1;
-    font-size: 0.69rem;
+    margin: 0 0 0.4rem;
+    color: #4F46E5;
+    font-size: 0.65rem;
     font-weight: 750;
     letter-spacing: 0.12em;
 }
 .feedback-heading h3 {
     margin: 0;
     color: #172033;
-    font-size: 1.24rem;
+    font-size: 1.2rem;
     font-weight: 700;
     letter-spacing: -0.035em;
 }
 .feedback-heading > p:last-child {
     margin: 0.42rem 0 0;
     color: #64748B;
-    font-size: 0.87rem;
+    font-size: 0.82rem;
     line-height: 1.55;
 }
 .st-key-feedback-panel .stButton > button {
-    min-height: 46px;
-    border: 1px solid #DCE3F0 !important;
-    border-radius: 13px !important;
-    background: rgba(255, 255, 255, 0.88) !important;
+    min-height: 40px;
+    border: 1px solid #E0E5F0 !important;
+    border-radius: 11px !important;
+    background: #FFFFFF !important;
     color: #334155 !important;
-    font-size: 0.88rem !important;
-    font-weight: 650 !important;
-    transition: border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease !important;
+    font-size: 0.82rem !important;
+    font-weight: 600 !important;
+    box-shadow: none !important;
+    transition: border-color 0.18s ease, background 0.18s ease !important;
 }
 .st-key-feedback-panel .stButton > button:hover {
     border-color: #A5B4FC !important;
+    background: #F8F9FF !important;
+    box-shadow: none !important;
+}
+.st-key-feedback-panel .stButton > button[kind="primary"] {
+    border-color: #818CF8 !important;
     background: #F5F6FF !important;
-    box-shadow: 0 8px 18px -14px rgba(79, 70, 229, 0.55) !important;
-    transform: translateY(-1px);
+    color: #4338CA !important;
+}
+.st-key-feedback-panel .st-key-fb_submit button {
+    min-height: 42px;
+    border: 0 !important;
+    border-radius: 11px !important;
+    background: linear-gradient(100deg, #5B4CE2 0%, #5599DF 100%) !important;
+    color: #FFFFFF !important;
+    box-shadow: 0 10px 22px -16px rgba(79, 70, 229, 0.7) !important;
+}
+.st-key-feedback-panel [data-testid="stTextArea"] textarea {
+    min-height: 72px !important;
+    border: 1px solid #E0E5F0 !important;
+    border-radius: 11px !important;
+    background: #F8F9FC !important;
+    box-shadow: none !important;
+    font-size: 0.82rem !important;
 }
 .st-key-feedback-panel [data-testid="stMarkdownContainer"] p,
 .st-key-feedback-panel [data-testid="stTextInput"] label {
@@ -412,38 +433,38 @@ div[class*="st-key-fb_rating_star_"] button {
     align-items: center !important;
     justify-content: center !important;
     width: auto !important;
-    min-width: 42px !important;
-    min-height: 48px !important;
+    min-width: 34px !important;
+    min-height: 34px !important;
     padding: 0 0.1rem !important;
     border: 0 !important;
     outline: 0 !important;
     border-radius: 0 !important;
     background: transparent !important;
-    color: #BFC7D5 !important;
-    font-size: 2.35rem !important;
-    font-weight: 700 !important;
+    color: #929CC2 !important;
+    font-size: 1.35rem !important;
+    font-weight: 500 !important;
     font-family: inherit !important;
     line-height: 1 !important;
     cursor: pointer !important;
     box-shadow: none !important;
 }
 div[class*="st-key-fb_rating_star_"] button[kind="primary"] {
-    color: #D97706 !important;
-    -webkit-text-fill-color: #D97706 !important;
+    color: #5B4CE2 !important;
+    -webkit-text-fill-color: #5B4CE2 !important;
 }
 div[class*="st-key-fb_rating_star_"] button[kind="primary"] *,
 div[class*="st-key-fb_rating_star_"] button[kind="primary"] p {
-    color: #D97706 !important;
-    -webkit-text-fill-color: #D97706 !important;
+    color: #5B4CE2 !important;
+    -webkit-text-fill-color: #5B4CE2 !important;
 }
 div[class*="st-key-fb_rating_star_"] button[kind="secondary"] {
-    color: #BFC7D5 !important;
-    -webkit-text-fill-color: #BFC7D5 !important;
+    color: #929CC2 !important;
+    -webkit-text-fill-color: #929CC2 !important;
 }
 div[class*="st-key-fb_rating_star_"] button[kind="secondary"] *,
 div[class*="st-key-fb_rating_star_"] button[kind="secondary"] p {
-    color: #BFC7D5 !important;
-    -webkit-text-fill-color: #BFC7D5 !important;
+    color: #929CC2 !important;
+    -webkit-text-fill-color: #929CC2 !important;
 }
 div[class*="st-key-fb_rating_star_"] button:hover {
     all: unset !important;
@@ -451,16 +472,16 @@ div[class*="st-key-fb_rating_star_"] button:hover {
     align-items: center !important;
     justify-content: center !important;
     width: auto !important;
-    min-width: 42px !important;
-    min-height: 48px !important;
+    min-width: 34px !important;
+    min-height: 34px !important;
     padding: 0 0.1rem !important;
     border: none !important;
     background: transparent !important;
-    color: #D97706 !important;
-    -webkit-text-fill-color: #D97706 !important;
+    color: #5B4CE2 !important;
+    -webkit-text-fill-color: #5B4CE2 !important;
     box-shadow: none !important;
-    font-size: 2.35rem !important;
-    font-weight: 700 !important;
+    font-size: 1.35rem !important;
+    font-weight: 500 !important;
     font-family: inherit !important;
     line-height: 1 !important;
     cursor: pointer !important;
@@ -657,7 +678,6 @@ div[class*="st-key-fb_rating_star_"] button:focus:not(:focus-visible) {
 }
 [data-testid="stSidebar"] .stButton > button {
     min-height: 2.8rem;
-    justify-content: flex-start;
     border-radius: 13px !important;
     padding: 0.5rem 0.75rem !important;
     font-size: 0.88rem !important;
@@ -666,6 +686,11 @@ div[class*="st-key-fb_rating_star_"] button:focus:not(:focus-visible) {
     text-align: left !important;
     white-space: normal !important;
     color: #F8FAFC !important;
+}
+[data-testid="stSidebar"] .stButton > button > div {
+    width: 100% !important;
+    justify-content: flex-start !important;
+    gap: 0.6rem !important;
 }
 [data-testid="stSidebar"] .stButton > button[kind="secondary"] {
     background: rgba(255, 255, 255, 0.07) !important;
@@ -680,7 +705,7 @@ div[class*="st-key-fb_rating_star_"] button:focus:not(:focus-visible) {
 [data-testid="stSidebar"] .stButton > button[kind="primary"] {
     background: linear-gradient(110deg, #5B4CE2 0%, #5599DF 100%) !important;
     border: 1px solid rgba(255, 255, 255, 0.14) !important;
-    box-shadow: 0 10px 22px -12px rgba(96, 165, 250, 0.9) !important;
+    box-shadow: none !important;
 }
 [data-testid="stSidebar"] .stButton > button p {
     color: inherit !important;
@@ -692,8 +717,9 @@ div[class*="st-key-fb_rating_star_"] button:focus:not(:focus-visible) {
     bottom: 0;
     z-index: 2;
     margin-top: 2rem;
-    padding-top: 0.4rem;
-    background: linear-gradient(180deg, rgba(41, 57, 116, 0.25), #2E438D 28%);
+    padding-top: 0.75rem;
+    border-top: 1px solid rgba(203, 213, 225, 0.18);
+    background: #1E2A5B;
 }
 [data-testid="stSidebar"] .st-key-sidebar-footer .stButton > button {
     background: rgba(255, 255, 255, 0.06) !important;
@@ -1199,8 +1225,8 @@ div[class*="st-key-fb_rating_star_"] button:focus:not(:focus-visible) {
     background: linear-gradient(180deg, #172554 0%, #1E2A5B 100%) !important;
 }
 
-[data-testid="stSidebar"] section[data-testid="stSidebarContent"] {
-    padding: 1.25rem 1rem 1rem !important;
+[data-testid="stSidebar"] [data-testid="stSidebarContent"] {
+    padding: 1.25rem 1.75rem 1rem !important;
 }
 
 [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] h3 {

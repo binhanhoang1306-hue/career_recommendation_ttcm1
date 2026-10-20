@@ -804,7 +804,7 @@ def render_results(r: dict):
             unsafe_allow_html=True,
         )
 
-        with st.expander("Khảo sát ngắn (không bắt buộc)"):
+        with st.expander("Khảo sát nhanh (không bắt buộc)"):
             survey_scale = [
                 "Chưa trả lời",
                 "1 - Rất thấp",
@@ -846,12 +846,26 @@ def render_results(r: dict):
 
         f_col1, f_col2 = st.columns(2, gap="medium")
         with f_col1:
-            liked_btn = st.button("Phù hợp với mình", key="fb_like", width="stretch")
+            st.button(
+                "Phù hợp với mình",
+                key="fb_like",
+                type="primary" if st.session_state.get("fb_liked") is True else "secondary",
+                width="stretch",
+                on_click=_set_feedback_choice,
+                args=(True,),
+            )
         with f_col2:
-            disliked_btn = st.button("Chưa phù hợp", key="fb_dislike", width="stretch")
+            st.button(
+                "Chưa phù hợp",
+                key="fb_dislike",
+                type="primary" if st.session_state.get("fb_liked") is False else "secondary",
+                width="stretch",
+                on_click=_set_feedback_choice,
+                args=(False,),
+            )
 
         st.markdown("**Mức độ phù hợp**")
-        st.session_state.setdefault("fb_rating", 5)
+        st.session_state.setdefault("fb_rating", 0)
         current_rating = int(st.session_state["fb_rating"])
         star_columns = st.columns([1, 1, 1, 1, 1, 14], gap="small")
         for star_value, star_column in enumerate(star_columns[:5], start=1):
@@ -867,10 +881,11 @@ def render_results(r: dict):
                     args=(star_value,),
                 )
         rating_star = int(st.session_state["fb_rating"])
-        fb_comment = st.text_input(
+        fb_comment = st.text_area(
             "Chia sẻ thêm (không bắt buộc; vui lòng không ghi thông tin cá nhân)",
             placeholder="Ví dụ: Mình muốn tìm hiểu thêm về thiết kế giao diện...",
             key="fb_comment_text",
+            height=72,
         )
         include_scores = st.checkbox(
             "Tôi đồng ý gửi kèm điểm môn học trong phản hồi để cải thiện gợi ý.",
@@ -882,16 +897,26 @@ def render_results(r: dict):
             "điểm chỉ được lưu nếu bạn chọn đồng ý ở trên."
         )
 
-        if liked_btn:
-            _send_feedback(
-                d, top, liked=True, rating=rating_star, comment=fb_comment,
-                survey=survey, include_scores=include_scores,
-            )
-        elif disliked_btn:
-            _send_feedback(
-                d, top, liked=False, rating=rating_star, comment=fb_comment,
-                survey=survey, include_scores=include_scores,
-            )
+        if st.button(
+            "Gửi phản hồi",
+            key="fb_submit",
+            type="primary",
+            icon=":material/arrow_forward:",
+            width="stretch",
+        ):
+            liked = st.session_state.get("fb_liked")
+            if liked is None:
+                st.warning("Vui lòng chọn phản hồi phù hợp hoặc chưa phù hợp.")
+            else:
+                _send_feedback(
+                    d, top, liked=liked, rating=rating_star or None, comment=fb_comment,
+                    survey=survey, include_scores=include_scores,
+                )
+
+
+def _set_feedback_choice(liked: bool) -> None:
+    """Remember the selected fit response until the user submits the form."""
+    st.session_state["fb_liked"] = liked
 
 
 def _set_feedback_rating(rating: int) -> None:
@@ -903,7 +928,7 @@ def _send_feedback(
     decision: dict,
     top_careers: list,
     liked: bool,
-    rating: int = 5,
+    rating: int | None = None,
     comment: str = "",
     survey: dict | None = None,
     include_scores: bool = False,
