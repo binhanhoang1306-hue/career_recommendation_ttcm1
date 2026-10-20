@@ -997,12 +997,6 @@ def render_admin_login():
 
     with st.container(key="admin-login-card", border=True):
         st.markdown(
-            "<div class='login-lock-badge'>"
-            "<svg width='28' height='28' viewBox='0 0 24 24' fill='none' stroke='#4F46E5' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'>"
-            "<rect width='18' height='11' x='3' y='11' rx='2' ry='2'></rect>"
-            "<path d='M7 11V7a5 5 0 0 1 10 0v4'></path>"
-            "</svg>"
-            "</div>"
             "<h2>Đăng nhập</h2>"
             "<p>Đăng nhập để quản lý dữ liệu phản hồi và hoạt động của hệ thống.</p>",
             unsafe_allow_html=True,

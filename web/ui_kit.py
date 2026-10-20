@@ -760,9 +760,15 @@ a[aria-label="Link to heading"],
 }
 .sidebar-admin-header {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 0.85rem;
     padding: 0.3rem 0 1.15rem;
+}
+.sidebar-admin-header > div:last-child {
+    padding-top: 0.15rem;
+}
+.sidebar-admin-header .sidebar-tagline {
+    margin-top: -0.45rem !important;
 }
 .sidebar-admin-badge {
     width: 44px;
@@ -871,10 +877,11 @@ a[aria-label="Link to heading"],
     font-weight: 750 !important;
 }
 [data-testid="stSidebar"] .stButton > button [data-testid="stIconMaterial"] {
-    background: rgba(255, 255, 255, 0.1) !important;
-    border-radius: 9px !important;
-    width: 32px !important;
-    height: 32px !important;
+    background: transparent !important;
+    border-radius: 0 !important;
+    width: auto !important;
+    height: auto !important;
+    padding: 0 !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;

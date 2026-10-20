@@ -641,6 +641,11 @@ class TestStudentSurveyUI(unittest.TestCase):
             "Thông tin đăng nhập được máy chủ API xác thực an toàn",
             " ".join(element.value for element in test_app.markdown),
         )
+        self.assertNotIn(
+            "login-lock-badge",
+            " ".join(element.value for element in test_app.markdown),
+        )
+        self.assertIn("background: transparent !important", web_app.ui.CSS)
         next(button for button in test_app.button if button.key == "btn_admin_login_home").click().run()
         self.assertEqual(test_app.session_state["view_mode"], "student")
         self.assertIn("btn_goto_admin_login", [button.key for button in test_app.button])
