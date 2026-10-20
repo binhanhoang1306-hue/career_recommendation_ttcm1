@@ -454,13 +454,6 @@ def render_student_portal(meta, error):
         catalog_error = f"Không thể tải danh mục nghề nghiệp: {exc}"
 
     with st.sidebar:
-        st.markdown(
-            "<div class='sidebar-brand'><span>CC</span><div>"
-            "<strong>Career Compass</strong>"
-            "<small>ĐỊNH HƯỚNG NGHỀ NGHIỆP</small>"
-            "</div></div>",
-            unsafe_allow_html=True,
-        )
         st.markdown("### Góc khám phá")
         st.caption("Bắt đầu từ điều bạn yêu thích và làm tốt.")
 
@@ -533,7 +526,7 @@ def render_student_portal(meta, error):
     st.markdown(ui.hero("Sinh viên"), unsafe_allow_html=True)
 
     # ------------------ BƯỚC 1: THÔNG TIN SINH VIÊN ------------------
-    profile_intro, profile_form = st.columns([0.9, 1.8], gap="large", vertical_alignment="top")
+    profile_intro, profile_form = st.columns([0.8, 2.0], gap="small", vertical_alignment="top")
     with profile_intro:
         st.markdown(
             "<div class='profile-editor-aside'>"
@@ -980,21 +973,29 @@ def _send_feedback(
 def render_admin_login():
     """Giao diện đăng nhập đồng bộ với cổng sinh viên."""
     with st.sidebar:
-        st.markdown(
-            "<div class='sidebar-brand'><span>CC</span><div>"
-            "<strong>Career Compass</strong>"
-            "<small>KHU VỰC QUẢN TRỊ</small>"
-            "</div></div>",
-            unsafe_allow_html=True,
-        )
         st.markdown("### Đăng nhập")
         st.caption("Khu vực dành cho cán bộ được cấp quyền.")
-        if st.button("Trang chủ", key="btn_admin_login_home", width="stretch"):
+        if st.button(
+            "Trang chủ",
+            key="btn_admin_login_home",
+            width="stretch",
+            icon=":material/home:",
+            type="primary",
+        ):
             st.session_state["view_mode"] = "student"
             st.session_state["explore_career_group"] = None
             st.rerun()
 
     with st.container(key="admin-login-card", border=True):
+        st.markdown(
+            "<div class='admin-login-lock' aria-hidden='true'>"
+            "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' "
+            "stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'>"
+            "<rect x='5' y='10' width='14' height='11' rx='2'/>"
+            "<path d='M8 10V7a4 4 0 0 1 8 0v3M12 14v3'/>"
+            "</svg></div>",
+            unsafe_allow_html=True,
+        )
         st.markdown("## Đăng nhập")
         st.caption("Đăng nhập để quản lý dữ liệu phản hồi và hoạt động của hệ thống.")
         with st.form("admin_login_form"):
@@ -1025,7 +1026,12 @@ def render_admin_login():
                 except requests.exceptions.RequestException as exc:
                     st.error(f"Không thể kết nối máy chủ xác thực ({type(exc).__name__}).")
 
-        st.caption("Thông tin đăng nhập được máy chủ API xác thực; không có tài khoản mặc định.")
+        st.markdown(
+            "<div class='admin-login-note'><span>ⓘ</span>"
+            "Thông tin đăng nhập được máy chủ API xác thực; không có tài khoản mặc định."
+            "</div>",
+            unsafe_allow_html=True,
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -1035,23 +1041,36 @@ def render_admin_portal(meta, error):
     """Trang Dashboard Quản Trị với đầy đủ công cụ giám sát, feedback và retrain."""
     with st.sidebar:
         st.markdown(
-            "<div class='sidebar-brand'><span>CC</span><div>"
-            "<strong>Career Compass</strong>"
-            "<small>KHU VỰC QUẢN TRỊ</small>"
-            "</div></div>",
+            "<div class='admin-sidebar-profile'>"
+            "<span class='admin-sidebar-avatar'><svg viewBox='0 0 24 24' "
+            "fill='none' stroke='currentColor' stroke-width='1.8' "
+            "stroke-linecap='round' stroke-linejoin='round'>"
+            "<path d='M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11Z'/>"
+            "<path d='m9 12 2 2 4-4'/></svg></span><span>"
+            "<strong>Quản Trị Viên</strong><small>Xin chào, <b>"
+            + ui.e(st.session_state.get("admin_api_auth", ("admin", ""))[0])
+            + "</b></small></span></div>",
             unsafe_allow_html=True,
         )
-        st.markdown("### Quản Trị Viên")
-        admin_auth = st.session_state.get("admin_api_auth", ("", ""))
-        st.caption(f"Xin chào, **{admin_auth[0]}**")
         st.markdown("---")
 
-        if st.button("Trang chủ", key="btn_admin_home", width="stretch"):
+        if st.button(
+            "Trang chủ",
+            key="btn_admin_home",
+            width="stretch",
+            icon=":material/home:",
+            type="primary",
+        ):
             st.session_state["view_mode"] = "student"
             st.session_state["explore_career_group"] = None
             st.rerun()
 
-        if st.button("Đăng Xuất", key="btn_admin_logout", width="stretch"):
+        if st.button(
+            "Đăng xuất",
+            key="btn_admin_logout",
+            width="stretch",
+            icon=":material/logout:",
+        ):
             st.session_state["admin_authenticated"] = False
             st.session_state.pop("admin_api_auth", None)
             st.session_state["view_mode"] = "student"
@@ -1060,11 +1079,17 @@ def render_admin_portal(meta, error):
 
         st.markdown("---")
         st.markdown("#### Thao tác nhanh")
-        if st.button("Làm mới dữ liệu", key="btn_refresh_admin_data", width="stretch"):
+        if st.button(
+            "Làm mới dữ liệu",
+            key="btn_refresh_admin_data",
+            width="stretch",
+            icon=":material/refresh:",
+        ):
             st.rerun()
 
-    st.markdown("## Bảng Điều Khiển Quản Trị Hệ Thống")
-    st.caption("Theo dõi hoạt động hệ thống, xem phản hồi sinh viên và cập nhật gợi ý từ ý kiến nhận được.")
+    with st.container(key="admin-page-header"):
+        st.markdown("## Bảng Điều Khiển Quản Trị Hệ Thống")
+        st.caption("Theo dõi hoạt động hệ thống, xem phản hồi sinh viên và cập nhật gợi ý từ ý kiến nhận được.")
 
     stats = fetch_admin_stats() or {}
 
@@ -1085,12 +1110,22 @@ def render_admin_portal(meta, error):
 
     # Tab 1: Tổng quan hệ thống
     with tab_overview:
-        st.markdown("#### Lưu giữ và dọn dữ liệu")
-        st.caption(
-            "Phản hồi được giữ 120 ngày; nhật ký tư vấn và tương tác được giữ 60 ngày. "
-            "Dọn dữ liệu không tự huấn luyện lại model."
-        )
-        if st.button("Dọn dữ liệu đã quá hạn ngay", key="run_retention_cleanup"):
+        with st.container(border=True, key="retention-card"):
+            retention_info, retention_action = st.columns([3.5, 1.2], gap="small")
+            with retention_info:
+                st.markdown("#### Lưu giữ và dọn dữ liệu")
+                st.caption(
+                    "Phản hồi được giữ 120 ngày; nhật ký tư vấn và tương tác được giữ 60 ngày. "
+                    "Dọn dữ liệu không tự huấn luyện lại model."
+                )
+            with retention_action:
+                st.markdown("<div class='retention-action-spacer'></div>", unsafe_allow_html=True)
+                cleanup_clicked = st.button(
+                    "Dọn dữ liệu đã quá hạn ngay",
+                    key="run_retention_cleanup",
+                    width="stretch",
+                )
+        if cleanup_clicked:
             cleanup_result = _admin_request(
                 "POST", "/admin/maintenance/retention", timeout=30
             )
@@ -1112,8 +1147,10 @@ def render_admin_portal(meta, error):
                 st.markdown("#### Các nhóm ngành được tư vấn")
                 group_dist = stats.get("group_distribution", {})
                 if group_dist:
-                    df_dist = pd.DataFrame(list(group_dist.items()), columns=["Nhóm ngành", "Số lượt"])
-                    st.bar_chart(df_dist.set_index("Nhóm ngành"), width="stretch")
+                    st.markdown(
+                        ui.group_distribution_chart(group_dist),
+                        unsafe_allow_html=True,
+                    )
                 else:
                     st.info("Chưa có đủ lượt tư vấn để hiển thị.")
 
@@ -1121,40 +1158,39 @@ def render_admin_portal(meta, error):
     with tab_feedbacks:
         survey = stats.get("student_survey", {})
         survey_count = survey.get("response_count", 0)
-        st.markdown("#### Khảo sát trải nghiệm sau gợi ý")
-        survey_cols = st.columns(4)
-        survey_cols[0].metric("Phiếu có trả lời", survey_count)
-        relevance_avg = survey.get("average_relevance")
-        survey_cols[1].metric(
-            "Phù hợp mối quan tâm",
-            f"{relevance_avg:.2f}/5" if relevance_avg is not None else "Chưa có",
-            (
-                f"Số phiếu: {survey.get('relevance_count', 0)} · "
-                f"{survey.get('relevance_positive_pct', 0):.1f}% đánh giá tích cực"
-                if relevance_avg is not None else None
-            ),
-            delta_color="off",
-        )
-        usefulness_avg = survey.get("average_usefulness")
-        survey_cols[2].metric(
-            "Mức hữu ích",
-            f"{usefulness_avg:.2f}/5" if usefulness_avg is not None else "Chưa có",
-            (
-                f"Số phiếu: {survey.get('usefulness_count', 0)} · "
-                f"{survey.get('usefulness_positive_pct', 0):.1f}% đánh giá tích cực"
-                if usefulness_avg is not None else None
-            ),
-            delta_color="off",
-        )
-        intent_pct = survey.get("explore_intent_yes_pct")
-        survey_cols[3].metric(
-            "Có ý định tìm hiểu",
-            f"{intent_pct:.1f}%" if intent_pct is not None else "Chưa có",
-            (
-                f"Số phiếu: {survey.get('intent_count', 0)}"
-            ),
-            delta_color="off",
-        )
+        with st.container(border=True, key="admin-survey-card"):
+            st.markdown("#### Khảo sát trải nghiệm sau gợi ý")
+            survey_cols = st.columns(4)
+            survey_cols[0].metric("Phiếu có trả lời", survey_count)
+            relevance_avg = survey.get("average_relevance")
+            survey_cols[1].metric(
+                "Phù hợp mối quan tâm",
+                f"{relevance_avg:.2f}/5" if relevance_avg is not None else "Chưa có",
+                (
+                    f"Số phiếu: {survey.get('relevance_count', 0)} · "
+                    f"{survey.get('relevance_positive_pct', 0):.1f}% đánh giá tích cực"
+                    if relevance_avg is not None else None
+                ),
+                delta_color="off",
+            )
+            usefulness_avg = survey.get("average_usefulness")
+            survey_cols[2].metric(
+                "Mức hữu ích",
+                f"{usefulness_avg:.2f}/5" if usefulness_avg is not None else "Chưa có",
+                (
+                    f"Số phiếu: {survey.get('usefulness_count', 0)} · "
+                    f"{survey.get('usefulness_positive_pct', 0):.1f}% đánh giá tích cực"
+                    if usefulness_avg is not None else None
+                ),
+                delta_color="off",
+            )
+            intent_pct = survey.get("explore_intent_yes_pct")
+            survey_cols[3].metric(
+                "Có ý định tìm hiểu",
+                f"{intent_pct:.1f}%" if intent_pct is not None else "Chưa có",
+                f"Số phiếu: {survey.get('intent_count', 0)}",
+                delta_color="off",
+            )
         if survey_count < survey.get("minimum_recommended_sample", 20):
             st.info(
                 f"Hiện có {survey_count} phiếu. Nên chờ ít nhất "
@@ -1232,22 +1268,23 @@ def render_admin_portal(meta, error):
 
     # Tab 3: Lịch sử tư vấn
     with tab_logs:
-        st.markdown("#### Các lượt tư vấn gần đây")
-        logs_list = fetch_admin_logs(limit=100)
-        if logs_list:
-            logs_df_data = []
-            for l in logs_list:
-                logs_df_data.append({
-                    "Thời gian": l.get("timestamp", "")[:19].replace("T", " "),
-                    "Nhóm được gợi ý": l.get("predicted_group", ""),
-                    "Mức dự đoán": f"{float(l.get('top_probability', 0)) * 100:.1f}%",
-                    "Thời gian phản hồi": f"{l.get('latency_ms', 0) / 1000:.2f} giây",
-                    "Thông tin môn học": "Còn thiếu môn" if l.get("is_partial") else "Đủ 12 môn",
-                    "Phiên bản": f"v{l.get('model_version', '1.0')}",
-                })
-            st.dataframe(pd.DataFrame(logs_df_data), width="stretch", hide_index=True)
-        else:
-            st.info("Chưa có lượt tư vấn nào được ghi nhận.")
+        with st.container(border=True, key="admin-logs-card"):
+            st.markdown("#### Các lượt tư vấn gần đây")
+            logs_list = fetch_admin_logs(limit=100)
+            if logs_list:
+                logs_df_data = []
+                for l in logs_list:
+                    logs_df_data.append({
+                        "Thời gian": l.get("timestamp", "")[:19].replace("T", " "),
+                        "Nhóm được gợi ý": l.get("predicted_group", ""),
+                        "Mức dự đoán": f"{float(l.get('top_probability', 0)) * 100:.1f}%",
+                        "Thời gian phản hồi": f"{l.get('latency_ms', 0) / 1000:.2f} giây",
+                        "Thông tin môn học": "Còn thiếu môn" if l.get("is_partial") else "Đủ 12 môn",
+                        "Phiên bản": f"v{l.get('model_version', '1.0')}",
+                    })
+                st.dataframe(pd.DataFrame(logs_df_data), width="stretch", hide_index=True)
+            else:
+                st.info("Chưa có lượt tư vấn nào được ghi nhận.")
 
     # Tab 4: Cập nhật hệ thống từ phản hồi
     with tab_retrain:
@@ -1257,11 +1294,12 @@ def render_admin_portal(meta, error):
         Phiên bản mới chỉ được sử dụng khi vượt qua bước kiểm tra chất lượng; nếu không, phiên bản hiện tại được giữ nguyên.
         """)
 
-        with st.container(border=True):
+        with st.container(border=True, key="retrain-panel"):
             st.markdown("**Bắt đầu cập nhật:**")
-            col_rt1, col_rt2 = st.columns([1.5, 2.5])
+            col_rt1, col_rt2 = st.columns([2, 1], vertical_alignment="center")
             with col_rt1:
                 force_retrain = st.checkbox("Bỏ qua số phản hồi tối thiểu", value=False)
+            with col_rt2:
                 trigger_btn = st.button("Cập nhật từ phản hồi", type="primary", width="stretch")
 
             if trigger_btn:
