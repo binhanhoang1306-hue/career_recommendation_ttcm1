@@ -478,15 +478,15 @@ def render_student_portal(meta, error):
                         st.session_state["explore_career_group"] = group
                         st.rerun()
 
-            with st.container(key="sidebar-footer"):
-                if st.button(
-                    "Đăng nhập",
-                    key="btn_goto_admin_login",
-                    width="stretch",
-                    icon=":material/login:",
-                ):
-                    st.session_state["view_mode"] = "admin"
-                    st.rerun()
+        with st.container(key="sidebar-footer"):
+            if st.button(
+                "Đăng nhập",
+                key="btn_goto_admin_login",
+                width="stretch",
+                icon=":material/login:",
+            ):
+                st.session_state["view_mode"] = "admin"
+                st.rerun()
 
     selected_group = st.session_state.get("explore_career_group")
     if selected_group:

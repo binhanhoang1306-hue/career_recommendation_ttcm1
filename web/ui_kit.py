@@ -681,7 +681,7 @@ a[aria-label="Link to heading"],
     display: none !important;
 }
 [data-testid="stSidebar"] [data-testid="stSidebarContent"] {
-    padding: 0.5rem 1.6rem 1rem !important;
+    padding: 0 1.6rem 1rem !important;
     overflow: hidden !important;
 }
 [data-testid="stSidebar"] [data-testid="stLayoutWrapper"]:has(> .st-key-sidebar-sticky-top) {
@@ -690,14 +690,17 @@ a[aria-label="Link to heading"],
 .st-key-sidebar-sticky-top {
     position: relative;
     margin: 0;
-    padding: 0.5rem 0 0.75rem;
+    padding: 0.25rem 0 0.5rem;
 }
 .st-key-sidebar-menu-scroll {
-    max-height: max(7rem, calc(100vh - 14rem));
+    max-height: max(3rem, calc(100vh - 24rem));
     overflow-y: auto;
     overscroll-behavior: contain;
     scrollbar-width: thin;
     scrollbar-color: rgba(255, 255, 255, 0.24) transparent;
+}
+.st-key-sidebar-footer {
+    margin-top: 0.25rem;
 }
 [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] h1,
 [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] h2,
