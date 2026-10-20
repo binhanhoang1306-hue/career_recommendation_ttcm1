@@ -663,8 +663,18 @@ a[aria-label="Link to heading"],
     width: 0 !important;
 }
 
+[data-testid="stSidebar"] [data-testid="stSidebarHeader"] {
+    height: 2.5rem !important;
+    min-height: 2.5rem !important;
+    margin-bottom: 0 !important;
+    padding: 0 !important;
+    justify-content: flex-end !important;
+}
+[data-testid="stSidebar"] [data-testid="stLogoSpacer"] {
+    display: none !important;
+}
 [data-testid="stSidebar"] [data-testid="stSidebarContent"] {
-    padding: 1.4rem 1.6rem 1rem !important;
+    padding: 0.5rem 1.6rem 1rem !important;
 }
 [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] h1,
 [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] h2,
