@@ -426,24 +426,24 @@ def render_student_portal(meta, error):
         catalog_error = f"Không thể tải danh mục nghề nghiệp: {exc}"
 
     with st.sidebar:
-        st.markdown(
-            "<div class='sidebar-header'>"
-            "<h2 class='sidebar-title'>Góc khám phá</h2>"
-            "<p class='sidebar-tagline'>Bắt đầu từ điều bạn yêu thích và làm tốt.</p>"
-            "</div>",
-            unsafe_allow_html=True,
-        )
-
         selected_group = st.session_state.get("explore_career_group")
-        if st.button(
-            "Trang chủ",
-            key="btn_student_home",
-            type="primary" if selected_group is None else "secondary",
-            width="stretch",
-            icon=":material/home:",
-        ):
-            st.session_state["explore_career_group"] = None
-            st.rerun()
+        with st.container(key="sidebar-sticky-top"):
+            st.markdown(
+                "<div class='sidebar-header'>"
+                "<h2 class='sidebar-title'>Góc khám phá</h2>"
+                "<p class='sidebar-tagline'>Bắt đầu từ điều bạn yêu thích và làm tốt.</p>"
+                "</div>",
+                unsafe_allow_html=True,
+            )
+            if st.button(
+                "Trang chủ",
+                key="btn_student_home",
+                type="primary" if selected_group is None else "secondary",
+                width="stretch",
+                icon=":material/home:",
+            ):
+                st.session_state["explore_career_group"] = None
+                st.rerun()
 
         st.markdown("---")
         st.markdown("#### Khám phá thử", help="Chọn nhóm nghề để xem các lựa chọn và thông tin tham khảo.")
@@ -982,17 +982,18 @@ def _send_feedback(
 def render_admin_login():
     """Giao diện đăng nhập đồng bộ với cổng sinh viên."""
     with st.sidebar:
-        st.markdown(
-            "<div class='sidebar-header'>"
-            "<h2 class='sidebar-title'>Đăng nhập</h2>"
-            "<p class='sidebar-tagline'>Khu vực dành cho cán bộ được cấp quyền.</p>"
-            "</div>",
-            unsafe_allow_html=True,
-        )
-        if st.button("Trang chủ", key="btn_admin_login_home", width="stretch", icon=":material/home:"):
-            st.session_state["view_mode"] = "student"
-            st.session_state["explore_career_group"] = None
-            st.rerun()
+        with st.container(key="sidebar-sticky-top"):
+            st.markdown(
+                "<div class='sidebar-header'>"
+                "<h2 class='sidebar-title'>Đăng nhập</h2>"
+                "<p class='sidebar-tagline'>Khu vực dành cho cán bộ được cấp quyền.</p>"
+                "</div>",
+                unsafe_allow_html=True,
+            )
+            if st.button("Trang chủ", key="btn_admin_login_home", width="stretch", icon=":material/home:"):
+                st.session_state["view_mode"] = "student"
+                st.session_state["explore_career_group"] = None
+                st.rerun()
 
     with st.container(key="admin-login-card", border=True):
         st.markdown(
@@ -1034,19 +1035,6 @@ def render_admin_login():
                 except requests.exceptions.RequestException as exc:
                     st.error(f"Không thể kết nối máy chủ xác thực ({type(exc).__name__}).")
 
-        st.markdown(
-            "<div class='login-info-box'>"
-            "<svg width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='#4F46E5' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'>"
-            "<circle cx='12' cy='12' r='10'></circle>"
-            "<line x1='12' y1='16' x2='12' y2='12'></line>"
-            "<line x1='12' y1='8' x2='12.01' y2='8'></line>"
-            "</svg>"
-            "<span>Thông tin đăng nhập được máy chủ API xác thực an toàn; không có tài khoản mặc định.</span>"
-            "</div>",
-            unsafe_allow_html=True,
-        )
-
-
 # ---------------------------------------------------------------------------
 # 3. BẢNG ĐIỀU KHIỂN QUẢN TRỊ VIÊN (ADMIN PORTAL DASHBOARD)
 # ---------------------------------------------------------------------------
@@ -1055,28 +1043,29 @@ def render_admin_portal(meta, error):
     with st.sidebar:
         admin_auth = st.session_state.get("admin_api_auth", ("", ""))
         admin_user = html.escape(admin_auth[0]) if admin_auth[0] else "Quản trị viên"
-        st.markdown(
-            "<div class='sidebar-header'>"
-            "<div class='sidebar-admin-header'>"
-            "<div class='sidebar-admin-badge'>"
-            "<svg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='#FFFFFF' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'>"
-            "<path d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'></path>"
-            "</svg>"
-            "</div>"
-            "<div>"
-            f"<h2 class='sidebar-title' style='margin:0;font-size:1.15rem'>Quản Trị Viên</h2>"
-            f"<p class='sidebar-tagline' style='margin:0'>Xin chào, {admin_user}</p>"
-            "</div>"
-            "</div>"
-            "</div>",
-            unsafe_allow_html=True,
-        )
-        st.markdown("---")
+        with st.container(key="sidebar-sticky-top"):
+            st.markdown(
+                "<div class='sidebar-header'>"
+                "<div class='sidebar-admin-header'>"
+                "<div class='sidebar-admin-badge'>"
+                "<svg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='#FFFFFF' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'>"
+                "<path d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'></path>"
+                "</svg>"
+                "</div>"
+                "<div>"
+                f"<h2 class='sidebar-title' style='margin:0;font-size:1.15rem'>Quản Trị Viên</h2>"
+                f"<p class='sidebar-tagline' style='margin:0'>Xin chào, {admin_user}</p>"
+                "</div>"
+                "</div>"
+                "</div>",
+                unsafe_allow_html=True,
+            )
+            st.markdown("---")
 
-        if st.button("Trang chủ", key="btn_admin_home", width="stretch", icon=":material/home:"):
-            st.session_state["view_mode"] = "student"
-            st.session_state["explore_career_group"] = None
-            st.rerun()
+            if st.button("Trang chủ", key="btn_admin_home", width="stretch", icon=":material/home:"):
+                st.session_state["view_mode"] = "student"
+                st.session_state["explore_career_group"] = None
+                st.rerun()
 
         if st.button("Đăng Xuất", key="btn_admin_logout", width="stretch", icon=":material/logout:"):
             st.session_state["admin_authenticated"] = False
