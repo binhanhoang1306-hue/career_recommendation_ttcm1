@@ -1,0 +1,260 @@
+{
+  "model_version": "1.0.33",
+  "exported_at": "2026-10-20T16:03:55",
+  "algorithm": "Logistic Regression (multinomial) + temperature calibration",
+  "framework": "scikit-learn",
+  "sklearn_version": "1.9.0",
+  "pipeline_steps": [
+    "model"
+  ],
+  "input_schema": {
+    "feature_count": 12,
+    "feature_order": [
+      "sec",
+      "se",
+      "linux",
+      "db",
+      "graphics",
+      "network",
+      "analysis",
+      "image",
+      "java",
+      "csharp",
+      "web",
+      "ai"
+    ],
+    "features": [
+      {
+        "feature_key": "sec",
+        "subject_name": "An toàn và bảo mật HTTT",
+        "data_type": "float",
+        "min_value": 0.0,
+        "max_value": 10.0,
+        "required": true,
+        "unit": "thang điểm 10"
+      },
+      {
+        "feature_key": "se",
+        "subject_name": "Công nghệ phần mềm",
+        "data_type": "float",
+        "min_value": 0.0,
+        "max_value": 10.0,
+        "required": true,
+        "unit": "thang điểm 10"
+      },
+      {
+        "feature_key": "linux",
+        "subject_name": "Hệ điều hành Linux",
+        "data_type": "float",
+        "min_value": 0.0,
+        "max_value": 10.0,
+        "required": true,
+        "unit": "thang điểm 10"
+      },
+      {
+        "feature_key": "db",
+        "subject_name": "Hệ quản trị CSDL",
+        "data_type": "float",
+        "min_value": 0.0,
+        "max_value": 10.0,
+        "required": true,
+        "unit": "thang điểm 10"
+      },
+      {
+        "feature_key": "graphics",
+        "subject_name": "Kỹ thuật đồ hoạ máy tính",
+        "data_type": "float",
+        "min_value": 0.0,
+        "max_value": 10.0,
+        "required": true,
+        "unit": "thang điểm 10"
+      },
+      {
+        "feature_key": "network",
+        "subject_name": "Mạng máy tính",
+        "data_type": "float",
+        "min_value": 0.0,
+        "max_value": 10.0,
+        "required": true,
+        "unit": "thang điểm 10"
+      },
+      {
+        "feature_key": "analysis",
+        "subject_name": "Phân tích thiết kế HTTT",
+        "data_type": "float",
+        "min_value": 0.0,
+        "max_value": 10.0,
+        "required": true,
+        "unit": "thang điểm 10"
+      },
+      {
+        "feature_key": "image",
+        "subject_name": "Xử lý ảnh",
+        "data_type": "float",
+        "min_value": 0.0,
+        "max_value": 10.0,
+        "required": true,
+        "unit": "thang điểm 10"
+      },
+      {
+        "feature_key": "java",
+        "subject_name": "Công nghệ Java",
+        "data_type": "float",
+        "min_value": 0.0,
+        "max_value": 10.0,
+        "required": true,
+        "unit": "thang điểm 10"
+      },
+      {
+        "feature_key": "csharp",
+        "subject_name": "Ngôn ngữ C# và công nghệ .NET",
+        "data_type": "float",
+        "min_value": 0.0,
+        "max_value": 10.0,
+        "required": true,
+        "unit": "thang điểm 10"
+      },
+      {
+        "feature_key": "web",
+        "subject_name": "Công nghệ web",
+        "data_type": "float",
+        "min_value": 0.0,
+        "max_value": 10.0,
+        "required": true,
+        "unit": "thang điểm 10"
+      },
+      {
+        "feature_key": "ai",
+        "subject_name": "Trí tuệ nhân tạo",
+        "data_type": "float",
+        "min_value": 0.0,
+        "max_value": 10.0,
+        "required": true,
+        "unit": "thang điểm 10"
+      }
+    ]
+  },
+  "target_schema": {
+    "target_column": "career_group",
+    "class_count": 7,
+    "classes": [
+      "An toàn thông tin",
+      "Dữ liệu & AI",
+      "Hạ tầng & Bảo mật",
+      "Kiểm thử & Quản lý dự án",
+      "Phát triển Web",
+      "Phát triển phần mềm",
+      "Đồ họa & Game"
+    ]
+  },
+  "evaluation_metrics": {
+    "accuracy": null,
+    "precision": null,
+    "recall": null,
+    "f1_test": null,
+    "f1_cv_5fold_mean": 0.8454,
+    "f1_cv_5fold_std": 0.0209,
+    "cv_strategy": "StratifiedKFold(n_splits=5, shuffle=True, random_state=42)",
+    "brier_score_cv": 0.2064,
+    "log_loss_cv": 0.3971,
+    "expected_calibration_error_cv": 0.0595,
+    "uncalibrated_brier_score_cv": 0.2487,
+    "uncalibrated_log_loss_cv": 0.4846,
+    "uncalibrated_expected_calibration_error_cv": 0.1345,
+    "calibration_method": "temperature",
+    "calibration_cv_folds": 5,
+    "calibration_temperature": 0.499,
+    "calibration_target": "available_training_labels"
+  },
+  "training_dataset_summary": {
+    "total_samples": 357,
+    "derived_samples": 355,
+    "feedback_samples": 2
+  },
+  "baseline_feature_stats": {
+    "sec": {
+      "mean": 7.606,
+      "std": 1.177,
+      "min": 0.0,
+      "max": 10.0,
+      "subject_name": "An toàn và bảo mật HTTT"
+    },
+    "se": {
+      "mean": 7.389,
+      "std": 1.288,
+      "min": 0.0,
+      "max": 10.0,
+      "subject_name": "Công nghệ phần mềm"
+    },
+    "linux": {
+      "mean": 8.037,
+      "std": 1.596,
+      "min": 0.0,
+      "max": 10.0,
+      "subject_name": "Hệ điều hành Linux"
+    },
+    "db": {
+      "mean": 7.601,
+      "std": 1.202,
+      "min": 0.0,
+      "max": 9.7,
+      "subject_name": "Hệ quản trị CSDL"
+    },
+    "graphics": {
+      "mean": 8.331,
+      "std": 1.477,
+      "min": 0.0,
+      "max": 10.0,
+      "subject_name": "Kỹ thuật đồ hoạ máy tính"
+    },
+    "network": {
+      "mean": 7.259,
+      "std": 1.059,
+      "min": 0.0,
+      "max": 10.0,
+      "subject_name": "Mạng máy tính"
+    },
+    "analysis": {
+      "mean": 7.439,
+      "std": 1.041,
+      "min": 1.6,
+      "max": 10.0,
+      "subject_name": "Phân tích thiết kế HTTT"
+    },
+    "image": {
+      "mean": 7.304,
+      "std": 1.417,
+      "min": 0.0,
+      "max": 10.0,
+      "subject_name": "Xử lý ảnh"
+    },
+    "java": {
+      "mean": 7.566,
+      "std": 1.168,
+      "min": 2.0,
+      "max": 10.0,
+      "subject_name": "Công nghệ Java"
+    },
+    "csharp": {
+      "mean": 7.618,
+      "std": 1.375,
+      "min": 0.0,
+      "max": 10.0,
+      "subject_name": "Ngôn ngữ C# và công nghệ .NET"
+    },
+    "web": {
+      "mean": 7.66,
+      "std": 1.428,
+      "min": 0.0,
+      "max": 10.0,
+      "subject_name": "Công nghệ web"
+    },
+    "ai": {
+      "mean": 7.669,
+      "std": 1.294,
+      "min": 0.7,
+      "max": 10.0,
+      "subject_name": "Trí tuệ nhân tạo"
+    }
+  }
+}
