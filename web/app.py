@@ -58,7 +58,7 @@ start_backend()
 st.set_page_config(
     page_title="AI Career Compass — Cổng Định Hướng Nghề Nghiệp CNTT",
     layout="wide",
-    initial_sidebar_state="collapsed",
+    initial_sidebar_state="expanded",
 )
 
 api_url = os.environ.get("API_URL")
@@ -454,6 +454,13 @@ def render_student_portal(meta, error):
         catalog_error = f"Không thể tải danh mục nghề nghiệp: {exc}"
 
     with st.sidebar:
+        st.markdown(
+            "<div class='sidebar-brand'><span>CC</span><div>"
+            "<strong>Career Compass</strong>"
+            "<small>ĐỊNH HƯỚNG NGHỀ NGHIỆP</small>"
+            "</div></div>",
+            unsafe_allow_html=True,
+        )
         st.markdown("### Góc khám phá")
         st.caption("Bắt đầu từ điều bạn yêu thích và làm tốt.")
 
@@ -973,6 +980,13 @@ def _send_feedback(
 def render_admin_login():
     """Giao diện đăng nhập đồng bộ với cổng sinh viên."""
     with st.sidebar:
+        st.markdown(
+            "<div class='sidebar-brand'><span>CC</span><div>"
+            "<strong>Career Compass</strong>"
+            "<small>KHU VỰC QUẢN TRỊ</small>"
+            "</div></div>",
+            unsafe_allow_html=True,
+        )
         st.markdown("### Đăng nhập")
         st.caption("Khu vực dành cho cán bộ được cấp quyền.")
         if st.button("Trang chủ", key="btn_admin_login_home", width="stretch"):
@@ -1020,6 +1034,13 @@ def render_admin_login():
 def render_admin_portal(meta, error):
     """Trang Dashboard Quản Trị với đầy đủ công cụ giám sát, feedback và retrain."""
     with st.sidebar:
+        st.markdown(
+            "<div class='sidebar-brand'><span>CC</span><div>"
+            "<strong>Career Compass</strong>"
+            "<small>KHU VỰC QUẢN TRỊ</small>"
+            "</div></div>",
+            unsafe_allow_html=True,
+        )
         st.markdown("### Quản Trị Viên")
         admin_auth = st.session_state.get("admin_api_auth", ("", ""))
         st.caption(f"Xin chào, **{admin_auth[0]}**")
