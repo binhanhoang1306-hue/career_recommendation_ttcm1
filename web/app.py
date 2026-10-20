@@ -427,14 +427,12 @@ def render_student_portal(meta, error):
 
     with st.sidebar:
         st.markdown(
-            "<div class='sidebar-brand'><span>CC</span><div>"
-            "<strong>Career Compass</strong>"
-            "<small>ĐỊNH HƯỚNG NGHỀ NGHIỆP</small>"
-            "</div></div>",
+            "<div class='sidebar-header'>"
+            "<h2 class='sidebar-title'>Góc khám phá</h2>"
+            "<p class='sidebar-tagline'>Bắt đầu từ điều bạn yêu thích và làm tốt.</p>"
+            "</div>",
             unsafe_allow_html=True,
         )
-        st.markdown("### Góc khám phá")
-        st.caption("Bắt đầu từ điều bạn yêu thích và làm tốt.")
 
         selected_group = st.session_state.get("explore_career_group")
         if st.button(
@@ -637,7 +635,11 @@ def render_student_portal(meta, error):
 
         user_skills = {}
         with col_skills:
-            st.markdown("**Bạn tự tin nhất ở điểm nào?**")
+            st.markdown(
+                "<div class='sub-column-title'><span class='bar-accent'></span><strong>Kỹ năng tự tin</strong></div>"
+                "<div class='sub-column-desc'>Bạn tự tin nhất ở điểm nào?</div>",
+                unsafe_allow_html=True,
+            )
             cols_s = st.columns(2)
             for idx, sk in enumerate(soft_skills_cfg):
                 sk_key = sk["key"]
@@ -657,7 +659,11 @@ def render_student_portal(meta, error):
                     user_skills[sk_key] = chosen_key
 
         with col_interests:
-            st.markdown("**Lĩnh vực nào khiến bạn tò mò?**")
+            st.markdown(
+                "<div class='sub-column-title'><span class='bar-accent'></span><strong>Lĩnh vực yêu thích</strong></div>"
+                "<div class='sub-column-desc'>Lĩnh vực nào khiến bạn tò mò?</div>",
+                unsafe_allow_html=True,
+            )
             interest_options = meta.get("interest_options", [])
             saved_interests = [i for i in st.session_state.get("selected_interests", []) if i in interest_options]
 
@@ -681,7 +687,7 @@ def render_student_portal(meta, error):
 
     # ------------------ NÚT HÀNH ĐỘNG PHÂN TÍCH ------------------
     st.write("")
-    submit_button = st.button("Khám phá hướng đi phù hợp", type="primary", width="stretch")
+    submit_button = st.button("Khám phá hướng đi phù hợp", type="primary", width="stretch", icon=":material/arrow_forward:")
 
     if submit_button:
         payload = {
@@ -978,22 +984,29 @@ def render_admin_login():
     """Giao diện đăng nhập đồng bộ với cổng sinh viên."""
     with st.sidebar:
         st.markdown(
-            "<div class='sidebar-brand'><span>CC</span><div>"
-            "<strong>Career Compass</strong>"
-            "<small>KHU VỰC QUẢN TRỊ</small>"
-            "</div></div>",
+            "<div class='sidebar-header'>"
+            "<h2 class='sidebar-title'>Đăng nhập</h2>"
+            "<p class='sidebar-tagline'>Khu vực dành cho cán bộ được cấp quyền.</p>"
+            "</div>",
             unsafe_allow_html=True,
         )
-        st.markdown("### Đăng nhập")
-        st.caption("Khu vực dành cho cán bộ được cấp quyền.")
-        if st.button("Trang chủ", key="btn_admin_login_home", width="stretch"):
+        if st.button("Trang chủ", key="btn_admin_login_home", width="stretch", icon=":material/home:"):
             st.session_state["view_mode"] = "student"
             st.session_state["explore_career_group"] = None
             st.rerun()
 
     with st.container(key="admin-login-card", border=True):
-        st.markdown("## Đăng nhập")
-        st.caption("Đăng nhập để quản lý dữ liệu phản hồi và hoạt động của hệ thống.")
+        st.markdown(
+            "<div class='login-lock-badge'>"
+            "<svg width='28' height='28' viewBox='0 0 24 24' fill='none' stroke='#4F46E5' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'>"
+            "<rect width='18' height='11' x='3' y='11' rx='2' ry='2'></rect>"
+            "<path d='M7 11V7a5 5 0 0 1 10 0v4'></path>"
+            "</svg>"
+            "</div>"
+            "<h2>Đăng nhập</h2>"
+            "<p>Đăng nhập để quản lý dữ liệu phản hồi và hoạt động của hệ thống.</p>",
+            unsafe_allow_html=True,
+        )
         with st.form("admin_login_form"):
             username_input = st.text_input("Tên đăng nhập", value="", placeholder="Nhập tên đăng nhập")
             password_input = st.text_input("Mật khẩu", type="password", placeholder="Nhập mật khẩu")
@@ -1022,7 +1035,17 @@ def render_admin_login():
                 except requests.exceptions.RequestException as exc:
                     st.error(f"Không thể kết nối máy chủ xác thực ({type(exc).__name__}).")
 
-        st.caption("Thông tin đăng nhập được máy chủ API xác thực; không có tài khoản mặc định.")
+        st.markdown(
+            "<div class='login-info-box'>"
+            "<svg width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='#4F46E5' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'>"
+            "<circle cx='12' cy='12' r='10'></circle>"
+            "<line x1='12' y1='16' x2='12' y2='12'></line>"
+            "<line x1='12' y1='8' x2='12.01' y2='8'></line>"
+            "</svg>"
+            "<span>Thông tin đăng nhập được máy chủ API xác thực an toàn; không có tài khoản mặc định.</span>"
+            "</div>",
+            unsafe_allow_html=True,
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -1031,24 +1054,32 @@ def render_admin_login():
 def render_admin_portal(meta, error):
     """Trang Dashboard Quản Trị với đầy đủ công cụ giám sát, feedback và retrain."""
     with st.sidebar:
+        admin_auth = st.session_state.get("admin_api_auth", ("", ""))
+        admin_user = html.escape(admin_auth[0]) if admin_auth[0] else "Quản trị viên"
         st.markdown(
-            "<div class='sidebar-brand'><span>CC</span><div>"
-            "<strong>Career Compass</strong>"
-            "<small>KHU VỰC QUẢN TRỊ</small>"
-            "</div></div>",
+            "<div class='sidebar-header'>"
+            "<div class='sidebar-admin-header'>"
+            "<div class='sidebar-admin-badge'>"
+            "<svg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='#FFFFFF' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'>"
+            "<path d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'></path>"
+            "</svg>"
+            "</div>"
+            "<div>"
+            f"<h2 class='sidebar-title' style='margin:0;font-size:1.15rem'>Quản Trị Viên</h2>"
+            f"<p class='sidebar-tagline' style='margin:0'>Xin chào, {admin_user}</p>"
+            "</div>"
+            "</div>"
+            "</div>",
             unsafe_allow_html=True,
         )
-        st.markdown("### Quản Trị Viên")
-        admin_auth = st.session_state.get("admin_api_auth", ("", ""))
-        st.caption(f"Xin chào, **{admin_auth[0]}**")
         st.markdown("---")
 
-        if st.button("Trang chủ", key="btn_admin_home", width="stretch"):
+        if st.button("Trang chủ", key="btn_admin_home", width="stretch", icon=":material/home:"):
             st.session_state["view_mode"] = "student"
             st.session_state["explore_career_group"] = None
             st.rerun()
 
-        if st.button("Đăng Xuất", key="btn_admin_logout", width="stretch"):
+        if st.button("Đăng Xuất", key="btn_admin_logout", width="stretch", icon=":material/logout:"):
             st.session_state["admin_authenticated"] = False
             st.session_state.pop("admin_api_auth", None)
             st.session_state["view_mode"] = "student"
@@ -1057,7 +1088,7 @@ def render_admin_portal(meta, error):
 
         st.markdown("---")
         st.markdown("#### Thao tác nhanh")
-        if st.button("Làm mới dữ liệu", key="btn_refresh_admin_data", width="stretch"):
+        if st.button("Làm mới dữ liệu", key="btn_refresh_admin_data", width="stretch", icon=":material/refresh:"):
             st.rerun()
 
     st.markdown("## Bảng Điều Khiển Quản Trị Hệ Thống")
@@ -1067,10 +1098,10 @@ def render_admin_portal(meta, error):
 
     # 4 Thẻ KPI thống kê nhanh
     st.markdown("<div class='kpi-grid'>"
-                + ui.kpi_card("LƯỢT TƯ VẤN ĐÃ THỰC HIỆN", str(stats.get('total_predictions', 0)))
-                + ui.kpi_card("PHẢN HỒI ĐÃ NHẬN", str(stats.get('total_feedbacks', 0)))
-                + ui.kpi_card("MỨC HÀI LÒNG", f"{stats.get('feedback_satisfaction_pct', 0)}%")
-                + ui.kpi_card("THỜI GIAN PHẢN HỒI TRUNG BÌNH", f"{stats.get('avg_latency_ms', 0) / 1000:.2f} giây")
+                + ui.kpi_card("LƯỢT TƯ VẤN ĐÃ THỰC HIỆN", str(stats.get('total_predictions', 0)), "Tổng số phiên tư vấn DSS", "bar")
+                + ui.kpi_card("PHẢN HỒI ĐÃ NHẬN", str(stats.get('total_feedbacks', 0)), "Ý kiến từ sinh viên", "mail")
+                + ui.kpi_card("MỨC HÀI LÒNG", f"{stats.get('feedback_satisfaction_pct', 0)}%", "Đánh giá tích cực", "smile")
+                + ui.kpi_card("THỜI GIAN PHẢN HỒI", f"{stats.get('avg_latency_ms', 0) / 1000:.2f}s", "Độ trễ trung bình", "clock")
                 + "</div>", unsafe_allow_html=True)
 
     tab_overview, tab_feedbacks, tab_logs, tab_retrain = st.tabs([
@@ -1106,11 +1137,13 @@ def render_admin_portal(meta, error):
 
         with col_m2:
             with st.container(border=True):
-                st.markdown("#### Các nhóm ngành được tư vấn")
+                st.markdown(
+                    "<div class='card-title-bar'><span class='bar-accent'></span><h4>Phân bổ nhóm ngành được gợi ý</h4></div>",
+                    unsafe_allow_html=True,
+                )
                 group_dist = stats.get("group_distribution", {})
                 if group_dist:
-                    df_dist = pd.DataFrame(list(group_dist.items()), columns=["Nhóm ngành", "Số lượt"])
-                    st.bar_chart(df_dist.set_index("Nhóm ngành"), width="stretch")
+                    st.markdown(ui.admin_group_distribution(group_dist), unsafe_allow_html=True)
                 else:
                     st.info("Chưa có đủ lượt tư vấn để hiển thị.")
 

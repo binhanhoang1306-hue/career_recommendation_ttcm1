@@ -1,6 +1,6 @@
 {
-  "model_version": "1.0.33",
-  "exported_at": "2026-10-20T16:03:55",
+  "model_version": "1.0.37",
+  "exported_at": "2026-10-20T17:02:03",
   "algorithm": "Logistic Regression (multinomial) + temperature calibration",
   "framework": "scikit-learn",
   "sklearn_version": "1.9.0",
