@@ -672,10 +672,7 @@ a[aria-label="Link to heading"],
     margin-bottom: 0 !important;
     padding: 0 !important;
     justify-content: flex-end !important;
-    background:
-        radial-gradient(circle at 10% 95%, rgba(67, 83, 232, 0.22) 0%, transparent 45%),
-        radial-gradient(circle at -15% 90%, rgba(99, 102, 241, 0.18) 0%, transparent 55%),
-        linear-gradient(165deg, #11152F 0%, #151B42 45%, #182046 100%) !important;
+    background: transparent !important;
 }
 [data-testid="stSidebar"] [data-testid="stLogoSpacer"] {
     display: none !important;
