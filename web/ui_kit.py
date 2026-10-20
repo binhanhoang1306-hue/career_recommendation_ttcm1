@@ -2249,6 +2249,357 @@ body,
         width: min(360px, 100%) !important;
     }
 }
+
+/* Readable sizing: mockups define the style, not a reduced browser zoom. */
+html,
+body,
+.stApp,
+[data-testid="stAppViewContainer"] {
+    font-size: 15px !important;
+}
+
+:root {
+    --sidebar-width: clamp(180px, 18vw, 250px);
+}
+
+[data-testid="stSidebar"] {
+    left: 12px !important;
+}
+
+.block-container {
+    padding: 0.9rem 1.25rem 2rem 1.1rem !important;
+}
+
+.main [data-testid="stVerticalBlock"] {
+    gap: 0.8rem !important;
+}
+
+.main h1 { font-size: 1.85rem !important; }
+.main h2 { font-size: 1.48rem !important; }
+.main h3 { font-size: 1.16rem !important; }
+.main h4 { font-size: 1.03rem !important; }
+
+.main p,
+.main label,
+.main [data-testid="stCaptionContainer"] {
+    font-size: 0.88rem;
+    line-height: 1.5;
+}
+
+[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] h3 {
+    font-size: 1.3rem !important;
+}
+
+[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] h4 {
+    font-size: 1.02rem !important;
+}
+
+[data-testid="stSidebar"] [data-testid="stCaptionContainer"] {
+    font-size: 0.88rem !important;
+}
+
+[data-testid="stSidebar"] .stButton > button {
+    min-height: 3.15rem !important;
+    font-size: 0.88rem !important;
+}
+
+[data-testid="stVerticalBlockBorderWrapper"] {
+    padding: 1rem !important;
+}
+
+.hero {
+    min-height: 170px;
+    padding: 1.5rem 1.6rem !important;
+}
+
+.hero h1 {
+    font-size: 1.8rem !important;
+}
+
+.hero p {
+    font-size: 0.9rem !important;
+}
+
+.hero .pill {
+    padding: 0.32rem 0.65rem;
+    font-size: 0.7rem;
+}
+
+.profile-editor-aside {
+    min-height: 220px;
+    padding: 1.15rem;
+}
+
+.profile-editor-kicker,
+.profile-form-heading > span {
+    font-size: 0.68rem !important;
+}
+
+.profile-editor-mark {
+    width: 32px;
+    height: 32px;
+    font-size: 0.75rem;
+}
+
+.profile-editor-aside h2 {
+    font-size: 1.25rem;
+}
+
+.profile-editor-aside p,
+.profile-editor-foot,
+.profile-form-heading p,
+.profile-hint {
+    font-size: 0.82rem !important;
+}
+
+.sec-title {
+    font-size: 1rem;
+}
+
+.step {
+    width: 28px;
+    height: 28px;
+    font-size: 0.82rem;
+}
+
+.sec-desc {
+    margin-left: 2.3rem;
+    font-size: 0.8rem;
+}
+
+[data-testid="stTextInput"] label,
+[data-testid="stNumberInput"] label,
+[data-testid="stSelectbox"] label,
+[data-testid="stMultiSelect"] label {
+    font-size: 0.84rem !important;
+}
+
+[data-testid="stTextInput"] input,
+[data-testid="stNumberInput"] input,
+[data-baseweb="select"] > div {
+    min-height: 40px !important;
+    font-size: 0.86rem !important;
+}
+
+[data-testid="stRadio"] [role="radiogroup"] label {
+    min-height: 36px !important;
+    padding: 0.35rem 0.6rem !important;
+    font-size: 0.82rem !important;
+}
+
+[data-testid="stTabs"] button[data-baseweb="tab"] {
+    min-height: 36px !important;
+    padding: 0.4rem 0.7rem !important;
+    font-size: 0.8rem !important;
+}
+
+.kpi-grid {
+    gap: 0.8rem !important;
+    margin: 0.95rem 0 0.85rem !important;
+}
+
+.kpi-card {
+    min-height: 94px !important;
+    padding: 0.85rem 2.8rem 0.75rem 0.9rem !important;
+}
+
+.kpi-title {
+    font-size: 0.7rem !important;
+    line-height: 1.4 !important;
+}
+
+.kpi-val {
+    font-size: 1.6rem !important;
+}
+
+.kpi-icon {
+    top: 0.85rem;
+    right: 0.8rem;
+    width: 2rem;
+    height: 2rem;
+}
+
+.kpi-icon svg {
+    width: 1.1rem;
+    height: 1.1rem;
+}
+
+[data-testid="stMetric"] {
+    min-height: 85px !important;
+    padding: 0.75rem !important;
+}
+
+[data-testid="stMetricLabel"] {
+    font-size: 0.78rem !important;
+}
+
+[data-testid="stMetricValue"] {
+    font-size: 1.22rem !important;
+}
+
+.st-key-admin-page-header h2 {
+    font-size: 1.65rem !important;
+}
+
+.st-key-admin-page-header [data-testid="stCaptionContainer"] {
+    font-size: 0.82rem !important;
+}
+
+.st-key-admin-login-card {
+    width: min(460px, 100%) !important;
+    padding: 1.8rem !important;
+}
+
+.st-key-admin-login-card h2 {
+    font-size: 1.55rem !important;
+}
+
+.st-key-admin-login-card [data-testid="stCaptionContainer"] {
+    font-size: 0.82rem !important;
+}
+
+.st-key-admin-login-card [data-testid="stFormSubmitButton"] button {
+    min-height: 42px !important;
+    font-size: 0.88rem !important;
+}
+
+.admin-login-note {
+    font-size: 0.78rem;
+}
+
+.admin-sidebar-profile {
+    margin-top: 2.5rem;
+}
+
+.admin-sidebar-profile strong {
+    font-size: 0.92rem;
+}
+
+.admin-sidebar-profile small {
+    font-size: 0.7rem;
+}
+
+.st-key-retention-card h4,
+.st-key-admin-logs-card h4,
+.st-key-admin-survey-card h4,
+.st-key-admin-feedback-list-card h4,
+[data-testid="stVerticalBlockBorderWrapper"] h4 {
+    font-size: 0.95rem !important;
+}
+
+.st-key-retention-card .stButton > button {
+    min-height: 38px !important;
+    font-size: 0.74rem !important;
+}
+
+.system-status {
+    font-size: 0.76rem;
+}
+
+.distribution-row {
+    font-size: 0.76rem;
+}
+
+.distribution-value {
+    font-size: 0.72rem;
+}
+
+.distribution-chart > small {
+    font-size: 0.68rem;
+}
+
+.st-key-retrain-panel .stButton > button {
+    min-height: 40px !important;
+    font-size: 0.82rem !important;
+}
+
+.res .k { font-size: 0.72rem !important; }
+.res .v { font-size: 1.7rem !important; }
+.res .s { font-size: 0.92rem !important; }
+.res .model-note,
+.res .adjusted-note { font-size: 0.78rem !important; }
+
+.card,
+.career,
+.career-explorer-card {
+    padding: 1rem !important;
+}
+
+.card h4,
+.career h3 {
+    font-size: 0.95rem !important;
+}
+
+.career p,
+.career .kv {
+    font-size: 0.8rem !important;
+}
+
+.career .rank,
+.chip {
+    font-size: 0.72rem !important;
+}
+
+.explain {
+    padding: 1rem !important;
+}
+
+.explain .x {
+    font-size: 0.9rem !important;
+}
+
+.explain .n,
+.note {
+    font-size: 0.76rem !important;
+}
+
+@media (max-width: 900px) {
+    .block-container {
+        padding: 0.8rem 0.85rem 1.5rem 0.8rem !important;
+    }
+
+    [data-testid="stSidebar"] {
+        left: 8px !important;
+    }
+
+    .kpi-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+
+    .profile-editor-aside {
+        min-height: 210px;
+    }
+}
+
+@media (max-width: 640px) {
+    .block-container {
+        padding: 0.7rem 0.65rem 1.25rem 0.55rem !important;
+    }
+
+    .main h1 { font-size: 1.5rem !important; }
+    .main h2 { font-size: 1.25rem !important; }
+
+    .hero {
+        min-height: 0;
+        padding: 1.1rem !important;
+    }
+
+    .hero .pill {
+        font-size: 0.65rem;
+    }
+
+    .kpi-grid {
+        grid-template-columns: 1fr 1fr !important;
+    }
+
+    .kpi-title {
+        font-size: 0.64rem !important;
+    }
+
+    .kpi-val {
+        font-size: 1.3rem !important;
+    }
+}
 </style>
 """
 
