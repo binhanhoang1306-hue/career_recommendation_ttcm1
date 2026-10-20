@@ -14,6 +14,7 @@ API có các nhiệm vụ chính:
 5. Kích hoạt CORSMiddleware để hỗ trợ giao diện Web Streamlit.
 """
 import os
+import sqlite3
 import sys
 import time
 import json
@@ -319,6 +320,9 @@ class DecisionRequest(PredictRequest):
     skills: Optional[Dict[str, str]] = Field(default_factory=dict, max_length=20, description="Kỹ năng mềm")
     interests: Optional[List[str]] = Field(default_factory=list, max_length=20, description="Lĩnh vực quan tâm")
     student_name: Optional[str] = Field(default="Sinh viên", max_length=100, description="Họ tên sinh viên")
+    store_scores_in_logs: bool = Field(
+        False, description="Cho phép lưu điểm trong nhật ký để giám sát chất lượng."
+    )
 
     @field_validator("skills")
     @classmethod
@@ -355,13 +359,15 @@ class StudentSurveyRequest(BaseModel):
 
 
 class FeedbackRequest(BaseModel):
-    """Phản hồi cho nghề được xếp hạng; hỗ trợ lưu bảng điểm và tên sinh viên để phục vụ retrain."""
+    """Phản hồi cho nghề được xếp hạng; lưu điểm chỉ khi người gửi đồng ý rõ ràng."""
     career_id: str = Field(..., min_length=1, max_length=32)
     top_group: str = Field(..., min_length=1, max_length=100)
     top_prob: float = Field(..., ge=0.0, le=1.0)
     liked: bool
     scores: Optional[Dict[str, float]] = None
-    student_name: Optional[str] = ""
+    include_scores: bool = Field(
+        False, description="Cho phép lưu điểm môn học cùng phản hồi để cải thiện gợi ý."
+    )
     comment: Optional[str] = ""
     rating: Optional[int] = Field(None, ge=1, le=5)
     survey: Optional[StudentSurveyRequest] = None
@@ -489,7 +495,7 @@ def decision_endpoint(req: DecisionRequest):
     scores = req.scores
     skills = req.skills or {}
     interests = req.interests or []
-    student_name = req.student_name or "Sinh viên"
+    student_name = "Sinh viên"
 
     # Quy đổi điểm về dạng tên môn tiếng Việt để chuyển cho CBF
     subject_scores_vn = {KEY_TO_SUBJECT[k]: scores[k] for k in FEATURE_COLS}
@@ -594,7 +600,8 @@ def decision_endpoint(req: DecisionRequest):
     # Giai đoạn 5 (Monitor): ghi nhật ký lượt dự đoán vào SQLite + JSONL để phát hiện drift.
     try:
         log_prediction(
-            input_scores=scores, top_group=ml_result["predicted_group"],
+            input_scores=scores if req.store_scores_in_logs else {},
+            top_group=ml_result["predicted_group"],
             top_prob=max(ml_result["probabilities"].values()) / 100.0,
             model_version=MODEL_VERSION, latency_ms=latency, source="fastapi",
             is_partial=is_partial,
@@ -671,20 +678,35 @@ def submit_feedback(req: FeedbackRequest, background_tasks: BackgroundTasks = No
             liked_careers=[req.career_id] if req.liked else [],
             disliked_careers=[] if req.liked else [req.career_id],
             comment=req.comment or "",
-            scores=req.scores or {},
-            student_name=req.student_name or "",
+            scores=(req.scores or {}) if req.include_scores else {},
+            student_name="",
             survey=req.survey.model_dump(exclude_none=True) if req.survey else {},
         )
-        recommender.reload()
-    except (OSError, ValueError) as exc:
+    except (OSError, ValueError, sqlite3.Error) as exc:
         print(f"[API][CẢNH BÁO] Không lưu được phản hồi: {type(exc).__name__}")
         raise HTTPException(status_code=500, detail="Không thể lưu phản hồi.") from exc
 
+    mirror_synced = record["mirror_synced"]
+    recommender_updated = False
+    if mirror_synced:
+        try:
+            recommender.reload()
+            recommender_updated = True
+        except (OSError, ValueError) as exc:
+            print(f"[API][CẢNH BÁO] Đã lưu phản hồi nhưng chưa cập nhật được bộ gợi ý: {type(exc).__name__}")
+    else:
+        print("[API][CẢNH BÁO] Đã lưu phản hồi vào SQLite nhưng chưa cập nhật được bộ gợi ý.")
+
     # Tự động kích hoạt kiểm tra Retrain trong nền nếu có phản hồi tích cực kèm bảng điểm
-    if req.liked and req.scores and background_tasks is not None:
+    if req.liked and req.include_scores and req.scores and background_tasks is not None:
         background_tasks.add_task(check_and_trigger_auto_retrain, min_feedback_count=5)
 
-    return {"status": "saved", "feedback_id": record["id"]}
+    return {
+        "status": "saved",
+        "feedback_id": record["id"],
+        "recommender_updated": recommender_updated,
+        "mirror_synced": mirror_synced,
+    }
 
 
 @app.post("/retrain")
@@ -749,6 +771,33 @@ def admin_feedbacks_endpoint(limit: int = 50, _admin: HTTPBasicCredentials = Dep
     """Lấy danh sách các phản hồi sinh viên mới nhất từ SQLite."""
     from career_ai import db
     return {"feedbacks": db.get_all_feedbacks(limit=limit)}
+
+
+@app.delete("/admin/feedbacks/{feedback_id}")
+def delete_admin_feedback_endpoint(
+    feedback_id: str, _admin: HTTPBasicCredentials = Depends(require_admin)
+):
+    """Xóa phản hồi khỏi SQLite và bản mirror JSON."""
+    try:
+        deleted, mirror_synced = feedback_store.delete_feedback(feedback_id)
+    except (OSError, ValueError, sqlite3.Error) as exc:
+        print(f"[API][CẢNH BÁO] Không xóa được phản hồi: {type(exc).__name__}")
+        raise HTTPException(status_code=500, detail="Không thể xóa phản hồi.") from exc
+    if not deleted:
+        raise HTTPException(status_code=404, detail="Không tìm thấy phản hồi.")
+    recommender_updated = False
+    if deleted and mirror_synced:
+        try:
+            recommender.reload()
+            recommender_updated = True
+        except (OSError, ValueError) as exc:
+            print(f"[API][CẢNH BÁO] Đã xóa phản hồi nhưng chưa cập nhật được bộ gợi ý: {type(exc).__name__}")
+    return {
+        "status": "deleted",
+        "feedback_id": feedback_id,
+        "mirror_synced": mirror_synced,
+        "recommender_updated": recommender_updated,
+    }
 
 
 @app.get("/admin/logs")

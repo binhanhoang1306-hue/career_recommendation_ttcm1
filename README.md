@@ -34,7 +34,7 @@ Hệ thống được tổ chức theo kiến trúc **Server / REST API** (Kiế
   - `GET /model-info`: Cung cấp siêu dữ liệu (metadata), tên 12 môn học, khoảng điểm hợp lệ `[0.0, 10.0]`, danh mục kỹ năng để giao diện render động.
   - `POST /predict`: Suy luận ML thuần túy (nhóm nghề dự đoán, xác suất 7 nhóm).
   - `POST /decision`: Hệ hỗ trợ quyết định toàn diện (ML Tầng 1 + CBF Tầng 2 + Groq LLM diễn giải).
-  - `POST /feedback`: Lưu phản hồi thích/không thích ẩn danh cho nghề được gợi ý đầu tiên.
+  - `POST /feedback`: Lưu phản hồi tự nguyện cho nghề được gợi ý đầu tiên; không cần tên và chỉ lưu điểm khi người dùng đồng ý.
 - **Web Frontend:** Sử dụng **Streamlit** (tại `web/app.py`), kết nối qua HTTP/JSON tới API backend thông qua biến môi trường `API_URL`.
 
 ```
@@ -124,7 +124,7 @@ career_recommendation_v2/
 ## 4. Hướng dẫn Cài đặt & Chuẩn bị Môi trường
 
 ### 4.1. Yêu cầu môi trường
-- Python 3.10, 3.11 hoặc 3.14 (hỗ trợ Windows, Linux, macOS).
+- Python 3.11 hoặc 3.14 (hỗ trợ Windows, Linux, macOS).
 - Trình quản lý gói `pip`.
 
 ### 4.2. Cài đặt thư viện
@@ -291,7 +291,7 @@ Màn hình quản trị xác thực trực tiếp với API. Các endpoint `/adm
 ## 7. Giới Hạn và Ý Nghĩa Khoa Học
 
 1. **Nhãn suy ra từ bảng điểm (Pseudo-labeling):** Vì `data/DATASET.xlsx` là bảng điểm thực tế của sinh viên nhưng không ghi nghề nghiệp thực tế của từng bạn sau khi ra trường, nhãn `career_group` được xác định thông qua ma trận tri thức chuyên gia (`career_ai/domain_knowledge.py`). F1, Brier score, log loss, ECE và xác suất đã hiệu chuẩn đều được tính so với nhãn huấn luyện hiện có; chúng không phải độ chính xác, độ hiệu chuẩn hay xác suất phù hợp nghề nghiệp ngoài đời thực.
-2. **Phản hồi và huấn luyện lại:** Phản hồi tự nguyện được lưu trong SQLite và mirror sang `feedback.json`, gồm đánh giá thích/không thích, điểm sao, nhận xét và các câu trả lời khảo sát tùy chọn. Khi chạy local, các file nằm trong `data/`; trên Render chúng nằm trong Persistent Disk tại `/var/data`. Nếu người dùng đồng ý lưu điểm để gửi phản hồi, bản ghi có thể kèm điểm môn học; không nên gọi dữ liệu này là ẩn danh tuyệt đối. Phản hồi tích cực đủ điều kiện có thể tham gia kiểm tra điều kiện retrain; chỉ số khảo sát không phải nhãn sự thật nghề nghiệp.
+2. **Phản hồi và dữ liệu người dùng:** Không yêu cầu tên để tư vấn hoặc lưu phản hồi. Phản hồi tự nguyện gồm đánh giá, điểm sao, nhận xét và câu trả lời khảo sát; điểm môn học chỉ được lưu cùng phản hồi khi người dùng chọn đồng ý. Nhật ký lượt tư vấn cũng chỉ ghi điểm khi người dùng bật lựa chọn đồng ý lưu nhật ký; nếu không, nhật ký không chứa điểm. Không nhập thông tin nhận dạng cá nhân vào ô nhận xét. Dữ liệu phản hồi được lưu trong SQLite và mirror sang `feedback.json`; quản trị viên có thể xóa từng phiếu trong tab phản hồi. Bản ghi cũ có thể vẫn chứa tên hoặc điểm đã lưu trước thay đổi này. Dữ liệu còn lại trên hệ thống đến khi quản trị viên dọn dẹp; hiện chưa cấu hình thời hạn tự xóa. Nhật ký giám sát được lưu riêng để theo dõi hệ thống và cũng chưa có thời hạn tự xóa. Điểm đã được dùng trong một lần huấn luyện lại hoặc bản model đã tạo không bị xóa khi xóa phiếu phản hồi.
 3. **Hiệu chuẩn xác suất không thay thế nhãn sự thật:** Temperature scaling hiệu chỉnh độ sắc của phân phối để giảm log loss trên dự đoán out-of-fold. Vì nhãn dùng để hiệu chuẩn phần lớn được suy ra từ điểm, xác suất chỉ nên hiểu là mức độ mô hình dự đoán từng nhãn đó; chưa thể diễn giải là xác suất một người thật sự phù hợp hoặc thành công trong nghề.
 4. **Sở thích và kỹ năng mềm không nằm trong dữ liệu huấn luyện.** Mô hình chỉ học từ 12 điểm môn; sở thích và kỹ năng mềm điều chỉnh thứ hạng bằng quy tắc sau khi mô hình dự đoán. Quy tắc này nằm ở `career_ai/decision_core.py`; `POST /predict` trả phân phối xác suất đã hiệu chuẩn theo nhãn học. `/decision` trả phân phối đó ở `probabilities_model_only` cùng thứ hạng phần trăm sau điều chỉnh ở `probabilities`; phân phối sau điều chỉnh là điểm xếp hạng được chuẩn hóa, **không phải xác suất đã hiệu chuẩn**. Kỹ năng "Chưa đánh giá" bị bỏ qua.
 5. **Tách xác suất model và điểm xếp hạng:** phản hồi `/decision` nêu `model_predicted_group`/`model_confidence` riêng với `recommendation_group`/`recommendation_ranking_score`. Các trường `probabilities_model_only` là xác suất model theo nhãn huấn luyện; `recommendation_ranking_scores` là điểm xếp hạng sau điều chỉnh theo sở thích/kỹ năng, không phải xác suất.

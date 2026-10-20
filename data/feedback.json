@@ -51,6 +51,21 @@
     }
   },
   {
+    "id": "693700a6-f686-49b7-8704-f54a16838330",
+    "timestamp": "2026-10-09T15:27:14",
+    "student_name": "Sinh viên",
+    "top_group": "An toàn thông tin",
+    "top_prob": 0.75,
+    "rating": 5,
+    "liked_careers": [
+      "BE01"
+    ],
+    "disliked_careers": [],
+    "comment": "",
+    "scores": {},
+    "survey": {}
+  },
+  {
     "id": "0375e691-d18e-4117-ad9f-6ccb14bcb15c",
     "timestamp": "2026-10-09T15:28:54",
     "student_name": "Sinh viên Test",
@@ -66,6 +81,21 @@
       "ai": 9.0,
       "db": 8.5
     }
+  },
+  {
+    "id": "6cf9824c-5bcb-4788-aa66-d018a9e9b139",
+    "timestamp": "2026-10-09T15:28:54",
+    "student_name": "Sinh viên",
+    "top_group": "An toàn thông tin",
+    "top_prob": 0.75,
+    "rating": 5,
+    "liked_careers": [
+      "BE01"
+    ],
+    "disliked_careers": [],
+    "comment": "",
+    "scores": {},
+    "survey": {}
   },
   {
     "id": "eadfc38e-40be-4c09-9a85-61ca70d89374",
@@ -85,6 +115,21 @@
     }
   },
   {
+    "id": "2b01ad4c-3b80-4383-9fca-5877a26a50b8",
+    "timestamp": "2026-10-09T20:06:33",
+    "student_name": "Sinh viên",
+    "top_group": "An toàn thông tin",
+    "top_prob": 0.75,
+    "rating": 5,
+    "liked_careers": [
+      "BE01"
+    ],
+    "disliked_careers": [],
+    "comment": "",
+    "scores": {},
+    "survey": {}
+  },
+  {
     "id": "f2cd5fc4-8a7a-484f-8eba-bc353307454c",
     "timestamp": "2026-10-13T20:58:44",
     "student_name": "Sinh viên Test",
@@ -100,6 +145,21 @@
       "ai": 9.0,
       "db": 8.5
     }
+  },
+  {
+    "id": "dad5e627-69bd-4d61-a33c-be72c88b56a6",
+    "timestamp": "2026-10-13T20:58:44",
+    "student_name": "Sinh viên",
+    "top_group": "An toàn thông tin",
+    "top_prob": 0.75,
+    "rating": 5,
+    "liked_careers": [
+      "BE01"
+    ],
+    "disliked_careers": [],
+    "comment": "",
+    "scores": {},
+    "survey": {}
   },
   {
     "id": "1f4c3f51-cae2-499b-ae18-ef5d54ed076d",
@@ -119,6 +179,21 @@
     }
   },
   {
+    "id": "2dc03fe8-fe7b-4e63-9471-4baebfc9262c",
+    "timestamp": "2026-10-13T21:19:16",
+    "student_name": "Sinh viên",
+    "top_group": "An toàn thông tin",
+    "top_prob": 0.75,
+    "rating": 5,
+    "liked_careers": [
+      "BE01"
+    ],
+    "disliked_careers": [],
+    "comment": "",
+    "scores": {},
+    "survey": {}
+  },
+  {
     "id": "62ae7d21-b129-4446-b8c1-8a48601ddf17",
     "timestamp": "2026-10-13T21:22:19",
     "student_name": "Sinh viên Test",
@@ -134,6 +209,21 @@
       "ai": 9.0,
       "db": 8.5
     }
+  },
+  {
+    "id": "a2ff953b-24f1-4be3-83a2-e178e8c367ed",
+    "timestamp": "2026-10-13T21:22:19",
+    "student_name": "Sinh viên",
+    "top_group": "An toàn thông tin",
+    "top_prob": 0.75,
+    "rating": 5,
+    "liked_careers": [
+      "BE01"
+    ],
+    "disliked_careers": [],
+    "comment": "",
+    "scores": {},
+    "survey": {}
   },
   {
     "id": "174400b1-b979-4354-b7a0-2af5771546cd",
@@ -153,6 +243,21 @@
     }
   },
   {
+    "id": "f33f007b-97f1-48eb-b203-616b88b9433f",
+    "timestamp": "2026-10-13T21:37:20",
+    "student_name": "Sinh viên",
+    "top_group": "An toàn thông tin",
+    "top_prob": 0.75,
+    "rating": 5,
+    "liked_careers": [
+      "BE01"
+    ],
+    "disliked_careers": [],
+    "comment": "",
+    "scores": {},
+    "survey": {}
+  },
+  {
     "id": "6318a6ca-d5fd-4ec7-b252-c4d7f0b52284",
     "timestamp": "2026-10-13T21:44:28",
     "student_name": "Sinh viên Test",
@@ -168,6 +273,21 @@
       "ai": 9.0,
       "db": 8.5
     }
+  },
+  {
+    "id": "e2bb3219-6acf-4499-84a5-3871c933beff",
+    "timestamp": "2026-10-13T21:44:29",
+    "student_name": "Sinh viên",
+    "top_group": "An toàn thông tin",
+    "top_prob": 0.75,
+    "rating": 5,
+    "liked_careers": [
+      "BE01"
+    ],
+    "disliked_careers": [],
+    "comment": "",
+    "scores": {},
+    "survey": {}
   },
   {
     "id": "521a0b0c-9475-46be-b5e1-e91378b31e45",

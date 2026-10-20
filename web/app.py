@@ -9,7 +9,7 @@ Nguyên tắc kiến trúc:
      nhập điểm theo nhóm môn học, hỗ trợ hồ sơ mẫu nhanh, upload bảng điểm cá nhân,
      và báo cáo tư vấn chuyên sâu từ AI (Groq).
    - Khu Vực Quản Trị Viên (Admin Portal): Được bảo vệ bằng đăng nhập bảo mật,
-     cung cấp giám sát ML, phân tích phản hồi sinh viên từ SQLite, xem nhật ký dự đoán
+     cung cấp thống kê, phân tích phản hồi sinh viên, xem lịch sử tư vấn
      và điều khiển chu trình tự động Retrain.
 3. Địa chỉ API đọc từ biến môi trường API_URL (mặc định: http://127.0.0.1:8000).
 
@@ -345,13 +345,13 @@ def fetch_admin_stats():
 
 
 def fetch_admin_feedbacks(limit: int = 50):
-    """Lấy danh sách phản hồi từ SQLite qua /admin/feedbacks."""
+    """Lấy danh sách phản hồi từ JSON qua /admin/feedbacks."""
     result = _admin_request("GET", f"/admin/feedbacks?limit={limit}", timeout=5)
     return result.get("feedbacks", []) if result else []
 
 
 def fetch_admin_logs(limit: int = 50):
-    """Lấy danh sách nhật ký dự đoán từ SQLite qua /admin/logs."""
+    """Lấy lịch sử tư vấn từ JSON qua /admin/logs."""
     result = _admin_request("GET", f"/admin/logs?limit={limit}", timeout=5)
     return result.get("logs", []) if result else []
 
@@ -370,8 +370,7 @@ def _init_session():
         st.session_state["selected_skills"] = {}
     if "selected_interests" not in st.session_state:
         st.session_state["selected_interests"] = []
-    if "student_name" not in st.session_state:
-        st.session_state["student_name"] = "Sinh viên"
+
     if "explore_career_group" not in st.session_state:
         st.session_state["explore_career_group"] = None
 
@@ -480,7 +479,7 @@ def render_student_portal(meta, error):
         return
 
     # Banner Hero
-    st.markdown(ui.hero(st.session_state.get("student_name", "")), unsafe_allow_html=True)
+    st.markdown(ui.hero("Sinh viên"), unsafe_allow_html=True)
 
     # ------------------ BƯỚC 1: THÔNG TIN SINH VIÊN ------------------
     profile_intro, profile_form = st.columns([0.9, 1.8], gap="large", vertical_alignment="top")
@@ -490,7 +489,7 @@ def render_student_portal(meta, error):
             "<span class='profile-editor-kicker'>HỒ SƠ CỦA BẠN</span>"
             "<div class='profile-editor-mark'>01</div>"
             "<h2>Mỗi hành trình<br>có một điểm bắt đầu.</h2>"
-            "<p>Chia sẻ đôi chút về chặng đường hiện tại. Bạn có thể bỏ qua tên và chỉ chọn năm học.</p>"
+            "<p>Chọn năm học và chia sẻ những thông tin cần thiết cho gợi ý nghề nghiệp.</p>"
             "<div class='profile-editor-foot'><span></span> KHÔNG CẦN ĐIỀN TẤT CẢ</div>"
             "</div>",
             unsafe_allow_html=True,
@@ -504,17 +503,6 @@ def render_student_portal(meta, error):
             "</div>",
             unsafe_allow_html=True,
         )
-        student_name_input = st.text_input(
-            "Tên gọi của bạn · Không bắt buộc",
-            value=(
-                st.session_state.get("student_name", "")
-                if st.session_state.get("student_name", "") != "Sinh viên"
-                else ""
-            ),
-            placeholder="Ví dụ: Minh Anh",
-            key="input_student_name",
-        )
-        st.session_state["student_name"] = student_name_input.strip() or "Sinh viên"
 
         academic_year = st.radio(
             "Bạn đang ở năm học nào?",
@@ -658,6 +646,16 @@ def render_student_portal(meta, error):
                 key="interests_multiselect",
             )
 
+    store_scores_in_logs = st.checkbox(
+        "Cho phép lưu điểm môn học trong nhật ký để cải thiện chất lượng gợi ý.",
+        value=False,
+        key="store_scores_in_logs",
+    )
+    st.caption(
+        "Nếu không chọn, hệ thống vẫn tạo gợi ý nhưng không lưu điểm vào nhật ký. "
+        "Tên của bạn không cần thiết cho việc tư vấn."
+    )
+
     # ------------------ NÚT HÀNH ĐỘNG PHÂN TÍCH ------------------
     st.write("")
     submit_button = st.button("Khám phá hướng đi phù hợp", type="primary", width="stretch")
@@ -667,7 +665,7 @@ def render_student_portal(meta, error):
             "scores": input_scores,
             "skills": user_skills,
             "interests": user_interests,
-            "student_name": st.session_state.get("student_name", "Sinh viên"),
+            "store_scores_in_logs": store_scores_in_logs,
             "allow_partial": is_early_student or len(input_scores) < len(subject_keys),
         }
         with st.spinner("Đang kết nối những điều bạn chia sẻ với các hướng nghề nghiệp..."):
@@ -700,7 +698,7 @@ def render_results(r: dict):
     d, scores = r["data"], r["scores"]
     top = d.get("top_careers", []) or []
     llm = d.get("explanation_llm", {}) or {}
-    student_name = d.get("student_name", st.session_state.get("student_name", "Sinh viên"))
+    student_name = "Sinh viên"
 
     st.markdown("<div id='ket-qua'></div>", unsafe_allow_html=True)
     st.write("")
@@ -720,8 +718,7 @@ def render_results(r: dict):
             float(top[0].get("match_percentage", 0)) if top else 0.0,
             bool(d.get("adjusted_by_preferences")),
             student_name=student_name,
-            model_group=d.get("model_predicted_group", ""),
-            adjusted_score=float(d.get("preference_adjusted_score", 0) or 0),
+            score_based_group=d.get("model_predicted_group", ""),
         ),
         unsafe_allow_html=True,
     )
@@ -848,20 +845,29 @@ def render_results(r: dict):
                 )
         rating_star = int(st.session_state["fb_rating"])
         fb_comment = st.text_input(
-            "Chia sẻ thêm (không bắt buộc)",
+            "Chia sẻ thêm (không bắt buộc; vui lòng không ghi thông tin cá nhân)",
             placeholder="Ví dụ: Mình muốn tìm hiểu thêm về thiết kế giao diện...",
             key="fb_comment_text",
+        )
+        include_scores = st.checkbox(
+            "Tôi đồng ý gửi kèm điểm môn học trong phản hồi để cải thiện gợi ý.",
+            value=False,
+            key="fb_include_scores",
+        )
+        st.caption(
+            "Phản hồi sẽ được lưu để cải thiện hệ thống. Tên của bạn không được gửi; "
+            "điểm chỉ được lưu nếu bạn chọn đồng ý ở trên."
         )
 
         if liked_btn:
             _send_feedback(
                 d, top, liked=True, rating=rating_star, comment=fb_comment,
-                student_name=student_name, survey=survey,
+                survey=survey, include_scores=include_scores,
             )
         elif disliked_btn:
             _send_feedback(
                 d, top, liked=False, rating=rating_star, comment=fb_comment,
-                student_name=student_name, survey=survey,
+                survey=survey, include_scores=include_scores,
             )
 
 
@@ -876,14 +882,14 @@ def _send_feedback(
     liked: bool,
     rating: int = 5,
     comment: str = "",
-    student_name: str = "Sinh viên",
     survey: dict | None = None,
+    include_scores: bool = False,
 ):
-    """Gửi phản hồi vào CSDL SQLite chuẩn ACID và kích hoạt retrain nếu đủ điều kiện."""
+    """Gửi phản hồi; chỉ kèm điểm nếu người dùng đã đồng ý."""
     if not top_careers:
         st.error("Không có nghề để ghi nhận phản hồi.")
         return
-    scores = st.session_state.get("result", {}).get("scores", {})
+    scores = st.session_state.get("result", {}).get("scores", {}) if include_scores else {}
     payload = {
         "career_id": top_careers[0]["career_id"],
         "top_group": decision["predicted_group"],
@@ -897,13 +903,20 @@ def _send_feedback(
         "rating": rating,
         "comment": comment,
         "scores": scores,
-        "student_name": student_name,
+        "include_scores": include_scores,
         "survey": survey or {},
     }
     try:
         response = requests.post(f"{API_URL}/feedback", json=payload, timeout=5)
         if response.status_code == 201:
-            st.toast("Cảm ơn bạn! Phản hồi đã được ghi nhận.")
+            result = response.json()
+            if result.get("recommender_updated", True) and result.get("mirror_synced", True):
+                st.toast("Cảm ơn bạn! Phản hồi đã được ghi nhận.")
+            else:
+                st.warning(
+                    "Phản hồi đã được lưu, nhưng chưa cập nhật được bản mirror hoặc gợi ý. "
+                    "Quản trị viên cần kiểm tra log máy chủ."
+                )
         else:
             st.error(f"Không thể lưu phản hồi (HTTP {response.status_code}).")
     except requests.exceptions.RequestException as exc:
@@ -986,49 +999,45 @@ def render_admin_portal(meta, error):
             st.rerun()
 
     st.markdown("## Bảng Điều Khiển Quản Trị Hệ Thống")
-    st.caption("Giám sát mô hình học máy, phân tích phản hồi sinh viên và quản lý chu trình huấn luyện lại.")
+    st.caption("Theo dõi hoạt động hệ thống, xem phản hồi sinh viên và cập nhật gợi ý từ ý kiến nhận được.")
 
     stats = fetch_admin_stats() or {}
-    metrics = (meta.get("metrics_test", {}) if meta else {}) or {}
 
     # 4 Thẻ KPI thống kê nhanh
     st.markdown("<div class='kpi-grid'>"
-                + ui.kpi_card("TỔNG LƯỢT TƯ VẤN (PREDICTIONS)", str(stats.get("total_predictions", 0)), "Ghi nhận trong SQLite")
-                + ui.kpi_card("TỔNG PHẢN HỒI (FEEDBACKS)", str(stats.get("total_feedbacks", 0)), f"Hài lòng: {stats.get('feedback_satisfaction_pct', 0)}%")
-                + ui.kpi_card("F1 (NHÃN SUY RA, 5-FOLD CV)", f"{metrics.get('f1_cv_5fold', 0):.3f}" if isinstance(metrics.get('f1_cv_5fold'), (int, float)) else "N/A", "Đo độ khớp với nhãn từ điểm, không phải độ chính xác nghề nghiệp")
-                + ui.kpi_card("BRIER SCORE (CV)", f"{metrics.get('brier_score_cv'):.3f}" if isinstance(metrics.get('brier_score_cv'), (int, float)) else "N/A", "Thấp hơn là tốt hơn; so với nhãn huấn luyện, không phải nghề thực tế")
-                + ui.kpi_card("CALIBRATION ERROR (CV)", f"{metrics.get('expected_calibration_error_cv'):.3f}" if isinstance(metrics.get('expected_calibration_error_cv'), (int, float)) else "N/A", "ECE thấp hơn là tốt hơn; chỉ phản ánh nhãn huấn luyện")
-                + ui.kpi_card("ĐỘ TRỄ TRUNG BÌNH (LATENCY)", f"{stats.get('avg_latency_ms', 0):.1f} ms", f"Uptime: {stats.get('uptime_seconds', 0):.0f}s")
+                + ui.kpi_card("LƯỢT TƯ VẤN ĐÃ THỰC HIỆN", str(stats.get('total_predictions', 0)))
+                + ui.kpi_card("PHẢN HỒI ĐÃ NHẬN", str(stats.get('total_feedbacks', 0)))
+                + ui.kpi_card("MỨC HÀI LÒNG", f"{stats.get('feedback_satisfaction_pct', 0)}%")
+                + ui.kpi_card("THỜI GIAN PHẢN HỒI TRUNG BÌNH", f"{stats.get('avg_latency_ms', 0) / 1000:.2f} giây")
                 + "</div>", unsafe_allow_html=True)
 
     tab_overview, tab_feedbacks, tab_logs, tab_retrain = st.tabs([
         "Tổng quan & Sức khỏe hệ thống",
         "Quản lý Phản hồi Sinh viên",
-        "Nhật ký Dự đoán & Giám sát",
-        "Huấn luyện lại mô hình",
+        "Lịch sử tư vấn",
+        "Cập nhật hệ thống",
     ])
 
-    # Tab 1: Tổng quan & Sức khỏe ML
+    # Tab 1: Tổng quan hệ thống
     with tab_overview:
         col_m1, col_m2 = st.columns(2, gap="medium")
         with col_m1:
             with st.container(border=True):
-                st.markdown("#### Trạng thái Máy chủ & Mô hình")
+                st.markdown("#### Trạng thái hệ thống")
                 if meta:
-                    st.markdown(ui.status_card(True, meta.get("algorithm", "Logistic Regression"),
-                                               meta.get("version", "1.0.0"), metrics.get("f1_cv_5fold"), API_URL), unsafe_allow_html=True)
+                    st.markdown(ui.status_card(True, meta.get("version", "1.0.0"), API_URL), unsafe_allow_html=True)
                 else:
-                    st.markdown(ui.status_card(False, "-", "-", None, API_URL), unsafe_allow_html=True)
+                    st.markdown(ui.status_card(False, "-", API_URL), unsafe_allow_html=True)
 
         with col_m2:
             with st.container(border=True):
-                st.markdown("#### Phân bố Nhóm ngành được tư vấn")
+                st.markdown("#### Các nhóm ngành được tư vấn")
                 group_dist = stats.get("group_distribution", {})
                 if group_dist:
                     df_dist = pd.DataFrame(list(group_dist.items()), columns=["Nhóm ngành", "Số lượt"])
                     st.bar_chart(df_dist.set_index("Nhóm ngành"), width="stretch")
                 else:
-                    st.info("Chưa có đủ lượt dự đoán để vẽ biểu đồ phân bố.")
+                    st.info("Chưa có đủ lượt tư vấn để hiển thị.")
 
     # Tab 2: Quản lý Phản hồi Sinh viên
     with tab_feedbacks:
@@ -1038,62 +1047,46 @@ def render_admin_portal(meta, error):
         survey_cols = st.columns(4)
         survey_cols[0].metric("Phiếu có trả lời", survey_count)
         relevance_avg = survey.get("average_relevance")
-        relevance_ci = survey.get("relevance_positive_ci95")
         survey_cols[1].metric(
             "Phù hợp mối quan tâm",
             f"{relevance_avg:.2f}/5" if relevance_avg is not None else "Chưa có",
             (
-                f"n={survey.get('relevance_count', 0)} · "
-                f"{survey.get('relevance_positive_pct', 0):.1f}% điểm 4–5"
-                + (
-                    f" · KTC 95%: {relevance_ci[0]:.1f}–{relevance_ci[1]:.1f}%"
-                    if relevance_ci else ""
-                )
+                f"Số phiếu: {survey.get('relevance_count', 0)} · "
+                f"{survey.get('relevance_positive_pct', 0):.1f}% đánh giá tích cực"
                 if relevance_avg is not None else None
             ),
             delta_color="off",
         )
         usefulness_avg = survey.get("average_usefulness")
-        usefulness_ci = survey.get("usefulness_positive_ci95")
         survey_cols[2].metric(
             "Mức hữu ích",
             f"{usefulness_avg:.2f}/5" if usefulness_avg is not None else "Chưa có",
             (
-                f"n={survey.get('usefulness_count', 0)} · "
-                f"{survey.get('usefulness_positive_pct', 0):.1f}% điểm 4–5"
-                + (
-                    f" · KTC 95%: {usefulness_ci[0]:.1f}–{usefulness_ci[1]:.1f}%"
-                    if usefulness_ci else ""
-                )
+                f"Số phiếu: {survey.get('usefulness_count', 0)} · "
+                f"{survey.get('usefulness_positive_pct', 0):.1f}% đánh giá tích cực"
                 if usefulness_avg is not None else None
             ),
             delta_color="off",
         )
         intent_pct = survey.get("explore_intent_yes_pct")
-        intent_ci = survey.get("explore_intent_yes_ci95")
         survey_cols[3].metric(
             "Có ý định tìm hiểu",
             f"{intent_pct:.1f}%" if intent_pct is not None else "Chưa có",
             (
-                f"n={survey.get('intent_count', 0)}"
-                + (
-                    f" · KTC 95%: {intent_ci[0]:.1f}–{intent_ci[1]:.1f}%"
-                    if intent_ci else ""
-                )
+                f"Số phiếu: {survey.get('intent_count', 0)}"
             ),
             delta_color="off",
         )
         if survey_count < survey.get("minimum_recommended_sample", 20):
             st.info(
-                f"Mẫu khảo sát hiện có {survey_count}; nên thu thập ít nhất "
-                f"{survey.get('minimum_recommended_sample', 20)} phản hồi trước khi diễn giải xu hướng. "
-                "Đây là cảm nhận tự báo cáo, không phải độ chính xác dự đoán nghề nghiệp."
+                f"Hiện có {survey_count} phiếu. Nên chờ ít nhất "
+                f"{survey.get('minimum_recommended_sample', 20)} phiếu trước khi kết luận về ý kiến chung. "
+                "Đây là cảm nhận của người trả lời, không cho biết gợi ý nghề có chính xác hay không."
             )
         else:
             st.caption(
-                "Các số liệu trên mô tả cảm nhận tự báo cáo của người trả lời; "
-                "không được diễn giải thành độ chính xác dự đoán nghề nghiệp. "
-                "Khoảng tin cậy 95% chỉ phản ánh độ bất định do cỡ mẫu, không khắc phục sai lệch tự chọn mẫu."
+                "Các số liệu phản ánh cảm nhận của những người đã gửi ý kiến; "
+                "không cho biết gợi ý nghề có chính xác hay không."
             )
 
         st.markdown("#### Danh sách phản hồi từ sinh viên")
@@ -1119,58 +1112,102 @@ def render_admin_portal(meta, error):
                     "Bình luận": f.get("comment", "") or "-",
                 })
             st.dataframe(pd.DataFrame(fb_df_data), width="stretch", hide_index=True)
+            selected_feedback = st.selectbox(
+                "Chọn phản hồi cần xóa",
+                options=fb_list,
+                format_func=lambda feedback: (
+                    f"{feedback.get('timestamp', '')[:19].replace('T', ' ')} "
+                    f"· {feedback.get('id', '')[:8]}"
+                ),
+                key="admin_feedback_to_delete",
+            )
+            confirm_feedback_delete = st.checkbox(
+                "Tôi xác nhận xóa vĩnh viễn phản hồi đã chọn.",
+                key="confirm_feedback_delete",
+            )
+            if st.button(
+                "Xóa phản hồi đã chọn",
+                disabled=not confirm_feedback_delete,
+                key="delete_selected_feedback",
+            ):
+                result = _admin_request(
+                    "DELETE",
+                    f"/admin/feedbacks/{selected_feedback['id']}",
+                    timeout=5,
+                )
+                if result:
+                    if result.get("mirror_synced", True) and result.get("recommender_updated", True):
+                        st.toast("Đã xóa phản hồi.")
+                        st.rerun()
+                    else:
+                        st.warning(
+                            "Đã xóa phản hồi khỏi SQLite nhưng chưa cập nhật được bản mirror hoặc gợi ý. "
+                            "Hãy kiểm tra log máy chủ."
+                        )
         else:
-            st.info("Chưa có phản hồi nào được ghi nhận trong CSDL.")
+            st.info("Chưa có phản hồi nào được ghi nhận.")
 
-    # Tab 3: Nhật ký Dự đoán & Giám sát
+    # Tab 3: Lịch sử tư vấn
     with tab_logs:
-        st.markdown("#### Nhật ký các lượt dự đoán gần nhất (Giám sát trôi dữ liệu)")
+        st.markdown("#### Các lượt tư vấn gần đây")
         logs_list = fetch_admin_logs(limit=100)
         if logs_list:
             logs_df_data = []
             for l in logs_list:
                 logs_df_data.append({
                     "Thời gian": l.get("timestamp", "")[:19].replace("T", " "),
-                    "Nhóm dự đoán": l.get("predicted_group", ""),
-                    "Độ tin cậy": f"{float(l.get('top_probability', 0)) * 100:.1f}%",
-                    "Độ trễ": f"{l.get('latency_ms', 0):.1f} ms",
-                    "Chế độ": "Đánh giá sớm (Năm 1-3)" if l.get("is_partial") else "Đủ 12 môn",
-                    "Model": f"v{l.get('model_version', '1.0')}",
+                    "Nhóm được gợi ý": l.get("predicted_group", ""),
+                    "Mức dự đoán": f"{float(l.get('top_probability', 0)) * 100:.1f}%",
+                    "Thời gian phản hồi": f"{l.get('latency_ms', 0) / 1000:.2f} giây",
+                    "Thông tin môn học": "Còn thiếu môn" if l.get("is_partial") else "Đủ 12 môn",
+                    "Phiên bản": f"v{l.get('model_version', '1.0')}",
                 })
             st.dataframe(pd.DataFrame(logs_df_data), width="stretch", hide_index=True)
         else:
-            st.info("Chưa có nhật ký dự đoán trong CSDL.")
+            st.info("Chưa có lượt tư vấn nào được ghi nhận.")
 
-    # Tab 4: Trung tâm Huấn luyện lại (Retrain)
+    # Tab 4: Cập nhật hệ thống từ phản hồi
     with tab_retrain:
-        st.markdown("#### Trung tâm Huấn luyện lại Mô hình Học máy (Model Retraining)")
+        st.markdown("#### Cập nhật hệ thống từ phản hồi")
         st.write("""
-        Quy trình Retrain tự động:
-        1. Đọc dữ liệu phản hồi tích cực từ sinh viên từ CSDL SQLite.
-        2. Tinh lọc dữ liệu và kết hợp cùng tập huấn luyện gốc.
-        3. Huấn luyện lại Pipeline và kiểm định độc lập (Quality Gate: F1-score phải đạt chuẩn).
-        4. Đóng gói Model Package và **Live-Reload** tức thì vào FastAPI Server mà không cần khởi động lại dịch vụ.
+        Khi có đủ phản hồi kèm điểm môn học và lựa chọn nghề, hệ thống có thể tạo phiên bản mới.
+        Phiên bản mới chỉ được sử dụng khi vượt qua bước kiểm tra chất lượng; nếu không, phiên bản hiện tại được giữ nguyên.
         """)
 
         with st.container(border=True):
-            st.markdown("**Kích hoạt huấn luyện lại thủ công:**")
+            st.markdown("**Bắt đầu cập nhật:**")
             col_rt1, col_rt2 = st.columns([1.5, 2.5])
             with col_rt1:
-                force_retrain = st.checkbox("Bỏ qua ngưỡng mẫu tối thiểu (Force Retrain)", value=False)
-                trigger_btn = st.button("Kích hoạt huấn luyện lại", type="primary", width="stretch")
+                force_retrain = st.checkbox("Bỏ qua số phản hồi tối thiểu", value=False)
+                trigger_btn = st.button("Cập nhật từ phản hồi", type="primary", width="stretch")
 
             if trigger_btn:
-                with st.spinner("Đang thực hiện quy trình Retrain và kiểm định Quality Gate..."):
+                with st.spinner("Đang kiểm tra phản hồi và cập nhật hệ thống..."):
                     retrain_res = _admin_request(
                         "POST",
                         f"/retrain?force={str(force_retrain).lower()}",
                         timeout=35,
                     )
-                    if retrain_res and retrain_res.get("retrained"):
-                        st.success(f"Huấn luyện lại thành công. {retrain_res.get('message', '')}")
-                        st.json(retrain_res)
+                    if retrain_res and retrain_res.get("status") == "success":
+                        st.success(
+                            "Đã cập nhật hệ thống thành công. "
+                            f"Số phản hồi được bổ sung: {retrain_res.get('samples_added', 0)}."
+                        )
                     elif retrain_res:
-                        st.info(retrain_res.get("message", "Chưa đủ điều kiện huấn luyện lại."))
+                        status = retrain_res.get("status")
+                        if status == "rejected":
+                            st.warning(
+                                "Phiên bản mới chưa vượt qua bước kiểm tra chất lượng. "
+                                "Hệ thống vẫn giữ phiên bản hiện tại."
+                            )
+                        elif status == "waiting":
+                            st.info(
+                                "Chưa đủ phản hồi có điểm môn học và lựa chọn nghề: "
+                                f"{retrain_res.get('ready_count', 0)}/"
+                                f"{retrain_res.get('required_count', 0)}."
+                            )
+                        else:
+                            st.info(retrain_res.get("message", "Chưa thể cập nhật hệ thống lúc này."))
 
 
 if __name__ == "__main__":

@@ -6,24 +6,24 @@
 # ==============================================================================
 
 # 1. API Server & Web
-fastapi>=0.110.0
-uvicorn[standard]>=0.28.0
-streamlit>=1.32.0
+fastapi==0.142.2
+uvicorn[standard]==0.54.0
+streamlit==1.64.0
 
 # 2. Machine Learning & Data
-scikit-learn>=1.8.0,<2.0
-scipy>=1.10.0,<2.0
-joblib>=1.3.0
-pandas>=2.2.0
-numpy>=1.26.0
-openpyxl>=3.1.2
+scikit-learn==1.9.0
+scipy==1.17.1
+joblib==1.6.0
+pandas==3.0.5
+numpy==2.4.6
+openpyxl==3.1.5
 
 # 3. LLM (Bước 4 - OpenAI API)
-openai>=1.30.0
+openai==3.31.0
 
 # 4. Tiện ích
-pydantic>=2.6.0
-requests>=2.31.0
-python-dotenv>=1.0.0
-python-multipart>=0.0.9
-httpx>=0.27.0
+pydantic==2.13.5
+requests==2.34.2
+python-dotenv==1.2.4
+python-multipart==0.0.32
+httpx==0.28.1

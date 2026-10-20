@@ -6,6 +6,7 @@ Chạy: python -m unittest discover -s tests -v
 import io
 import json
 import os
+import sqlite3
 import sys
 import tempfile
 import unittest
@@ -76,6 +77,7 @@ class TestApiHardening(unittest.TestCase):
                     "top_group": api_main.CAREER_GROUP_LIST[0],
                     "top_prob": 0.75,
                     "liked": True,
+                    "scores": {"sec": 8.0},
                     "survey": {
                         "relevance": 4,
                         "usefulness": 5,
@@ -92,6 +94,87 @@ class TestApiHardening(unittest.TestCase):
                 self.assertEqual(records[0]["survey"]["explore_intent"], "yes")
                 self.assertEqual(api_main.recommender.career_net_likes[career_id], 1)
         api_main.recommender.reload()
+
+    def test_feedback_scores_are_saved_only_with_explicit_consent(self):
+        from career_ai import feedback_store
+        import api.main as api_main
+
+        career_id = api_main.recommender.career_ids[0]
+        with tempfile.TemporaryDirectory() as tmp:
+            feedback_path = os.path.join(tmp, "feedback.json")
+            with patch.object(feedback_store, "FEEDBACK_PATH", feedback_path), \
+                    patch.object(api_main.recommender, "feedback_json_path", feedback_path), \
+                    patch.object(feedback_store.db, "insert_feedback", side_effect=lambda record: record):
+                response = self.client.post("/feedback", json={
+                    "career_id": career_id,
+                    "top_group": api_main.CAREER_GROUP_LIST[0],
+                    "top_prob": 0.75,
+                    "liked": True,
+                    "scores": {"sec": 8.0},
+                    "include_scores": True,
+                })
+                self.assertEqual(response.status_code, 201, response.text)
+                with open(feedback_path, encoding="utf-8") as file:
+                    records = json.load(file)
+                self.assertEqual(records[0]["scores"], {"sec": 8.0})
+                self.assertEqual(records[0]["student_name"], "Sinh viên")
+        api_main.recommender.reload()
+
+    def test_feedback_database_failure_returns_error_without_json_success_record(self):
+        from career_ai import feedback_store
+        import api.main as api_main
+
+        career_id = api_main.recommender.career_ids[0]
+        with tempfile.TemporaryDirectory() as tmp:
+            feedback_path = os.path.join(tmp, "feedback.json")
+            with patch.object(feedback_store, "FEEDBACK_PATH", feedback_path), \
+                    patch.object(api_main.recommender, "feedback_json_path", feedback_path), \
+                    patch.object(feedback_store.db, "insert_feedback", side_effect=sqlite3.OperationalError("disk full")), \
+                    patch.object(api_main.recommender, "reload"):
+                response = self.client.post("/feedback", json={
+                    "career_id": career_id,
+                    "top_group": api_main.CAREER_GROUP_LIST[0],
+                    "top_prob": 0.75,
+                    "liked": True,
+                })
+            self.assertEqual(response.status_code, 500)
+            self.assertFalse(os.path.exists(feedback_path))
+
+    def test_prediction_logs_omit_scores_without_opt_in(self):
+        import api.main as api_main
+
+        logged = {}
+
+        def capture_log(**record):
+            logged.update(record)
+
+        with patch.object(api_main, "log_prediction", side_effect=capture_log):
+            response = self.client.post("/decision", json={"scores": {key: 6.5 for key in KEYS}})
+        self.assertEqual(response.status_code, 200, response.text)
+        self.assertEqual(logged["input_scores"], {})
+
+    def test_admin_can_delete_a_feedback_record(self):
+        from career_ai import feedback_store
+        import api.main as api_main
+
+        feedback_id = "feedback-to-delete"
+        with tempfile.TemporaryDirectory() as tmp:
+            feedback_path = os.path.join(tmp, "feedback.json")
+            with open(feedback_path, "w", encoding="utf-8") as file:
+                json.dump([{"id": feedback_id}], file)
+            with patch.object(feedback_store, "FEEDBACK_PATH", feedback_path), \
+                    patch.object(feedback_store.db, "delete_feedback", return_value=True), \
+                    patch.object(api_main.recommender, "reload"):
+                with patch.dict(os.environ, {"ADMIN_USERNAME": "test-admin", "ADMIN_PASSWORD": "test-secret"}):
+                    response = self.client.delete(
+                        f"/admin/feedbacks/{feedback_id}",
+                        auth=("test-admin", "test-secret"),
+                    )
+                self.assertEqual(response.status_code, 200, response.text)
+                self.assertTrue(response.json()["mirror_synced"])
+                self.assertTrue(response.json()["recommender_updated"])
+                with open(feedback_path, encoding="utf-8") as file:
+                    self.assertEqual(json.load(file), [])
 
     def test_feedback_rejects_out_of_range_survey_scores(self):
         import api.main as api_main
@@ -425,9 +508,8 @@ class TestOptionalGradeInputs(unittest.TestCase):
             test_app.run()
 
             self.assertFalse(test_app.exception, test_app.exception)
-            self.assertEqual(len(test_app.checkbox), 0)
-            self.assertIn("Tên gọi của bạn", test_app.text_input[0].label)
-            self.assertEqual(test_app.text_input[0].value, "")
+            self.assertEqual(len(test_app.checkbox), 1)
+            self.assertIn("Cho phép lưu điểm môn học", test_app.checkbox[0].label)
             self.assertEqual(test_app.radio[0].value, "Năm 4")
             self.assertEqual(test_app.radio[0].options, ["Năm 1", "Năm 2", "Năm 3", "Năm 4"])
             self.assertIn("Chọn một hoặc vài lĩnh vực", test_app.multiselect[0].placeholder)
@@ -448,6 +530,8 @@ class TestOptionalGradeInputs(unittest.TestCase):
             ).click().run()
             self.assertEqual(captured_payload["scores"], {"se": 8.5, "db": 7.0})
             self.assertTrue(captured_payload["allow_partial"])
+            self.assertFalse(captured_payload["store_scores_in_logs"])
+            self.assertNotIn("student_name", captured_payload)
         finally:
             web_app.fetch_model_info = original_fetch
             web_app.requests.post = original_post
@@ -611,7 +695,10 @@ class TestStudentSurveyUI(unittest.TestCase):
         with patch.object(
             web_app.requests,
             "post",
-            return_value=SimpleNamespace(status_code=201),
+            return_value=SimpleNamespace(
+                status_code=201,
+                json=lambda: {"status": "saved", "recommender_updated": True},
+            ),
         ) as post:
             web_app._send_feedback(
                 {"predicted_group": "Dữ liệu & AI", "confidence": 0.75},
@@ -653,7 +740,7 @@ class TestStudentFacingCopy(unittest.TestCase):
                 ui_kit.hero("Minh Anh"),
                 ui_kit.result_hero(
                     "Phát triển Web", 72.0, "Chuyên viên dữ liệu", 81.0, True,
-                    "Minh Anh", model_group="Dữ liệu & AI", adjusted_score=68.5,
+                    "Minh Anh", score_based_group="Dữ liệu & AI",
                 ),
                 ui_kit.prob_bars({"Dữ liệu & AI": 72.0}),
                 ui_kit.explain_card("Một gợi ý tham khảo.", "", True, "Kết quả mang tính tham khảo."),
@@ -667,21 +754,35 @@ class TestStudentFacingCopy(unittest.TestCase):
             "Content-Based Filtering",
             "xác suất",
             "Thuật toán",
+            "Model",
+            "điểm xếp hạng",
+            "hiệu chuẩn",
+            "cross-validation",
         ):
             self.assertNotIn(technical_term, student_copy)
 
         for friendly_label in (
             "Tìm hướng đi phù hợp với bạn",
-            "Model dự đoán nhóm",
-            "Gợi ý sau điều chỉnh",
-            "Phân bố dự đoán của model",
+            "Gợi ý theo điểm môn học",
+            "Gợi ý sau khi cân nhắc sở thích",
+            "Các nhóm ngành được gợi ý theo điểm môn học",
+            "Mức dự đoán 72.0%",
             "Góc nhìn dành riêng cho bạn",
             "Gợi ý nổi bật",
         ):
             self.assertIn(friendly_label, student_copy)
         self.assertIn("Dữ liệu &amp; AI", student_copy)
         self.assertIn("Phát triển Web", student_copy)
-        self.assertIn("Điểm xếp hạng 68.5%", student_copy)
+        self.assertIn("không cho biết mức độ phù hợp hay khả năng thành công ngoài thực tế", student_copy)
+
+    def test_admin_status_card_uses_plain_language(self):
+        from web import ui_kit
+
+        status = ui_kit.status_card(True, "1.2.3", "https://api.example.com")
+        self.assertIn("Hệ thống đang hoạt động", status)
+        self.assertIn("Phiên bản hệ thống", status)
+        for technical_term in ("Thuật toán", "F1", "Model", "độ chính xác"):
+            self.assertNotIn(technical_term, status)
 
     def test_career_card_links_only_https_source_urls(self):
         from web import ui_kit

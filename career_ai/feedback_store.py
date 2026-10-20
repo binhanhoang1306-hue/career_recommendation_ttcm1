@@ -3,6 +3,7 @@
 feedback_store.py — Lưu và đọc lại phản hồi người dùng
 """
 import json
+import logging
 import os
 import threading
 import uuid
@@ -10,6 +11,7 @@ from datetime import datetime
 
 from .storage_paths import data_file
 
+logger = logging.getLogger(__name__)
 FEEDBACK_PATH = data_file("feedback.json")
 INTERACTIONS_PATH = data_file("interactions.json")
 
@@ -18,10 +20,7 @@ def _load(path):
     if not os.path.exists(path):
         return []
     with open(path, encoding="utf-8") as f:
-        try:
-            return json.load(f)
-        except json.JSONDecodeError:
-            return []
+        return json.load(f)
 
 
 # Khoá chống 2 request ghi cùng lúc làm mất bản ghi (đọc-sửa-ghi phải liền mạch).
@@ -46,7 +45,7 @@ from . import db
 def add_feedback(top_group: str, top_prob: float, rating: int,
                   liked_careers: list, disliked_careers: list, comment: str,
                   scores: dict = None, student_name: str = "", survey: dict = None) -> dict:
-    """Lưu 1 lượt đánh giá tường minh vào CSDL SQLite (ACID) đồng thời cập nhật mirror JSON."""
+    """Lưu phản hồi vào SQLite trước; cập nhật JSON phụ trợ nếu có thể."""
     record = {
         "id": str(uuid.uuid4()),
         "timestamp": datetime.now().isoformat(timespec="seconds"),
@@ -60,36 +59,43 @@ def add_feedback(top_group: str, top_prob: float, rating: int,
         "scores": scores or {},
         "survey": survey or {},
     }
-    # 1. Lưu an toàn vào CSDL SQLite
-    try:
-        db.insert_feedback(record)
-    except Exception as exc:
-        print(f"[FeedbackStore] Cảnh báo ghi SQLite: {exc}")
-
-    # 2. Đồng bộ mirror JSON để duy trì tính tương thích ngược hoàn toàn
+    db.insert_feedback(record)
+    mirror_synced = True
     with _LOCK:
-        records = _load(FEEDBACK_PATH)
-        records.append(record)
-        _save(FEEDBACK_PATH, records)
-    return record
+        try:
+            records = _load(FEEDBACK_PATH)
+            records.append(record)
+            _save(FEEDBACK_PATH, records)
+        except (OSError, json.JSONDecodeError):
+            logger.exception("SQLite saved feedback %s, but JSON mirror update failed", record["id"])
+            mirror_synced = False
+    return {**record, "mirror_synced": mirror_synced}
 
 
 def get_all_feedback() -> list:
-    """Lấy danh sách phản hồi (ưu tiên đọc từ SQLite, dự phòng từ JSON)."""
-    try:
-        records = db.get_all_feedbacks()
-        if records:
-            return records
-    except Exception:
-        pass
-    return sorted(_load(FEEDBACK_PATH), key=lambda r: r["timestamp"], reverse=True)
+    """Lấy danh sách phản hồi từ kho dữ liệu chính SQLite."""
+    return db.get_all_feedbacks()
+
+
+def delete_feedback(feedback_id: str) -> tuple[bool, bool]:
+    """Xóa phản hồi và trả về trạng thái xóa SQLite cùng trạng thái mirror JSON."""
+    with _LOCK:
+        deleted = db.delete_feedback(feedback_id)
+        try:
+            records = [record for record in _load(FEEDBACK_PATH) if record.get("id") != feedback_id]
+            _save(FEEDBACK_PATH, records)
+            mirror_synced = True
+        except (OSError, json.JSONDecodeError):
+            logger.exception("Deleted feedback %s from SQLite, but JSON mirror update failed", feedback_id)
+            mirror_synced = False
+    return deleted, mirror_synced
 
 
 # ---------------- Implicit Feedback (đánh giá ngầm qua hành vi) ----------------
 
 def add_interaction(event_type: str, top_group: str, career_id: str | None = None,
                      duration_seconds: float | None = None) -> dict:
-    """Lưu 1 sự kiện hành vi ngầm vào SQLite và mirror JSON."""
+    """Lưu sự kiện vào SQLite trước; cập nhật JSON phụ trợ nếu có thể."""
     record = {
         "id": str(uuid.uuid4()),
         "timestamp": datetime.now().isoformat(timespec="seconds"),
@@ -98,26 +104,19 @@ def add_interaction(event_type: str, top_group: str, career_id: str | None = Non
         "career_id": career_id,
         "duration_seconds": duration_seconds,
     }
-    try:
-        db.insert_interaction(record)
-    except Exception as exc:
-        print(f"[FeedbackStore] Cảnh báo ghi interaction SQLite: {exc}")
-
+    db.insert_interaction(record)
     with _LOCK:
-        records = _load(INTERACTIONS_PATH)
-        records.append(record)
-        _save(INTERACTIONS_PATH, records)
+        try:
+            records = _load(INTERACTIONS_PATH)
+            records.append(record)
+            _save(INTERACTIONS_PATH, records)
+        except (OSError, json.JSONDecodeError):
+            logger.exception("SQLite saved interaction %s, but JSON mirror update failed", record["id"])
     return record
 
 
 def get_all_interactions() -> list:
-    try:
-        records = db.get_all_interactions()
-        if records:
-            return records
-    except Exception:
-        pass
-    return sorted(_load(INTERACTIONS_PATH), key=lambda r: r["timestamp"], reverse=True)
+    return db.get_all_interactions()
 
 
 def summarize_interactions() -> dict:

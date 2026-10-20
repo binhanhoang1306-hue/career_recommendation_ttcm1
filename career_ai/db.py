@@ -214,6 +214,13 @@ def insert_feedback(record: dict) -> dict:
     return record
 
 
+def delete_feedback(feedback_id: str) -> bool:
+    """Xóa một phản hồi khỏi SQLite và trả về liệu bản ghi có tồn tại hay không."""
+    with get_connection() as conn:
+        cursor = conn.execute("DELETE FROM feedbacks WHERE id = ?", (feedback_id,))
+    return cursor.rowcount > 0
+
+
 def get_all_feedbacks(limit: int = None) -> list:
     """Lấy danh sách phản hồi từ SQLite theo thứ tự mới nhất."""
     query = "SELECT * FROM feedbacks ORDER BY timestamp DESC"

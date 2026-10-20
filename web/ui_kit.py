@@ -1109,18 +1109,15 @@ def category_badge(name: str, desc: str, kind: str) -> str:
     )
 
 
-def status_card(ok: bool, algo: str, version: str, f1_cv, api_url: str) -> str:
-    """Card trạng thái kỹ thuật dành riêng cho Admin."""
-    txt = "API Đang Hoạt Động" if ok else "Mất Kết Nối API"
-    f1 = f"{f1_cv:.3f}" if isinstance(f1_cv, (int, float)) else "N/A"
+def status_card(ok: bool, version: str, api_url: str) -> str:
+    """Thẻ trạng thái hệ thống dành cho quản trị viên."""
+    txt = "Hệ thống đang hoạt động" if ok else "Không kết nối được hệ thống"
     return (
         f"<div style='font-weight:700;margin-bottom:.6rem'>"
         f"  {txt}"
         f"</div>"
-        f"<div class='kv'><span>Thuật toán ML</span><span>{e(algo)}</span></div>"
-        f"<div class='kv'><span>Phiên bản Model</span><span>v{e(version)}</span></div>"
-        f"<div class='kv'><span>Độ chính xác F1 (5-Fold CV)</span><span style='color:#4F46E5;font-weight:700'>{f1}</span></div>"
-        f"<div class='kv'><span>Endpoint Backend</span><span style='font-size:.74rem;color:#64748B'>{e(api_url)}</span></div>"
+        f"<div class='kv'><span>Phiên bản hệ thống</span><span>v{e(version)}</span></div>"
+        f"<div class='kv'><span>Địa chỉ dịch vụ</span><span style='font-size:.74rem;color:#64748B'>{e(api_url)}</span></div>"
     )
 
 
@@ -1131,37 +1128,33 @@ def result_hero(
     top_pct: float,
     adjusted: bool,
     student_name: str = "Sinh viên",
-    model_group: str = "",
-    adjusted_score: float | None = None,
+    score_based_group: str = "",
 ) -> str:
-    """Show the model prediction separately from the preference-adjusted ranking."""
-    model_group = model_group or group
+    """Tách gợi ý theo điểm môn học khỏi gợi ý đã cân nhắc sở thích."""
+    score_based_group = score_based_group or group
     chips = ""
     if adjusted:
         chips += "<span class='chip'>Đã cân nhắc sở thích và thế mạnh của bạn</span>"
     if conf < 50:
-        chips += "<span class='chip warn'>Mô hình chưa nghiêng rõ về một nhóm theo nhãn học</span>"
+        chips += "<span class='chip warn'>Điểm môn học chưa cho thấy rõ một hướng nổi trội</span>"
     
     match_str = f"Một lựa chọn đáng để tìm hiểu: <b>{e(top_name)}</b> · Mức độ phù hợp tham khảo {top_pct:.1f}%" if top_name else ""
     name_prefix = f"Dành cho {e(student_name)} · " if student_name and student_name != "Sinh viên" else ""
     adjusted_line = (
-        f"<div class='adjusted-note'><b>Sau khi cân nhắc sở thích/kỹ năng:</b> "
-        f"{e(group)}"
-        f"{f' · Điểm xếp hạng {adjusted_score:.1f}%' if adjusted_score is not None else ''}"
-        f" <span>(điểm xếp hạng, khác với mức dự đoán của model)</span></div>"
+        "<div class='adjusted-note'>Thứ tự gợi ý đã cân nhắc thêm sở thích và kỹ năng của bạn.</div>"
         if adjusted else ""
     )
 
     return (
         f"<div class='res'>"
         f"  <div>"
-        f"    <div class='k'>{name_prefix}{'Gợi ý sau điều chỉnh' if adjusted else 'Gợi ý nổi bật'}</div>"
+        f"    <div class='k'>{name_prefix}{'Gợi ý sau khi cân nhắc sở thích' if adjusted else 'Gợi ý từ điểm môn học'}</div>"
         f"    <div class='v'>{e(group)}</div>"
         f"    <div class='s'>{match_str}</div>"
         f"    <div>{chips}</div>"
-        f"    <div class='model-note'><b>Model dự đoán nhóm:</b> {e(model_group)} "
-        f"· <b>Mức {conf:.1f}%</b> theo nhãn huấn luyện "
-        f"<span>(đã hiệu chuẩn; không biểu thị độ phù hợp nghề thực tế)</span></div>"
+        f"    <div class='model-note'><b>Gợi ý theo điểm môn học:</b> {e(score_based_group)} "
+        f"· <b>Mức dự đoán {conf:.1f}%</b> "
+        f"<span>(dựa trên dữ liệu hệ thống đã học; không cho biết mức độ phù hợp hay khả năng thành công ngoài thực tế)</span></div>"
         f"    {adjusted_line}"
         f"  </div>"
         f"</div>"
@@ -1169,9 +1162,9 @@ def result_hero(
 
 
 def prob_bars(probs: dict) -> str:
-    """Thanh thể hiện các lĩnh vực có nét phù hợp với hồ sơ học tập."""
+    """Thanh thể hiện những nhóm ngành hệ thống gợi ý theo điểm môn học."""
     items = sorted(probs.items(), key=lambda kv: -kv[1])
-    out = ["<div class='card'><h4>Phân bố dự đoán của model</h4>"]
+    out = ["<div class='card'><h4>Các nhóm ngành được gợi ý theo điểm môn học</h4>"]
     for i, (g, p) in enumerate(items):
         color = PALETTE[i % len(PALETTE)]
         out.append(
@@ -1180,7 +1173,7 @@ def prob_bars(probs: dict) -> str:
             f"  <div class='tr'><div class='fl' style='width:{max(p, 0.8):.1f}%;background:{color}'></div></div>"
             f"</div>"
         )
-    out.append("<div class='note'>Các mức này được hiệu chỉnh nhiệt độ bằng cross-validation theo nhãn huấn luyện (chủ yếu là nhãn suy ra từ điểm), không phải mức phù hợp nghề ngoài thực tế. Thứ hạng nghề có thể được điều chỉnh riêng theo sở thích và kỹ năng.</div></div>")
+    out.append("<div class='note'>Các tỉ lệ cho biết hệ thống nghiêng về nhóm nào dựa trên dữ liệu đã học. Đây không phải mức độ phù hợp hay khả năng thành công ngoài thực tế. Sở thích và kỹ năng được cân nhắc riêng khi sắp xếp gợi ý.</div></div>")
     return "".join(out)
 
 
