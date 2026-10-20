@@ -812,15 +812,28 @@ div[class*="st-key-fb_rating_star_"] button:focus:not(:focus-visible) {
 @media(min-width: 900px) {
     .cgrid {
         grid-template-columns: repeat(3, minmax(0, 1fr));
-        grid-template-rows: repeat(8, auto);
+        grid-template-rows: repeat(9, auto);
         column-gap: 1.15rem;
         row-gap: 0;
     }
     .career {
-        grid-row: span 8;
+        grid-row: span 9;
         display: grid;
         grid-template-rows: subgrid;
     }
+}
+.career .kv.stack,
+.career .kv.stack span:last-child {
+    min-width: 0;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+.career .kv.stack span:last-child {
+    line-height: 1.55;
+}
+.career .kv.stack a {
+    overflow-wrap: anywhere;
+    word-break: break-word;
 }
 .rank {
     display: inline-flex;
@@ -1028,10 +1041,6 @@ div[class*="st-key-fb_rating_star_"] button:focus:not(:focus-visible) {
     border: 0;
     background: transparent;
 }
-.st-key-admin-login-card button[aria-label="Show password"],
-.st-key-admin-login-card button[aria-label="Hide password"] {
-    display: none !important;
-}
 .career-explorer-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -1055,6 +1064,31 @@ div[class*="st-key-fb_rating_star_"] button:focus:not(:focus-visible) {
     color: #475569;
     font-size: 0.88rem;
     line-height: 1.6;
+}
+.career-explorer-card .kv.stack {
+    align-items: stretch;
+    min-width: 0;
+}
+.career-explorer-card .kv.stack > span:last-child,
+.career-explorer-card .career-source-links {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    text-align: left;
+    line-height: 1.55;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+.career-explorer-card .career-source-links a {
+    display: block;
+    margin: 0.15rem 0;
+    line-height: 1.55;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+.career-explorer-card .career-source-links .source-scope {
+    color: var(--muted);
+    font-size: 0.8rem;
 }
 @media(max-width: 768px) {
     .res { flex-direction: column; align-items: flex-start; }
@@ -1574,9 +1608,9 @@ def career_explorer_card(career: dict) -> str:
                 source_links.append(
                     f"<a href='{e(url)}' target='_blank' rel='noopener noreferrer'>"
                     f"{e(source.get('ten') or 'Nguồn tham khảo')}</a>"
-                    f"{_market_source_reference_note(source)}"
+                    f"<span class='source-scope'>{_market_source_reference_note(source)}</span>"
                 )
-    source_text = " · ".join(source_links) or e(
+    source_text = "".join(source_links) or e(
         career.get("nguon_du_lieu") or "Chưa có nguồn tham khảo phù hợp."
     )
     review_status, review_is_recent = market_source_status(career.get("ngay_kiem_tra"))
@@ -1602,7 +1636,7 @@ def career_explorer_card(career: dict) -> str:
         f"<div class='kv stack'><span>Mức lương tham khảo</span><span>{e(salary)}</span></div>"
         f"<div class='kv stack'><span>Xu hướng thị trường</span><span>{e(trend)}</span></div>"
         f"<div class='kv stack'><span>Khu vực</span><span>{e(career.get('khu_vuc') or 'Chưa có thông tin')}</span></div>"
-        f"<div class='kv stack'><span>Nguồn tham khảo</span><span>{source_text}</span></div>"
+        f"<div class='kv stack'><span>Nguồn tham khảo</span><div class='career-source-links'>{source_text}</div></div>"
         f"<p style='margin:0.65rem 0 0;color:{review_color};font-size:0.76rem;font-weight:600'>"
         f"{e(review_status)}</p>"
         "</article>"

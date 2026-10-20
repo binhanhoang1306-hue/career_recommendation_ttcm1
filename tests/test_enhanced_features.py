@@ -264,6 +264,27 @@ class TestEnhancedFeatures(unittest.TestCase):
         self.assertIn("Linux", card)
         self.assertIn("không dự đoán khả năng thành công", card)
 
+    def test_career_explorer_sources_wrap_without_overlapping(self):
+        from career_ai.catalog_audit import CAREERS_PATH
+        from web import ui_kit
+
+        with CAREERS_PATH.open(encoding="utf-8") as file:
+            career = json.load(file)["GR01"]
+        card = ui_kit.career_explorer_card(career)
+
+        self.assertIn("class='career-source-links'", card)
+        self.assertGreaterEqual(card.count("target='_blank'"), 2)
+        self.assertIn("word-break: break-word", ui_kit.CSS)
+        self.assertIn("display: block", ui_kit.CSS)
+        self.assertIn("grid-template-rows: repeat(9, auto)", ui_kit.CSS)
+        self.assertIn("grid-row: span 9", ui_kit.CSS)
+
+    def test_admin_password_reveal_control_is_not_hidden_by_custom_css(self):
+        from web import ui_kit
+
+        self.assertNotIn('button[aria-label="Show password"]', ui_kit.CSS)
+        self.assertNotIn('button[aria-label="Hide password"]', ui_kit.CSS)
+
     def test_source_checker_distinguishes_blocked_urls_and_expired_listings(self):
         from datetime import date
         from career_ai.source_check import check_market_sources, classify_http_status
