@@ -627,8 +627,84 @@ div[class*="st-key-fb_rating_star_"] button:focus:not(:focus-visible) {
 }
 
 [data-testid="stSidebar"] {
-    background: #FFFFFF !important;
-    border-right: 1px solid var(--line) !important;
+    background: linear-gradient(165deg, #11152F 0%, #1E2A5B 48%, #334A9B 100%) !important;
+    border-right: 1px solid rgba(148, 163, 184, 0.24) !important;
+}
+[data-testid="stSidebar"] > div:first-child {
+    background: transparent !important;
+}
+[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] h3,
+[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] h4,
+[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p,
+[data-testid="stSidebar"] [data-testid="stCaptionContainer"] {
+    color: #F8FAFC !important;
+}
+[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] h3 {
+    margin: 0.25rem 0 0.35rem;
+    font-size: 1.16rem;
+}
+[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] h4 {
+    margin: 0.45rem 0;
+    font-size: 0.98rem;
+}
+[data-testid="stSidebar"] [data-testid="stCaptionContainer"] {
+    color: #CBD5E1 !important;
+    line-height: 1.5;
+}
+[data-testid="stSidebar"] hr {
+    border-color: rgba(203, 213, 225, 0.18) !important;
+    margin: 1rem 0;
+}
+[data-testid="stSidebar"] .stButton > button {
+    min-height: 2.8rem;
+    justify-content: flex-start;
+    border-radius: 13px !important;
+    padding: 0.5rem 0.75rem !important;
+    font-size: 0.88rem !important;
+    font-weight: 650 !important;
+    line-height: 1.3 !important;
+    text-align: left !important;
+    white-space: normal !important;
+    color: #F8FAFC !important;
+}
+[data-testid="stSidebar"] .stButton > button[kind="secondary"] {
+    background: rgba(255, 255, 255, 0.07) !important;
+    border: 1px solid rgba(203, 213, 225, 0.13) !important;
+    box-shadow: none !important;
+}
+[data-testid="stSidebar"] .stButton > button[kind="secondary"]:hover {
+    background: rgba(255, 255, 255, 0.14) !important;
+    border-color: rgba(191, 219, 254, 0.5) !important;
+    transform: translateY(-1px);
+}
+[data-testid="stSidebar"] .stButton > button[kind="primary"] {
+    background: linear-gradient(110deg, #5B4CE2 0%, #5599DF 100%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.14) !important;
+    box-shadow: 0 10px 22px -12px rgba(96, 165, 250, 0.9) !important;
+}
+[data-testid="stSidebar"] .stButton > button p {
+    color: inherit !important;
+    font-size: inherit !important;
+    line-height: inherit !important;
+}
+[data-testid="stSidebar"] .st-key-sidebar-footer {
+    position: sticky;
+    bottom: 0;
+    z-index: 2;
+    margin-top: 2rem;
+    padding-top: 0.4rem;
+    background: linear-gradient(180deg, rgba(41, 57, 116, 0.25), #2E438D 28%);
+}
+[data-testid="stSidebar"] .st-key-sidebar-footer .stButton > button {
+    background: rgba(255, 255, 255, 0.06) !important;
+    border: 1px solid rgba(203, 213, 225, 0.26) !important;
+    box-shadow: none !important;
+}
+[data-testid="stSidebar"] .st-key-sidebar-footer .stButton > button:hover {
+    background: rgba(255, 255, 255, 0.14) !important;
+}
+[data-testid="stSidebar"] [data-testid="stSidebarCollapseButton"] button {
+    color: #F8FAFC !important;
 }
 
 [data-testid="stTabs"] [data-baseweb="tab-list"] {

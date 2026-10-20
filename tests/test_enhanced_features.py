@@ -285,6 +285,13 @@ class TestEnhancedFeatures(unittest.TestCase):
         self.assertNotIn('button[aria-label="Show password"]', ui_kit.CSS)
         self.assertNotIn('button[aria-label="Hide password"]', ui_kit.CSS)
 
+    def test_sidebar_navigation_uses_dark_explorer_menu_styles(self):
+        from web import ui_kit
+
+        self.assertIn("linear-gradient(165deg, #11152F", ui_kit.CSS)
+        self.assertIn('[data-testid="stSidebar"] .stButton > button[kind="secondary"]', ui_kit.CSS)
+        self.assertIn(".st-key-sidebar-footer", ui_kit.CSS)
+
     def test_source_checker_distinguishes_blocked_urls_and_expired_listings(self):
         from datetime import date
         from career_ai.source_check import check_market_sources, classify_http_status
