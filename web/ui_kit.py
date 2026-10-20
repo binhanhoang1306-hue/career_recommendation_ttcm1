@@ -1466,6 +1466,15 @@ div[class*="st-key-fb_rating_star_"] button:focus:not(:focus-visible) {
 }
 
 @media (max-width: 768px) {
+    [data-testid="stSidebar"] {
+        width: min(270px, calc(100vw - 2rem)) !important;
+        min-width: min(270px, calc(100vw - 2rem)) !important;
+    }
+
+    [data-testid="stSidebar"] > div:first-child {
+        width: 100% !important;
+    }
+
     .block-container {
         padding: 1.25rem 1rem 2rem;
     }
