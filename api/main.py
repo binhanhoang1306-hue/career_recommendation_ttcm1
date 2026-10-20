@@ -13,6 +13,8 @@ API có các nhiệm vụ chính:
    - POST /decision    : Hệ hỗ trợ quyết định toàn diện (ML Tầng 1 + CBF Tầng 2 + Groq LLM diễn giải).
 5. Kích hoạt CORSMiddleware để hỗ trợ giao diện Web Streamlit.
 """
+import asyncio
+import logging
 import os
 import sqlite3
 import sys
@@ -23,7 +25,7 @@ import secrets
 
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
-from typing import Dict, List, Literal, Optional, Union, ClassVar
+from typing import AsyncIterator, Dict, List, Literal, Optional, Union, ClassVar
 from contextlib import asynccontextmanager
 
 from fastapi import Depends, FastAPI, HTTPException, Request, status, BackgroundTasks
@@ -65,11 +67,42 @@ from career_ai.model_exporter import (
 from career_ai.monitor_service import log_prediction
 from career_ai.retrain_service import (
     register_reload_callback, check_and_trigger_auto_retrain, retrain_from_explicit_feedback,
+    rebuild_feedback_training_data,
 )
 from career_ai.storage_paths import data_file
 
 START_TIME = time.time()
+logger = logging.getLogger(__name__)
 admin_basic = HTTPBasic(auto_error=False)
+
+
+async def _run_retention_cleanup() -> None:
+    from career_ai.retention_service import purge_expired_data
+
+    try:
+        result = await asyncio.to_thread(purge_expired_data)
+    except (OSError, ValueError, sqlite3.Error, json.JSONDecodeError):
+        logger.exception("Automatic retention cleanup failed")
+    else:
+        if any(value for key, value in result.items() if key.startswith("deleted_")):
+            logger.info("Automatic retention cleanup removed expired records: %s", result)
+
+
+async def _retention_cleanup_loop() -> None:
+    while True:
+        await asyncio.sleep(24 * 60 * 60)
+        await _run_retention_cleanup()
+
+
+@asynccontextmanager
+async def app_lifespan(_app) -> AsyncIterator[None]:
+    await _run_retention_cleanup()
+    cleanup_task = asyncio.create_task(_retention_cleanup_loop())
+    try:
+        yield
+    finally:
+        cleanup_task.cancel()
+        await asyncio.gather(cleanup_task, return_exceptions=True)
 
 
 def require_admin(credentials: Optional[HTTPBasicCredentials] = Depends(admin_basic)):
@@ -380,6 +413,7 @@ app = FastAPI(
     title="Career Recommendation DSS API",
     description="Hệ thống hỗ trợ quyết định định hướng nghề nghiệp CNTT dựa trên mô hình học máy và lọc dựa trên nội dung (CBF).",
     version=MODEL_VERSION,
+    lifespan=app_lifespan,
 )
 
 # Danh sách nguồn được phép, cách nhau bằng dấu phẩy, cấu hình qua biến môi trường CORS_ORIGINS.
@@ -539,6 +573,7 @@ def decision_endpoint(req: DecisionRequest):
             "match_percentage": c["cbf_score_pct"],
             "description": c["description"],
             "salary": c["salary"],
+            "salary_data": c.get("salary_data"),
             "trend": c["trend"],
             "region": c.get("region", "Việt Nam (Hà Nội, TP.HCM, Đà Nẵng)"),
             "source": c.get("source", "Báo cáo thị trường IT TopCV & ITviec Tech Salary Report"),
@@ -550,6 +585,15 @@ def decision_endpoint(req: DecisionRequest):
             "improvements": c.get("improvements", []),
             "unstudied_core": c.get("unstudied_core", []),
             "soft_skill_matches": c.get("soft_skill_matches", []),
+            "soft_skill_improvements": c.get("soft_skill_improvements", []),
+            "explanation": {
+                "matched_subjects": c.get("strengths", []),
+                "matched_skills": c.get("soft_skill_matches", []),
+                "subjects_to_strengthen": c.get("improvements", []),
+                "core_subjects_not_yet_studied": c.get("unstudied_core", []),
+                "is_group_fill": c.get("is_group_fill", False),
+                "score_note": "Điểm khớp tham khảo, không dự đoán khả năng thành công ngoài thực tế.",
+            },
             "is_group_fill": c.get("is_group_fill", False),
         })
 
@@ -781,23 +825,50 @@ def delete_admin_feedback_endpoint(
     try:
         deleted, mirror_synced = feedback_store.delete_feedback(feedback_id)
     except (OSError, ValueError, sqlite3.Error) as exc:
-        print(f"[API][CẢNH BÁO] Không xóa được phản hồi: {type(exc).__name__}")
+        logger.exception("Failed to delete feedback %s", feedback_id)
         raise HTTPException(status_code=500, detail="Không thể xóa phản hồi.") from exc
     if not deleted:
         raise HTTPException(status_code=404, detail="Không tìm thấy phản hồi.")
+    training_data_synced = False
+    try:
+        rebuild_feedback_training_data(feedback_store.get_all_feedback())
+        training_data_synced = True
+    except (OSError, ValueError, sqlite3.Error, json.JSONDecodeError):
+        logger.exception("Deleted feedback %s but failed to update training data", feedback_id)
+    if not mirror_synced or not training_data_synced:
+        raise HTTPException(
+            status_code=500,
+            detail="Phản hồi đã bị xóa, nhưng không thể đồng bộ toàn bộ dữ liệu liên quan.",
+        )
     recommender_updated = False
-    if deleted and mirror_synced:
-        try:
-            recommender.reload()
-            recommender_updated = True
-        except (OSError, ValueError) as exc:
-            print(f"[API][CẢNH BÁO] Đã xóa phản hồi nhưng chưa cập nhật được bộ gợi ý: {type(exc).__name__}")
+    try:
+        recommender.reload()
+        recommender_updated = True
+    except (OSError, ValueError, json.JSONDecodeError):
+        logger.exception("Deleted feedback %s but failed to update recommender", feedback_id)
+        raise HTTPException(
+            status_code=500,
+            detail="Phản hồi đã bị xóa, nhưng chưa thể cập nhật bộ gợi ý.",
+        )
     return {
         "status": "deleted",
         "feedback_id": feedback_id,
         "mirror_synced": mirror_synced,
+        "training_data_synced": training_data_synced,
         "recommender_updated": recommender_updated,
     }
+
+
+@app.post("/admin/maintenance/retention")
+def run_retention_cleanup_endpoint(_admin: HTTPBasicCredentials = Depends(require_admin)):
+    """Run the configured data-retention cleanup immediately."""
+    from career_ai.retention_service import purge_expired_data
+
+    try:
+        return purge_expired_data()
+    except (OSError, ValueError, sqlite3.Error, json.JSONDecodeError) as exc:
+        logger.exception("Manual retention cleanup failed")
+        raise HTTPException(status_code=500, detail="Không thể dọn dữ liệu quá hạn.") from exc
 
 
 @app.get("/admin/logs")

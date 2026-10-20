@@ -221,6 +221,30 @@ def delete_feedback(feedback_id: str) -> bool:
     return cursor.rowcount > 0
 
 
+def delete_expired_records(
+    feedback_cutoff: str, log_cutoff: str, interaction_cutoff: str
+) -> dict[str, int]:
+    """Delete rows older than the supplied ISO-8601 cutoffs."""
+    with get_connection() as conn:
+        feedbacks = conn.execute(
+            "DELETE FROM feedbacks WHERE julianday(timestamp) < julianday(?)",
+            (feedback_cutoff,),
+        ).rowcount
+        interactions = conn.execute(
+            "DELETE FROM interactions WHERE julianday(timestamp) < julianday(?)",
+            (interaction_cutoff,),
+        ).rowcount
+        prediction_logs = conn.execute(
+            "DELETE FROM prediction_logs WHERE julianday(timestamp) < julianday(?)",
+            (log_cutoff,),
+        ).rowcount
+    return {
+        "feedbacks": feedbacks,
+        "interactions": interactions,
+        "prediction_logs": prediction_logs,
+    }
+
+
 def get_all_feedbacks(limit: int = None) -> list:
     """Lấy danh sách phản hồi từ SQLite theo thứ tự mới nhất."""
     query = "SELECT * FROM feedbacks ORDER BY timestamp DESC"

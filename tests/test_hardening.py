@@ -164,6 +164,7 @@ class TestApiHardening(unittest.TestCase):
                 json.dump([{"id": feedback_id}], file)
             with patch.object(feedback_store, "FEEDBACK_PATH", feedback_path), \
                     patch.object(feedback_store.db, "delete_feedback", return_value=True), \
+                    patch.object(api_main, "rebuild_feedback_training_data"), \
                     patch.object(api_main.recommender, "reload"):
                 with patch.dict(os.environ, {"ADMIN_USERNAME": "test-admin", "ADMIN_PASSWORD": "test-secret"}):
                     response = self.client.delete(
@@ -172,6 +173,7 @@ class TestApiHardening(unittest.TestCase):
                     )
                 self.assertEqual(response.status_code, 200, response.text)
                 self.assertTrue(response.json()["mirror_synced"])
+                self.assertTrue(response.json()["training_data_synced"])
                 self.assertTrue(response.json()["recommender_updated"])
                 with open(feedback_path, encoding="utf-8") as file:
                     self.assertEqual(json.load(file), [])

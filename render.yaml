@@ -3,7 +3,7 @@ services:
   - type: web
     name: career-ai-api
     runtime: python
-    buildCommand: pip install -r requirements.txt && python -m career_ai.prepare_data && python -m career_ai.train
+    buildCommand: pip install --require-hashes -r requirements.lock && python -m career_ai.prepare_data && python -m career_ai.train
     startCommand: uvicorn api.main:app --host 0.0.0.0 --port $PORT
     disk:
       name: career-ai-data
@@ -27,7 +27,7 @@ services:
   - type: web
     name: career-ai-web
     runtime: python
-    buildCommand: pip install -r requirements.txt
+    buildCommand: pip install --require-hashes -r requirements.lock
     startCommand: streamlit run web/app.py --server.port $PORT --server.address 0.0.0.0
     envVars:
       - key: PYTHON_VERSION

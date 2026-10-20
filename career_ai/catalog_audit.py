@@ -1,6 +1,7 @@
 """Audit whether career-market records have traceable, recently reviewed sources."""
 
 import json
+import math
 import re
 import sys
 from datetime import date, datetime
@@ -26,6 +27,135 @@ def audit_career_catalog(careers: dict, today: date | None = None, max_age_days:
         if not isinstance(career, dict):
             issues.append({"career_id": career_id, "field": "record", "issue": "invalid_record"})
             continue
+
+        salary_data = career.get("salary_data")
+        if not isinstance(salary_data, dict):
+            issues.append({"career_id": career_id, "field": "salary_data", "issue": "missing_or_invalid"})
+        else:
+            if salary_data.get("schema_version") != 1:
+                issues.append({
+                    "career_id": career_id,
+                    "field": "salary_data.schema_version",
+                    "issue": "unsupported_schema_version",
+                })
+            for field in ("type", "currency", "period", "location", "data_period", "status", "reviewed_at"):
+                if not str(salary_data.get(field) or "").strip():
+                    issues.append({
+                        "career_id": career_id,
+                        "field": f"salary_data.{field}",
+                        "issue": "missing_value",
+                    })
+            try:
+                datetime.strptime(str(salary_data.get("reviewed_at") or ""), "%Y-%m-%d")
+            except ValueError:
+                issues.append({
+                    "career_id": career_id,
+                    "field": "salary_data.reviewed_at",
+                    "issue": "invalid_date",
+                })
+            sample_size = salary_data.get("sample_size")
+            if sample_size is not None and (
+                isinstance(sample_size, bool)
+                or not isinstance(sample_size, int)
+                or sample_size < 1
+            ):
+                issues.append({
+                    "career_id": career_id,
+                    "field": "salary_data.sample_size",
+                    "issue": "invalid_sample_size",
+                })
+            if salary_data.get("currency") != "VND" or salary_data.get("period") != "month":
+                issues.append({
+                    "career_id": career_id,
+                    "field": "salary_data",
+                    "issue": "unsupported_currency_or_period",
+                })
+            observations = salary_data.get("observations")
+            if not isinstance(observations, list):
+                issues.append({
+                    "career_id": career_id,
+                    "field": "salary_data.observations",
+                    "issue": "invalid_observations",
+                })
+            else:
+                for index, observation in enumerate(observations):
+                    field = f"salary_data.observations[{index}]"
+                    if not isinstance(observation, dict):
+                        issues.append({"career_id": career_id, "field": field, "issue": "invalid_record"})
+                        continue
+                    statistic = observation.get("statistic")
+                    if statistic not in {
+                        "median", "mean", "advertised_range", "advertised_ceiling",
+                        "reported_experience_range",
+                    }:
+                        issues.append({
+                            "career_id": career_id,
+                            "field": f"{field}.statistic",
+                            "issue": "invalid_statistic",
+                        })
+                    has_value = observation.get("value_vnd_per_month") is not None
+                    has_low = observation.get("minimum_vnd_per_month") is not None
+                    has_high = observation.get("maximum_vnd_per_month") is not None
+                    if (
+                        (statistic in {"median", "mean"} and not has_value)
+                        or (statistic == "advertised_range" and not (has_low and has_high))
+                        or (statistic == "advertised_ceiling" and not has_high)
+                        or (statistic == "reported_experience_range" and not (has_low and has_high))
+                    ):
+                        issues.append({
+                            "career_id": career_id,
+                            "field": field,
+                            "issue": "missing_required_amount",
+                        })
+                    for amount_field in (
+                        "value_vnd_per_month",
+                        "minimum_vnd_per_month",
+                        "maximum_vnd_per_month",
+                    ):
+                        value = observation.get(amount_field)
+                        if value is not None and (
+                            isinstance(value, bool)
+                            or not isinstance(value, (int, float))
+                            or not math.isfinite(value)
+                            or value < 0
+                        ):
+                            issues.append({
+                                "career_id": career_id,
+                                "field": f"{field}.{amount_field}",
+                                "issue": "invalid_nonnegative_amount",
+                            })
+                    low = observation.get("minimum_vnd_per_month")
+                    high = observation.get("maximum_vnd_per_month")
+                    if (
+                        isinstance(low, (int, float))
+                        and not isinstance(low, bool)
+                        and math.isfinite(low)
+                        and isinstance(high, (int, float))
+                        and not isinstance(high, bool)
+                        and math.isfinite(high)
+                        and low > high
+                    ):
+                        issues.append({
+                            "career_id": career_id,
+                            "field": field,
+                            "issue": "minimum_exceeds_maximum",
+                        })
+                    expiry = observation.get("expires_at")
+                    if expiry:
+                        try:
+                            datetime.strptime(str(expiry), "%Y-%m-%d")
+                        except ValueError:
+                            issues.append({
+                                "career_id": career_id,
+                                "field": f"{field}.expires_at",
+                                "issue": "invalid_date",
+                            })
+            if salary_data.get("role_scope") == "related_role_proxy" and not salary_data.get("proxy_role"):
+                issues.append({
+                    "career_id": career_id,
+                    "field": "salary_data.proxy_role",
+                    "issue": "missing_proxy_role",
+                })
 
         for field in ("muc_luong", "xu_huong_thi_truong", "khu_vuc"):
             if not str(career.get(field) or "").strip():

@@ -34,7 +34,69 @@
         "loai_tham_chieu": "chi_bao_ky_nang",
         "doi_tuong_tham_chieu": "tin tuyển dụng IT có nhắc kỹ năng Backend"
       }
-    ]
+    ],
+    "salary_data": {
+      "schema_version": 1,
+      "type": "experience_medians",
+      "currency": "VND",
+      "period": "month",
+      "location": "Vietnam",
+      "data_period": "2023-2024 chart; exact data period uncertain",
+      "role_scope": "exact_role",
+      "proxy_role": null,
+      "sample_size": null,
+      "status": "historical_report",
+      "reviewed_at": "2026-10-19",
+      "source_count": 1,
+      "observations": [
+        {
+          "statistic": "median",
+          "value_vnd_per_month": 10000000,
+          "minimum_vnd_per_month": null,
+          "maximum_vnd_per_month": null,
+          "experience": "<1 year",
+          "location": null,
+          "expires_at": null
+        },
+        {
+          "statistic": "median",
+          "value_vnd_per_month": 16000000,
+          "minimum_vnd_per_month": null,
+          "maximum_vnd_per_month": null,
+          "experience": "1-2 years",
+          "location": null,
+          "expires_at": null
+        },
+        {
+          "statistic": "median",
+          "value_vnd_per_month": 27000000,
+          "minimum_vnd_per_month": null,
+          "maximum_vnd_per_month": null,
+          "experience": "3-4 years",
+          "location": null,
+          "expires_at": null
+        },
+        {
+          "statistic": "median",
+          "value_vnd_per_month": 41000000,
+          "minimum_vnd_per_month": null,
+          "maximum_vnd_per_month": null,
+          "experience": "5-8 years; advanced certification required",
+          "location": null,
+          "expires_at": null
+        },
+        {
+          "statistic": "median",
+          "value_vnd_per_month": 60500000,
+          "minimum_vnd_per_month": null,
+          "maximum_vnd_per_month": null,
+          "experience": ">8 years",
+          "location": null,
+          "expires_at": null
+        }
+      ],
+      "note": "Lương trung vị theo năm kinh nghiệm (<1, 1–2, 3–4, 5–8, >8 năm): 10; 16; 27; 41; 60,5 triệu VND/tháng. Đây là số liệu lịch sử, không phải dải lương Fresher/Junior/Middle/Senior hiện hành."
+    }
   },
   "FE01": {
     "career_id": "FE01",
@@ -71,7 +133,69 @@
         "loai_tham_chieu": "chi_bao_ky_nang",
         "doi_tuong_tham_chieu": "tin tuyển dụng IT yêu cầu JavaScript"
       }
-    ]
+    ],
+    "salary_data": {
+      "schema_version": 1,
+      "type": "experience_medians",
+      "currency": "VND",
+      "period": "month",
+      "location": "Vietnam",
+      "data_period": "2023-2024 chart; exact data period uncertain",
+      "role_scope": "exact_role",
+      "proxy_role": null,
+      "sample_size": null,
+      "status": "historical_report",
+      "reviewed_at": "2026-10-19",
+      "source_count": 1,
+      "observations": [
+        {
+          "statistic": "median",
+          "value_vnd_per_month": 7500000,
+          "minimum_vnd_per_month": null,
+          "maximum_vnd_per_month": null,
+          "experience": "<1 year",
+          "location": null,
+          "expires_at": null
+        },
+        {
+          "statistic": "median",
+          "value_vnd_per_month": 14000000,
+          "minimum_vnd_per_month": null,
+          "maximum_vnd_per_month": null,
+          "experience": "1-2 years",
+          "location": null,
+          "expires_at": null
+        },
+        {
+          "statistic": "median",
+          "value_vnd_per_month": 28000000,
+          "minimum_vnd_per_month": null,
+          "maximum_vnd_per_month": null,
+          "experience": "3-4 years",
+          "location": null,
+          "expires_at": null
+        },
+        {
+          "statistic": "median",
+          "value_vnd_per_month": 40000000,
+          "minimum_vnd_per_month": null,
+          "maximum_vnd_per_month": null,
+          "experience": "5-8 years; advanced certification required",
+          "location": null,
+          "expires_at": null
+        },
+        {
+          "statistic": "median",
+          "value_vnd_per_month": 55000000,
+          "minimum_vnd_per_month": null,
+          "maximum_vnd_per_month": null,
+          "experience": ">8 years",
+          "location": null,
+          "expires_at": null
+        }
+      ],
+      "note": "Lương trung vị theo năm kinh nghiệm (<1, 1–2, 3–4, 5–8, >8 năm): 7,5; 14; 28; 40; 55 triệu VND/tháng. Đây là số liệu lịch sử, không phải dải lương hiện hành."
+    }
   },
   "FS01": {
     "career_id": "FS01",
@@ -99,7 +223,69 @@
           "xu_huong_thi_truong"
         ]
       }
-    ]
+    ],
+    "salary_data": {
+      "schema_version": 1,
+      "type": "experience_medians",
+      "currency": "VND",
+      "period": "month",
+      "location": "Vietnam",
+      "data_period": "2023-2024; page updated in 2024",
+      "role_scope": "exact_role",
+      "proxy_role": null,
+      "sample_size": null,
+      "status": "historical_report",
+      "reviewed_at": "2026-10-19",
+      "source_count": 1,
+      "observations": [
+        {
+          "statistic": "median",
+          "value_vnd_per_month": 10000000,
+          "minimum_vnd_per_month": null,
+          "maximum_vnd_per_month": null,
+          "experience": "<1 year",
+          "location": null,
+          "expires_at": null
+        },
+        {
+          "statistic": "median",
+          "value_vnd_per_month": 19000000,
+          "minimum_vnd_per_month": null,
+          "maximum_vnd_per_month": null,
+          "experience": "1-2 years",
+          "location": null,
+          "expires_at": null
+        },
+        {
+          "statistic": "median",
+          "value_vnd_per_month": 28000000,
+          "minimum_vnd_per_month": null,
+          "maximum_vnd_per_month": null,
+          "experience": "3-4 years",
+          "location": null,
+          "expires_at": null
+        },
+        {
+          "statistic": "median",
+          "value_vnd_per_month": 38000000,
+          "minimum_vnd_per_month": null,
+          "maximum_vnd_per_month": null,
+          "experience": "5-8 years; advanced certification required",
+          "location": null,
+          "expires_at": null
+        },
+        {
+          "statistic": "median",
+          "value_vnd_per_month": 55000000,
+          "minimum_vnd_per_month": null,
+          "maximum_vnd_per_month": null,
+          "experience": ">8 years",
+          "location": null,
+          "expires_at": null
+        }
+      ],
+      "note": "Lương trung vị theo năm kinh nghiệm (<1, 1–2, 3–4, 5–8, >8 năm): 10; 19; 28; 38; 55 triệu VND/tháng. Báo cáo dẫn nguồn 2023–2024, không phải dải lương hiện hành."
+    }
   },
   "UD01": {
     "career_id": "UD01",
@@ -136,7 +322,33 @@
         "loai_tham_chieu": "chi_bao_nganh",
         "doi_tuong_tham_chieu": "số tin tuyển dụng IT trên ITviec"
       }
-    ]
+    ],
+    "salary_data": {
+      "schema_version": 1,
+      "type": "single_listing_range",
+      "currency": "VND",
+      "period": "month",
+      "location": "Hanoi",
+      "data_period": "One job listing; expired 2026-07-23",
+      "role_scope": "exact_role",
+      "proxy_role": null,
+      "sample_size": null,
+      "status": "expired_listing",
+      "reviewed_at": "2026-10-19",
+      "source_count": 1,
+      "observations": [
+        {
+          "statistic": "advertised_range",
+          "value_vnd_per_month": null,
+          "minimum_vnd_per_month": 15000000,
+          "maximum_vnd_per_month": 20000000,
+          "experience": "2 years",
+          "location": "Hanoi",
+          "expires_at": "2026-07-23"
+        }
+      ],
+      "note": "Một tin TopCV cho Nhân viên UI/UX Designer tại Hà Nội ghi 15–20 triệu VND/tháng, yêu cầu 2 năm kinh nghiệm; tin hết hạn 23/07/2026. Đây là mức trong một tin tuyển dụng, không phải mức lương trung vị hay dải hiện hành."
+    }
   },
   "MB01": {
     "career_id": "MB01",
@@ -173,7 +385,69 @@
         "loai_tham_chieu": "chi_bao_nganh",
         "doi_tuong_tham_chieu": "số tin tuyển dụng IT trên ITviec"
       }
-    ]
+    ],
+    "salary_data": {
+      "schema_version": 1,
+      "type": "experience_medians",
+      "currency": "VND",
+      "period": "month",
+      "location": "Vietnam",
+      "data_period": "2023-2024 chart; exact data period uncertain",
+      "role_scope": "exact_role",
+      "proxy_role": null,
+      "sample_size": null,
+      "status": "historical_report",
+      "reviewed_at": "2026-10-19",
+      "source_count": 1,
+      "observations": [
+        {
+          "statistic": "median",
+          "value_vnd_per_month": 10000000,
+          "minimum_vnd_per_month": null,
+          "maximum_vnd_per_month": null,
+          "experience": "<1 year",
+          "location": null,
+          "expires_at": null
+        },
+        {
+          "statistic": "median",
+          "value_vnd_per_month": 15000000,
+          "minimum_vnd_per_month": null,
+          "maximum_vnd_per_month": null,
+          "experience": "1-2 years",
+          "location": null,
+          "expires_at": null
+        },
+        {
+          "statistic": "median",
+          "value_vnd_per_month": 26000000,
+          "minimum_vnd_per_month": null,
+          "maximum_vnd_per_month": null,
+          "experience": "3-4 years",
+          "location": null,
+          "expires_at": null
+        },
+        {
+          "statistic": "median",
+          "value_vnd_per_month": 40000000,
+          "minimum_vnd_per_month": null,
+          "maximum_vnd_per_month": null,
+          "experience": "5-8 years; advanced certification required",
+          "location": null,
+          "expires_at": null
+        },
+        {
+          "statistic": "median",
+          "value_vnd_per_month": 51000000,
+          "minimum_vnd_per_month": null,
+          "maximum_vnd_per_month": null,
+          "experience": ">8 years",
+          "location": null,
+          "expires_at": null
+        }
+      ],
+      "note": "Lương trung vị theo năm kinh nghiệm (<1, 1–2, 3–4, 5–8, >8 năm): 10; 15; 26; 40; 51 triệu VND/tháng. Đây là số liệu lịch sử, không phải dải lương hiện hành."
+    }
   },
   "DA01": {
     "career_id": "DA01",
@@ -208,7 +482,42 @@
           "xu_huong_thi_truong"
         ]
       }
-    ]
+    ],
+    "salary_data": {
+      "schema_version": 1,
+      "type": "partial_experience_medians",
+      "currency": "VND",
+      "period": "month",
+      "location": "Vietnam",
+      "data_period": "2025-2026 report",
+      "role_scope": "related_role_proxy",
+      "proxy_role": "Data Scientist (excluding Data Analyst)",
+      "sample_size": null,
+      "status": "reported_period",
+      "reviewed_at": "2026-10-14",
+      "source_count": 1,
+      "observations": [
+        {
+          "statistic": "median",
+          "value_vnd_per_month": 23800000,
+          "minimum_vnd_per_month": null,
+          "maximum_vnd_per_month": null,
+          "experience": "1-2 years",
+          "location": null,
+          "expires_at": null
+        },
+        {
+          "statistic": "median",
+          "value_vnd_per_month": 42500000,
+          "minimum_vnd_per_month": null,
+          "maximum_vnd_per_month": null,
+          "experience": "5-8 years; advanced certification required",
+          "location": null,
+          "expires_at": null
+        }
+      ],
+      "note": "Data Scientist (không bao gồm Data Analyst): trung vị 23,8 triệu VND/tháng ở nhóm 1–2 năm và 42,5 triệu ở nhóm 5–8 năm; các nhóm kinh nghiệm khác không có số liệu trong bảng được kiểm tra. Không dùng các số này để suy ra lương Data Analyst."
+    }
   },
   "AI01": {
     "career_id": "AI01",
@@ -243,7 +552,33 @@
           "xu_huong_thi_truong"
         ]
       }
-    ]
+    ],
+    "salary_data": {
+      "schema_version": 1,
+      "type": "single_listing_ceiling",
+      "currency": "VND",
+      "period": "month",
+      "location": "Hanoi",
+      "data_period": "One job listing; expired 2026-05-08",
+      "role_scope": "exact_role",
+      "proxy_role": null,
+      "sample_size": null,
+      "status": "expired_listing",
+      "reviewed_at": "2026-10-19",
+      "source_count": 1,
+      "observations": [
+        {
+          "statistic": "advertised_ceiling",
+          "value_vnd_per_month": null,
+          "minimum_vnd_per_month": null,
+          "maximum_vnd_per_month": 35000000,
+          "experience": "3 years",
+          "location": "Hanoi",
+          "expires_at": "2026-05-08"
+        }
+      ],
+      "note": "Một tin TopCV tuyển AI Engineer tại Hà Nội ghi mức lương tới 35 triệu VND gross/tháng, yêu cầu 3 năm kinh nghiệm; tin hết hạn 08/05/2026. Đây là mức tối đa trong một tin đã hết hạn, không phải trung vị hay dải lương hiện hành."
+    }
   },
   "DO01": {
     "career_id": "DO01",
@@ -280,7 +615,33 @@
         "loai_tham_chieu": "chi_bao_ky_nang",
         "doi_tuong_tham_chieu": "tin tuyển dụng IT nhắc đến kỹ năng Cloud"
       }
-    ]
+    ],
+    "salary_data": {
+      "schema_version": 1,
+      "type": "survey_median",
+      "currency": "VND",
+      "period": "month",
+      "location": "Vietnam",
+      "data_period": "2023 survey; 2023-2024 report",
+      "role_scope": "related_role_proxy",
+      "proxy_role": "DevOps/DevSecOps; SRE not separated",
+      "sample_size": null,
+      "status": "historical_report",
+      "reviewed_at": "2026-10-19",
+      "source_count": 1,
+      "observations": [
+        {
+          "statistic": "median",
+          "value_vnd_per_month": 40500000,
+          "minimum_vnd_per_month": null,
+          "maximum_vnd_per_month": null,
+          "experience": "Median experience: 2 years",
+          "location": null,
+          "expires_at": null
+        }
+      ],
+      "note": "DevOps/DevSecOps (không tách SRE): trung vị 40,5 triệu VND/tháng tại mức kinh nghiệm trung vị 2 năm trong khảo sát 2023. Đây không phải mức lương hiện hành hoặc dải theo cấp bậc."
+    }
   },
   "QA01": {
     "career_id": "QA01",
@@ -317,7 +678,33 @@
         "loai_tham_chieu": "chi_bao_ky_nang_va_vai_tro",
         "doi_tuong_tham_chieu": "Test/QA-QC trong tin tuyển dụng IT"
       }
-    ]
+    ],
+    "salary_data": {
+      "schema_version": 1,
+      "type": "reported_range",
+      "currency": "VND",
+      "period": "month",
+      "location": "Vietnam",
+      "data_period": "2024-2025 report",
+      "role_scope": "related_role_proxy",
+      "proxy_role": "General tester roles; titles and seniority not separated",
+      "sample_size": null,
+      "status": "reported_period",
+      "reviewed_at": "2026-10-19",
+      "source_count": 1,
+      "observations": [
+        {
+          "statistic": "advertised_range",
+          "value_vnd_per_month": null,
+          "minimum_vnd_per_month": 9000000,
+          "maximum_vnd_per_month": 40000000,
+          "experience": "Seniority not separated",
+          "location": null,
+          "expires_at": null
+        }
+      ],
+      "note": "Bài ITviec nêu mức lương Tester tổng thể 9–40 triệu VND/tháng tùy vị trí, cấp độ và kinh nghiệm; đây không phải các dải riêng cho từng cấp bậc."
+    }
   },
   "BA01": {
     "career_id": "BA01",
@@ -354,7 +741,60 @@
         "loai_tham_chieu": "chi_bao_nganh",
         "doi_tuong_tham_chieu": "số tin tuyển dụng IT trên ITviec"
       }
-    ]
+    ],
+    "salary_data": {
+      "schema_version": 1,
+      "type": "partial_experience_medians",
+      "currency": "VND",
+      "period": "month",
+      "location": "Vietnam",
+      "data_period": "2023-2024 chart; exact data period uncertain",
+      "role_scope": "exact_role",
+      "proxy_role": null,
+      "sample_size": null,
+      "status": "historical_report",
+      "reviewed_at": "2026-10-19",
+      "source_count": 1,
+      "observations": [
+        {
+          "statistic": "median",
+          "value_vnd_per_month": 19000000,
+          "minimum_vnd_per_month": null,
+          "maximum_vnd_per_month": null,
+          "experience": "<1 year",
+          "location": null,
+          "expires_at": null
+        },
+        {
+          "statistic": "median",
+          "value_vnd_per_month": 35500000,
+          "minimum_vnd_per_month": null,
+          "maximum_vnd_per_month": null,
+          "experience": "1-2 years",
+          "location": null,
+          "expires_at": null
+        },
+        {
+          "statistic": "median",
+          "value_vnd_per_month": 50000000,
+          "minimum_vnd_per_month": null,
+          "maximum_vnd_per_month": null,
+          "experience": "3-4 years",
+          "location": null,
+          "expires_at": null
+        },
+        {
+          "statistic": "median",
+          "value_vnd_per_month": 57500000,
+          "minimum_vnd_per_month": null,
+          "maximum_vnd_per_month": null,
+          "experience": "5-8 years; advanced certification required",
+          "location": null,
+          "expires_at": null
+        }
+      ],
+      "note": "Lương trung vị theo năm kinh nghiệm (<1, 1–2, 3–4, 5–8, >8 năm): 19; 35,5; 50; 57,5 triệu VND/tháng; nhóm >8 năm không có số liệu. Biểu đồ lịch sử, không phải dải lương hiện hành."
+    }
   },
   "SA01": {
     "career_id": "SA01",
@@ -391,7 +831,33 @@
         "loai_tham_chieu": "chi_bao_nganh",
         "doi_tuong_tham_chieu": "số tin tuyển dụng IT trên ITviec"
       }
-    ]
+    ],
+    "salary_data": {
+      "schema_version": 1,
+      "type": "single_listing_range",
+      "currency": "VND",
+      "period": "month",
+      "location": "Vietnam (job listing did not specify city)",
+      "data_period": "One job listing; expired 2026-08-09",
+      "role_scope": "exact_role",
+      "proxy_role": null,
+      "sample_size": null,
+      "status": "expired_listing",
+      "reviewed_at": "2026-10-19",
+      "source_count": 1,
+      "observations": [
+        {
+          "statistic": "advertised_range",
+          "value_vnd_per_month": null,
+          "minimum_vnd_per_month": 15000000,
+          "maximum_vnd_per_month": 17000000,
+          "experience": null,
+          "location": null,
+          "expires_at": "2026-08-09"
+        }
+      ],
+      "note": "Một tin TopCV tuyển Nhân viên Quản trị hệ thống ghi 15–17 triệu VND/tháng; tin hết hạn 09/08/2026. Đây là mức trong một tin đã hết hạn, không phải trung vị hay dải lương hiện hành."
+    }
   },
   "DG01": {
     "career_id": "DG01",
@@ -428,7 +894,33 @@
         "loai_tham_chieu": "chi_bao_nganh",
         "doi_tuong_tham_chieu": "số tin tuyển dụng IT trên ITviec"
       }
-    ]
+    ],
+    "salary_data": {
+      "schema_version": 1,
+      "type": "single_listing_range",
+      "currency": "VND",
+      "period": "month",
+      "location": "Vietnam (job listing did not specify city)",
+      "data_period": "One job listing; expired 2023-04-22",
+      "role_scope": "exact_role",
+      "proxy_role": null,
+      "sample_size": null,
+      "status": "expired_listing",
+      "reviewed_at": "2026-10-19",
+      "source_count": 1,
+      "observations": [
+        {
+          "statistic": "advertised_range",
+          "value_vnd_per_month": null,
+          "minimum_vnd_per_month": 20000000,
+          "maximum_vnd_per_month": 40000000,
+          "experience": "At least 1 year experience",
+          "location": null,
+          "expires_at": "2023-04-22"
+        }
+      ],
+      "note": "Một tin TopCV tuyển Game Developer ghi 20–40 triệu VND/tháng, yêu cầu từ 1 năm kinh nghiệm; tin hết hạn 22/04/2023. Đây là mức trong một tin rất cũ, không phải dải lương hiện hành."
+    }
   },
   "SE01": {
     "career_id": "SE01",
@@ -467,7 +959,33 @@
         "loai_tham_chieu": "chi_bao_nganh",
         "doi_tuong_tham_chieu": "số tin tuyển dụng IT trên ITviec"
       }
-    ]
+    ],
+    "salary_data": {
+      "schema_version": 1,
+      "type": "proxy_experience_range",
+      "currency": "VND",
+      "period": "month",
+      "location": "Vietnam",
+      "data_period": "2025-2026 report; figures are for Back-end Developer",
+      "role_scope": "related_role_proxy",
+      "proxy_role": "Back-end Developer",
+      "sample_size": null,
+      "status": "reported_period",
+      "reviewed_at": "2026-10-19",
+      "source_count": 1,
+      "observations": [
+        {
+          "statistic": "reported_experience_range",
+          "value_vnd_per_month": null,
+          "minimum_vnd_per_month": 12400000,
+          "maximum_vnd_per_month": 54900000,
+          "experience": "Ranges from entry level to senior",
+          "location": null,
+          "expires_at": null
+        }
+      ],
+      "note": "Proxy gần kề, không phải mức lương chung của Software Engineer: báo cáo ITviec 2025–2026 nêu Back-end Developer tăng từ 12,4 triệu VND/tháng ở nhóm ít năm kinh nghiệm lên 54,9 triệu VND/tháng ở cấp độ cao; không đại diện cho mọi nhánh Software Engineer."
+    }
   },
   "SY01": {
     "career_id": "SY01",
@@ -504,7 +1022,33 @@
         "loai_tham_chieu": "chi_bao_nganh",
         "doi_tuong_tham_chieu": "số tin tuyển dụng IT trên ITviec"
       }
-    ]
+    ],
+    "salary_data": {
+      "schema_version": 1,
+      "type": "platform_average",
+      "currency": "VND",
+      "period": "month",
+      "location": "Vietnam",
+      "data_period": "Indeed result updated 2026-10-12; checked 2026-10-19",
+      "role_scope": "exact_role",
+      "proxy_role": null,
+      "sample_size": null,
+      "status": "reported_period",
+      "reviewed_at": "2026-10-19",
+      "source_count": 1,
+      "observations": [
+        {
+          "statistic": "mean",
+          "value_vnd_per_month": 14335767,
+          "minimum_vnd_per_month": null,
+          "maximum_vnd_per_month": null,
+          "experience": null,
+          "location": null,
+          "expires_at": null
+        }
+      ],
+      "note": "Indeed ghi nhận mức trung bình cho Systems Analyst tại Việt Nam là 14.335.767 VND/tháng; đây là dữ liệu tổng hợp trên nền tảng, không phải mức bảo đảm hay dải theo cấp bậc."
+    }
   },
   "IT01": {
     "career_id": "IT01",
@@ -543,7 +1087,33 @@
         "loai_tham_chieu": "chi_bao_nganh",
         "doi_tuong_tham_chieu": "số tin tuyển dụng IT trên ITviec"
       }
-    ]
+    ],
+    "salary_data": {
+      "schema_version": 1,
+      "type": "platform_average",
+      "currency": "VND",
+      "period": "month",
+      "location": "Vietnam",
+      "data_period": "Updated 2026-10-12; checked 2026-10-19",
+      "role_scope": "related_role_proxy",
+      "proxy_role": "IT Support (not specific to IT consulting)",
+      "sample_size": 61,
+      "status": "reported_period",
+      "reviewed_at": "2026-10-19",
+      "source_count": 1,
+      "observations": [
+        {
+          "statistic": "mean",
+          "value_vnd_per_month": 13857347,
+          "minimum_vnd_per_month": null,
+          "maximum_vnd_per_month": null,
+          "experience": null,
+          "location": null,
+          "expires_at": null
+        }
+      ],
+      "note": "Indeed hiển thị mức trung bình 13.857.347 VND/tháng cho IT Support, dựa trên 61 mức lương báo cáo và cập nhật 12/10/2026. Đây là dữ liệu nền tảng, không phải dải bảo đảm; chỉ tham khảo cho IT Support, không đại diện riêng cho vị trí tư vấn CNTT."
+    }
   },
   "CV01": {
     "career_id": "CV01",
@@ -580,7 +1150,23 @@
         "loai_tham_chieu": "nhom_nghe_tuong_duong",
         "doi_tuong_tham_chieu": "nhóm AI/Data/ML"
       }
-    ]
+    ],
+    "salary_data": {
+      "schema_version": 1,
+      "type": "unavailable",
+      "currency": "VND",
+      "period": "month",
+      "location": "Vietnam (job listing did not specify city)",
+      "data_period": "One job listing expired 2024-05-09; salary not disclosed",
+      "role_scope": "exact_role",
+      "proxy_role": null,
+      "sample_size": null,
+      "status": "unavailable",
+      "reviewed_at": "2026-10-19",
+      "source_count": 1,
+      "observations": [],
+      "note": "Một tin TopCV tuyển Computer Vision Engineer tại VNPAY ghi mức lương thỏa thuận, không công khai con số; tin hết hạn 09/05/2024. Vì vậy nguồn này không đủ để ước tính mức lương bằng tiền hoặc đại diện cho thị trường hiện tại."
+    }
   },
   "NW01": {
     "career_id": "NW01",
@@ -617,7 +1203,51 @@
         "loai_tham_chieu": "chi_bao_nganh",
         "doi_tuong_tham_chieu": "số tin tuyển dụng IT trên ITviec"
       }
-    ]
+    ],
+    "salary_data": {
+      "schema_version": 1,
+      "type": "partial_experience_medians",
+      "currency": "VND",
+      "period": "month",
+      "location": "Vietnam",
+      "data_period": "2025 article; survey period not specified",
+      "role_scope": "exact_role",
+      "proxy_role": null,
+      "sample_size": null,
+      "status": "reported_period",
+      "reviewed_at": "2026-10-19",
+      "source_count": 1,
+      "observations": [
+        {
+          "statistic": "median",
+          "value_vnd_per_month": 25600000,
+          "minimum_vnd_per_month": null,
+          "maximum_vnd_per_month": null,
+          "experience": "3-4 years",
+          "location": null,
+          "expires_at": null
+        },
+        {
+          "statistic": "median",
+          "value_vnd_per_month": 35500000,
+          "minimum_vnd_per_month": null,
+          "maximum_vnd_per_month": null,
+          "experience": "5-8 years; advanced certification required",
+          "location": null,
+          "expires_at": null
+        },
+        {
+          "statistic": "median",
+          "value_vnd_per_month": 45000000,
+          "minimum_vnd_per_month": null,
+          "maximum_vnd_per_month": null,
+          "experience": ">8 years; advanced certification required",
+          "location": null,
+          "expires_at": null
+        }
+      ],
+      "note": "Lương trung vị/tháng: 25,6 triệu VND ở nhóm 3–4 năm; 35,5 triệu ở nhóm 5–8 năm; 45 triệu ở nhóm trên 8 năm có chứng chỉ chuyên sâu. Nguồn không nêu kỳ khảo sát."
+    }
   },
   "SC01": {
     "career_id": "SC01",
@@ -660,7 +1290,42 @@
           "xu_huong_thi_truong"
         ]
       }
-    ]
+    ],
+    "salary_data": {
+      "schema_version": 1,
+      "type": "multiple_listing_ranges",
+      "currency": "VND",
+      "period": "month",
+      "location": "Vietnam; one listing did not specify city",
+      "data_period": "Job listing checked 2026-10-15; expiry date not recorded",
+      "role_scope": "exact_role",
+      "proxy_role": null,
+      "sample_size": null,
+      "status": "listing_expiry_unknown",
+      "reviewed_at": "2026-10-15",
+      "source_count": 2,
+      "observations": [
+        {
+          "statistic": "advertised_range",
+          "value_vnd_per_month": null,
+          "minimum_vnd_per_month": 8000000,
+          "maximum_vnd_per_month": 12000000,
+          "experience": "SOC Analyst Level 1",
+          "location": null,
+          "expires_at": null
+        },
+        {
+          "statistic": "advertised_range",
+          "value_vnd_per_month": null,
+          "minimum_vnd_per_month": 20000000,
+          "maximum_vnd_per_month": 45000000,
+          "experience": "Requires 2 years experience",
+          "location": null,
+          "expires_at": null
+        }
+      ],
+      "note": "TopCV: 8–12 triệu/tháng (Level 1); 20–45 triệu/tháng (yêu cầu 2 năm)."
+    }
   },
   "PT01": {
     "career_id": "PT01",
@@ -703,7 +1368,42 @@
           "xu_huong_thi_truong"
         ]
       }
-    ]
+    ],
+    "salary_data": {
+      "schema_version": 1,
+      "type": "multiple_listing_ranges",
+      "currency": "VND",
+      "period": "month",
+      "location": "One remote listing; one listing did not specify location",
+      "data_period": "Job listing checked 2026-10-15; expiry date not recorded",
+      "role_scope": "exact_role",
+      "proxy_role": null,
+      "sample_size": null,
+      "status": "listing_expiry_unknown",
+      "reviewed_at": "2026-10-15",
+      "source_count": 2,
+      "observations": [
+        {
+          "statistic": "advertised_ceiling",
+          "value_vnd_per_month": null,
+          "minimum_vnd_per_month": null,
+          "maximum_vnd_per_month": 35000000,
+          "experience": null,
+          "location": null,
+          "expires_at": null
+        },
+        {
+          "statistic": "advertised_range",
+          "value_vnd_per_month": null,
+          "minimum_vnd_per_month": 30000000,
+          "maximum_vnd_per_month": 40000000,
+          "experience": "Requires 4 years experience",
+          "location": "Remote",
+          "expires_at": null
+        }
+      ],
+      "note": "TopCV: đến 35 triệu/tháng; tin remote yêu cầu 4 năm: 30–40 triệu/tháng."
+    }
   },
   "SG01": {
     "career_id": "SG01",
@@ -738,7 +1438,33 @@
           "xu_huong_thi_truong"
         ]
       }
-    ]
+    ],
+    "salary_data": {
+      "schema_version": 1,
+      "type": "single_listing_range",
+      "currency": "VND",
+      "period": "month",
+      "location": "TP.HCM",
+      "data_period": "Job listing checked 2026-10-15; expiry date not recorded",
+      "role_scope": "exact_role",
+      "proxy_role": null,
+      "sample_size": null,
+      "status": "listing_expiry_unknown",
+      "reviewed_at": "2026-10-15",
+      "source_count": 1,
+      "observations": [
+        {
+          "statistic": "advertised_range",
+          "value_vnd_per_month": null,
+          "minimum_vnd_per_month": 15000000,
+          "maximum_vnd_per_month": 30000000,
+          "experience": null,
+          "location": "TP.HCM",
+          "expires_at": null
+        }
+      ],
+      "note": "TopCV: 15–30 triệu/tháng (TP.HCM)."
+    }
   },
   "GR01": {
     "career_id": "GR01",
@@ -777,6 +1503,32 @@
         "loai_tham_chieu": "quy_mo_thi_truong_nganh",
         "doi_tuong_tham_chieu": "thị trường dịch vụ thiết kế đồ họa tại Việt Nam"
       }
-    ]
+    ],
+    "salary_data": {
+      "schema_version": 1,
+      "type": "platform_average",
+      "currency": "VND",
+      "period": "month",
+      "location": "Vietnam",
+      "data_period": "Indeed result updated 2026-10-11; checked 2026-10-19",
+      "role_scope": "related_role_proxy",
+      "proxy_role": "Graphic Designer (not specific to 3D artists)",
+      "sample_size": 303,
+      "status": "reported_period",
+      "reviewed_at": "2026-10-19",
+      "source_count": 1,
+      "observations": [
+        {
+          "statistic": "mean",
+          "value_vnd_per_month": 12369709,
+          "minimum_vnd_per_month": null,
+          "maximum_vnd_per_month": null,
+          "experience": null,
+          "location": null,
+          "expires_at": null
+        }
+      ],
+      "note": "Indeed ghi nhận Graphic Designer tại Việt Nam trung bình 12.369.709 VND/tháng, dựa trên 303 mức lương khi được rà soát ngày 2026-10-19. Đây là proxy cho Graphic & 3D Artist, không phải mức riêng cho họa sĩ 3D."
+    }
   }
 }

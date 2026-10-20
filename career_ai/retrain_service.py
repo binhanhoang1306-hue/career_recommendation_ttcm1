@@ -17,6 +17,7 @@ CƠ CHẾ:
 import json
 import os
 import sys
+import tempfile
 
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
@@ -63,6 +64,67 @@ def _current_pipeline() -> Pipeline:
     return _default_pipeline()
 
 
+def _feedback_training_rows(feedbacks: list[dict], careers_meta: dict) -> list[dict]:
+    new_rows = []
+    for idx, feedback in enumerate(feedbacks, 1):
+        scores = feedback.get("scores")
+        liked = feedback.get("liked_careers", [])
+        if not scores or not liked or len(scores) < len(SUBJECTS):
+            continue
+
+        confirmed_groups = {
+            careers_meta[career_id].get("career_group")
+            for career_id in liked
+            if career_id in careers_meta
+        }
+        for group in confirmed_groups - {None, ""}:
+            row = {
+                "name": f"Phản hồi #{idx} ({feedback.get('rating', 5)}★)",
+                TARGET_COL: group,
+                LABEL_SOURCE_COL: LABEL_FEEDBACK,
+            }
+            row.update({
+                SUBJECT_KEYS[subject]: float(scores.get(SUBJECT_KEYS[subject], 7.0))
+                for subject in SUBJECTS
+            })
+            new_rows.append(row)
+    return new_rows
+
+
+def rebuild_feedback_training_data(feedbacks: list[dict] | None = None) -> int:
+    """Rebuild CSV feedback rows from currently retained feedback records."""
+    if feedbacks is None:
+        with open(FEEDBACK_PATH, encoding="utf-8") as file:
+            feedbacks = json.load(file)
+    with open(CAREERS_PATH, encoding="utf-8") as file:
+        careers_meta = json.load(file)
+
+    students = pd.read_csv(DATA_PATH)
+    if LABEL_SOURCE_COL not in students.columns:
+        students[LABEL_SOURCE_COL] = LABEL_DERIVED
+    students[LABEL_SOURCE_COL] = students[LABEL_SOURCE_COL].fillna(LABEL_DERIVED)
+    students = students[students[LABEL_SOURCE_COL] != LABEL_FEEDBACK].copy()
+
+    new_rows = _feedback_training_rows(feedbacks, careers_meta)
+    if new_rows:
+        students = pd.concat([students, pd.DataFrame(new_rows)], ignore_index=True)
+    students = students.drop_duplicates(
+        subset=FEATURE_COLS + [TARGET_COL], keep="first"
+    ).reset_index(drop=True)
+    directory = os.path.dirname(DATA_PATH) or "."
+    file_descriptor, temporary_path = tempfile.mkstemp(
+        dir=directory, prefix=".students-retention-"
+    )
+    os.close(file_descriptor)
+    try:
+        students.to_csv(temporary_path, index=False, encoding="utf-8-sig")
+        os.replace(temporary_path, DATA_PATH)
+    finally:
+        if os.path.exists(temporary_path):
+            os.remove(temporary_path)
+    return len(new_rows)
+
+
 def retrain_from_explicit_feedback() -> dict:
     """
     Huấn luyện lại mô hình Tầng 1 (cùng thuật toán đang triển khai) và cập nhật hệ thống CBF từ phản hồi tường minh.
@@ -81,30 +143,7 @@ def retrain_from_explicit_feedback() -> dict:
         careers_meta = json.load(f)
 
     # 1. Trích xuất các mẫu học mới từ phản hồi tường minh
-    new_rows = []
-    for idx, fb in enumerate(feedbacks, 1):
-        scores = fb.get("scores")
-        liked = fb.get("liked_careers", [])
-
-        if not scores or not liked or len(scores) < len(SUBJECTS):
-            continue
-
-        # Lấy nhóm nghề của các nghề được người dùng like
-        confirmed_groups = set()
-        for cid in liked:
-            if cid in careers_meta:
-                grp = careers_meta[cid].get("career_group")
-                if grp:
-                    confirmed_groups.add(grp)
-
-        # Với mỗi nhóm nghề được người dùng xác nhận qua like
-        for grp in confirmed_groups:
-            row = {"name": f"Phản hồi #{idx} ({fb.get('rating', 5)}★)"}
-            for s in SUBJECTS:
-                row[SUBJECT_KEYS[s]] = float(scores.get(s, 7.0))
-            row[TARGET_COL] = grp
-            row[LABEL_SOURCE_COL] = LABEL_FEEDBACK
-            new_rows.append(row)
+    new_rows = _feedback_training_rows(feedbacks, careers_meta)
 
     # 2. Đọc tập dữ liệu hiện tại
     df_base = pd.read_csv(DATA_PATH)

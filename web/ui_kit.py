@@ -1258,6 +1258,181 @@ def _friendly_market_value(value: object, fallback: str, empty: str = "Đang c�
     return text
 
 
+def _salary_summary(salary_data: object, fallback: str) -> str:
+    if not isinstance(salary_data, dict):
+        return fallback
+
+    observations = salary_data.get("observations")
+    if not isinstance(observations, list) or not observations:
+        note = str(salary_data.get("note") or "").strip()
+        return note or "Nguồn hiện chưa công khai số liệu lương."
+
+    def amount(value: object) -> str:
+        try:
+            millions = float(value) / 1_000_000
+        except (TypeError, ValueError):
+            return ""
+        return f"{millions:.1f}".rstrip("0").rstrip(".")
+
+    lines = []
+    for observation in observations:
+        if not isinstance(observation, dict):
+            continue
+        statistic = observation.get("statistic")
+        low = amount(observation.get("minimum_vnd_per_month"))
+        high = amount(observation.get("maximum_vnd_per_month"))
+        value = amount(observation.get("value_vnd_per_month"))
+        if statistic == "median" and value:
+            experience = str(observation.get("experience") or "")
+            experience_labels = {
+                "<1 year": "dưới 1 năm",
+                "At least 1 year experience": "từ 1 năm kinh nghiệm",
+                "1-2 years": "1–2 năm",
+                "2-4 years": "2–4 năm",
+                "3-4 years": "3–4 năm",
+                "2 years": "2 năm",
+                "3 years": "3 năm",
+                "5-8 years": "5–8 năm",
+                "5-8 years; advanced certification required": "5–8 năm; yêu cầu chứng chỉ chuyên sâu",
+                ">8 years": "trên 8 năm",
+                ">8 years; advanced certification required": "trên 8 năm; yêu cầu chứng chỉ chuyên sâu",
+                "Ranges from entry level to senior": "từ ít năm kinh nghiệm đến cấp độ cao",
+                "Median experience: 2 years": "kinh nghiệm trung vị 2 năm",
+                "Seniority not separated": "không tách cấp bậc",
+                "Requires 2 years experience": "yêu cầu 2 năm kinh nghiệm",
+                "Requires 4 years experience": "yêu cầu 4 năm kinh nghiệm",
+                "SOC Analyst Level 1": "SOC Analyst cấp 1",
+            }
+            suffix = f" ({experience_labels.get(experience, experience)})" if experience else ""
+            lines.append(f"Trung vị{suffix}: {value} triệu VND/tháng")
+        elif low and high:
+            lines.append(f"Khoảng được ghi nhận: {low}–{high} triệu VND/tháng")
+        elif high:
+            lines.append(f"Mức trần được ghi nhận: tối đa {high} triệu VND/tháng")
+        elif value:
+            label = "Mức trung bình" if statistic == "mean" else "Mức tham khảo"
+            lines.append(f"{label}: {value} triệu VND/tháng")
+        expires_at = str(observation.get("expires_at") or "").strip()
+        if expires_at and lines:
+            lines[-1] += f" (tin hết hạn {expires_at})"
+
+    if not lines:
+        note = str(salary_data.get("note") or "").strip()
+        return note or "Nguồn hiện chưa công khai số liệu lương."
+
+    status_labels = {
+        "historical_report": "Dữ liệu lịch sử, không phải mức lương hiện hành",
+        "expired_listing": "Tin tuyển dụng đã hết hạn",
+        "listing_expiry_unknown": "Chưa xác nhận tin tuyển dụng còn hiệu lực",
+    }
+    status = status_labels.get(str(salary_data.get("status") or ""))
+    data_period = str(salary_data.get("data_period") or "").strip()
+    period_labels = {
+        "2023-2024 chart; exact data period uncertain": "2023–2024 (biểu đồ; kỳ dữ liệu chưa chắc chắn)",
+        "2023-2024; page updated in 2024": "Dữ liệu 2023–2024; trang cập nhật năm 2024",
+        "2025-2026 report": "Báo cáo 2025–2026",
+        "2023 survey; 2023-2024 report": "Khảo sát năm 2023; báo cáo 2023–2024",
+        "2024-2025 report": "Báo cáo 2024–2025",
+        "2025-2026 report; figures are for Back-end Developer": "Báo cáo 2025–2026; số liệu cho Back-end Developer",
+        "2025 article; survey period not specified": "Bài viết năm 2025; không nêu kỳ khảo sát",
+        "Indeed result updated 2026-10-12; checked 2026-10-19": "Indeed cập nhật 2026-10-12; rà soát 2026-10-19",
+        "Indeed result updated 2026-10-11; checked 2026-10-19": "Indeed cập nhật 2026-10-11; rà soát 2026-10-19",
+        "Updated 2026-10-12; checked 2026-10-19": "Cập nhật 2026-10-12; rà soát 2026-10-19",
+        "One job listing; expired 2026-07-23": "Một tin tuyển dụng; hết hạn 2026-07-23",
+        "One job listing; expired 2026-05-08": "Một tin tuyển dụng; hết hạn 2026-05-08",
+        "One job listing; expired 2026-08-09": "Một tin tuyển dụng; hết hạn 2026-08-09",
+        "One job listing; expired 2023-04-22": "Một tin tuyển dụng; hết hạn 2023-04-22",
+        "One job listing expired 2024-05-09; salary not disclosed": "Một tin tuyển dụng hết hạn 2024-05-09; không công khai lương",
+        "Job listing checked 2026-10-15; expiry date not recorded": "Tin tuyển dụng rà soát 2026-10-15; chưa ghi nhận ngày hết hạn",
+    }
+    data_period = period_labels.get(data_period, data_period)
+    location = str(salary_data.get("location") or "").strip()
+    location_labels = {
+        "Vietnam": "Việt Nam",
+        "Hanoi": "Hà Nội",
+        "Vietnam (job listing did not specify city)": "Việt Nam (tin tuyển dụng không nêu thành phố)",
+        "Vietnam; one listing did not specify city": "Việt Nam; một tin không nêu thành phố",
+        "One remote listing; one listing did not specify location": "Một tin làm từ xa; một tin không nêu địa điểm",
+    }
+    location = location_labels.get(location, location)
+    proxy_role = str(salary_data.get("proxy_role") or "").strip()
+    proxy_labels = {
+        "Back-end Developer": "Lập trình viên Back-end",
+        "Data Scientist (excluding Data Analyst)": "Data Scientist (không gồm Data Analyst)",
+        "DevOps/DevSecOps; SRE not separated": "DevOps/DevSecOps; không tách riêng SRE",
+        "General tester roles; titles and seniority not separated": "Vị trí tester nói chung; không tách chức danh/cấp bậc",
+        "IT Support (not specific to IT consulting)": "IT Support (không đại diện riêng cho tư vấn CNTT)",
+        "Graphic Designer (not specific to 3D artists)": "Graphic Designer (không riêng họa sĩ 3D)",
+    }
+    proxy_role = proxy_labels.get(proxy_role, proxy_role)
+    sample_size = salary_data.get("sample_size")
+    notes = [*lines]
+    if status:
+        notes.append(status)
+    if data_period:
+        notes.append(f"Kỳ dữ liệu: {data_period}")
+    if location:
+        notes.append(f"Khu vực: {location}")
+    if isinstance(sample_size, int) and sample_size > 0:
+        notes.append(f"Cỡ mẫu: {sample_size}")
+    if proxy_role:
+        notes.append(f"Tham khảo nghề gần: {proxy_role}; không đại diện riêng chức danh này")
+    return "; ".join(notes)
+
+
+def _career_reason(career: dict) -> str:
+    reasons = []
+    strengths = career.get("strengths")
+    if isinstance(strengths, list) and strengths:
+        subjects = [
+            str(item.get("subject"))
+            for item in strengths[:3]
+            if isinstance(item, dict) and item.get("subject")
+        ]
+        if subjects:
+            reasons.append("Môn học phù hợp: " + ", ".join(subjects))
+
+    skills = career.get("soft_skill_matches")
+    if isinstance(skills, list) and skills:
+        labels = [
+            str(item.get("label"))
+            for item in skills[:3]
+            if isinstance(item, dict) and item.get("label")
+        ]
+        if labels:
+            reasons.append("Kỹ năng bạn chọn phù hợp: " + ", ".join(labels))
+
+    improvements = career.get("improvements")
+    if isinstance(improvements, list) and improvements:
+        subjects = [
+            str(item.get("subject"))
+            for item in improvements[:2]
+            if isinstance(item, dict) and item.get("subject")
+        ]
+        if subjects:
+            reasons.append("Môn nên củng cố: " + ", ".join(subjects))
+
+    unstudied = career.get("unstudied_core")
+    if isinstance(unstudied, list) and unstudied:
+        subjects = [
+            str(item.get("subject"))
+            for item in unstudied[:2]
+            if isinstance(item, dict) and item.get("subject")
+        ]
+        if subjects:
+            reasons.append("Môn trọng tâm chưa học: " + ", ".join(subjects))
+
+    if career.get("is_group_fill"):
+        reasons.append(
+            f"Được bổ sung từ nhóm {career.get('career_group') or 'nghề khác'} "
+            "vì nhóm ưu tiên chưa đủ ba gợi ý"
+        )
+    if not reasons:
+        reasons.append("Được xếp hạng theo mức khớp giữa hồ sơ môn học và trọng tâm nghề")
+    reasons.append("Điểm khớp tham khảo, không dự đoán khả năng thành công ngoài thực tế")
+    return " · ".join(reasons)
+
+
 def market_source_status(reviewed_at: object, today: date | None = None) -> tuple[str, bool]:
     """Describe the review age without implying that a source claim is still current."""
     value = str(reviewed_at or "").strip()
@@ -1298,10 +1473,13 @@ def career_card(idx: int, c: dict) -> str:
     region = c.get("region") or c.get("khu_vuc") or "Việt Nam"
     source = c.get("source") or c.get("nguon_du_lieu") or "TopCV & ITviec"
     updated = c.get("updated_at") or c.get("thoi_diem_cap_nhat") or "2025-2026"
-    salary_text = _friendly_market_value(
-        c.get("salary") or c.get("muc_luong"),
-        "Chưa có số liệu lương đủ tin cậy cho chức danh này",
-        "Chưa có số liệu lương đủ tin cậy cho chức danh này",
+    salary_text = _salary_summary(
+        c.get("salary_data"),
+        _friendly_market_value(
+            c.get("salary") or c.get("muc_luong"),
+            "Chưa có số liệu lương đủ tin cậy cho chức danh này",
+            "Chưa có số liệu lương đủ tin cậy cho chức danh này",
+        ),
     )
     trend_text = _friendly_market_value(
         c.get("trend") or c.get("xu_huong_thi_truong"),
@@ -1369,6 +1547,7 @@ def career_card(idx: int, c: dict) -> str:
         f"    <div class='tr'><div class='fl' style='width:{max(0, min(100, pct)):.1f}%'></div></div>"
         f"    <b>{pct:.1f}%</b>"
         f"  </div>"
+        f"  <div class='kv stack'><span>Vì sao nghề này được gợi ý?</span><span>{e(_career_reason(c))}</span></div>"
         f"  <div class='kv'><span>Mức lương tham khảo</span><span style='color:#059669;font-weight:700'>{e(salary_text)}</span></div>"
         f"  <div class='kv stack'><span>Xu hướng thị trường</span><span>{e(trend_text)}</span></div>"
         f"  <div class='kv'><span>Khu vực</span><span style='font-size:0.75rem;color:#64748B'>{e(region)}</span></div>"
@@ -1402,10 +1581,13 @@ def career_explorer_card(career: dict) -> str:
     )
     review_status, review_is_recent = market_source_status(career.get("ngay_kiem_tra"))
     review_color = "#047857" if review_is_recent else "#B45309"
-    salary = _friendly_market_value(
-        career.get("muc_luong"),
-        "Chưa có số liệu lương đủ tin cậy cho chức danh này",
-        "Chưa có số liệu lương đủ tin cậy cho chức danh này",
+    salary = _salary_summary(
+        career.get("salary_data"),
+        _friendly_market_value(
+            career.get("muc_luong"),
+            "Chưa có số liệu lương đủ tin cậy cho chức danh này",
+            "Chưa có số liệu lương đủ tin cậy cho chức danh này",
+        ),
     )
     trend = _friendly_market_value(
         career.get("xu_huong_thi_truong"),

@@ -18,6 +18,23 @@ os.chdir(ROOT)
 if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 
+SAMPLE_SALARY_DATA = {
+    "schema_version": 1,
+    "type": "unavailable",
+    "currency": "VND",
+    "period": "month",
+    "location": "Vietnam",
+    "data_period": "not available",
+    "role_scope": "exact_role",
+    "proxy_role": None,
+    "sample_size": None,
+    "status": "unavailable",
+    "reviewed_at": "2026-01-10",
+    "source_count": 0,
+    "observations": [],
+    "note": "No salary figure published",
+}
+
 from career_ai import db, feedback_store, monitor_service
 from career_ai.domain_knowledge import SUBJECTS, SUBJECT_KEYS, impute_missing_scores
 from career_ai.model_exporter import validate_input_scores
@@ -113,6 +130,7 @@ class TestEnhancedFeatures(unittest.TestCase):
         from career_ai.catalog_audit import audit_career_catalog
 
         complete_record = {
+            "salary_data": dict(SAMPLE_SALARY_DATA),
             "muc_luong": "Mức lương tham khảo",
             "xu_huong_thi_truong": "Ổn định",
             "khu_vuc": "Việt Nam",
@@ -147,6 +165,7 @@ class TestEnhancedFeatures(unittest.TestCase):
 
         result = audit_career_catalog({
             "C1": {
+                "salary_data": dict(SAMPLE_SALARY_DATA),
                 "muc_luong": "Chưa có dữ liệu được xác thực cho đúng chức danh này.",
                 "xu_huong_thi_truong": "Chưa có dữ liệu được xác thực cho đúng chức danh này.",
                 "khu_vuc": "Việt Nam",
@@ -164,6 +183,12 @@ class TestEnhancedFeatures(unittest.TestCase):
         from career_ai.catalog_audit import audit_career_catalog
 
         career = {
+            "salary_data": {
+                **SAMPLE_SALARY_DATA,
+                "type": "proxy_median",
+                "role_scope": "related_role_proxy",
+                "proxy_role": "Kỹ sư AI/ML",
+            },
             "muc_luong": "Tham khảo từ Kỹ sư AI/ML; không phải dữ liệu riêng cho nghề này.",
             "xu_huong_thi_truong": "Chưa có dữ liệu được xác thực cho đúng chức danh này.",
             "khu_vuc": "Việt Nam",
@@ -197,6 +222,212 @@ class TestEnhancedFeatures(unittest.TestCase):
             "missing_comparison_target",
             {item["issue"] for item in missing_comparator["issues"]},
         )
+
+    def test_structured_salary_summary_preserves_measurement_context(self):
+        from web.ui_kit import _salary_summary
+
+        summary = _salary_summary({
+            "type": "experience_medians",
+            "status": "historical_report",
+            "data_period": "2023-2024; exact period uncertain",
+            "location": "Vietnam",
+            "observations": [{
+                "statistic": "median",
+                "value_vnd_per_month": 16_000_000,
+                "experience": "1-2 years",
+            }],
+        }, "fallback")
+
+        self.assertIn("Trung vị (1–2 năm): 16 triệu VND/tháng", summary)
+        self.assertIn("Dữ liệu lịch sử", summary)
+        self.assertIn("Kỳ dữ liệu: 2023-2024; exact period uncertain", summary)
+        self.assertIn("Khu vực: Việt Nam", summary)
+
+    def test_career_card_explains_recommendation_and_score_limit(self):
+        from web.ui_kit import career_card
+
+        card = career_card(0, {
+            "career_name": "Backend",
+            "career_group": "Phát triển phần mềm",
+            "description": "Build APIs",
+            "match_percentage": 74.5,
+            "strengths": [{"subject": "Cơ sở dữ liệu"}],
+            "soft_skill_matches": [{"label": "Giải quyết vấn đề"}],
+            "improvements": [{"subject": "Mạng máy tính"}],
+            "unstudied_core": [{"subject": "Linux"}],
+        })
+
+        self.assertIn("Vì sao nghề này được gợi ý?", card)
+        self.assertIn("Cơ sở dữ liệu", card)
+        self.assertIn("Giải quyết vấn đề", card)
+        self.assertIn("Mạng máy tính", card)
+        self.assertIn("Linux", card)
+        self.assertIn("không dự đoán khả năng thành công", card)
+
+    def test_source_checker_distinguishes_blocked_urls_and_expired_listings(self):
+        from datetime import date
+        from career_ai.source_check import check_market_sources, classify_http_status
+
+        self.assertEqual(classify_http_status(403), "blocked_or_rate_limited")
+        self.assertEqual(classify_http_status(404), "not_found")
+        self.assertEqual(classify_http_status(200), "reachable")
+        with patch(
+            "career_ai.source_check._check_url",
+            return_value={"url": "https://example.com", "status": "blocked_or_rate_limited"},
+        ):
+            result = check_market_sources({
+                "C1": {
+                    "nguon_tham_khao": [{
+                        "url": "https://example.com",
+                        "ky_du_lieu": "2025 survey",
+                    }],
+                    "salary_data": {
+                        "observations": [{
+                            "statistic": "advertised_range",
+                            "expires_at": "2026-09-30",
+                        }],
+                    },
+                },
+            }, today=date(2026, 10, 1))
+
+        self.assertEqual(result["urls"][0]["status"], "blocked_or_rate_limited")
+        self.assertEqual(result["period_checks"][0]["status"], "not_checked_due_to_access")
+        self.assertEqual(result["listings"][0]["status"], "expired")
+        self.assertTrue(result["listings"][0]["manual_review_required"])
+
+    def test_retention_uses_selected_windows_and_does_not_retrain_model(self):
+        from datetime import datetime, timezone
+        from career_ai import retention_service
+
+        now = datetime(2026, 10, 20, tzinfo=timezone.utc)
+        with patch.object(
+            retention_service.db,
+            "delete_expired_records",
+            return_value={"feedbacks": 1, "interactions": 2, "prediction_logs": 3},
+        ) as delete_records, patch.object(
+            retention_service,
+            "_prune_json",
+            side_effect=[1, 2],
+        ), patch.object(
+            retention_service,
+            "_prune_jsonl",
+            return_value=3,
+        ), patch.object(
+            retention_service.feedback_store,
+            "get_all_feedback",
+            return_value=[],
+        ), patch.object(
+            retention_service,
+            "_rebuild_feedback_training_rows",
+            return_value=0,
+        ), patch(
+            "career_ai.cbf_recommender.cbf_recommender.reload"
+        ) as reload_recommender:
+            result = retention_service.purge_expired_data(now=now)
+
+        cutoffs = delete_records.call_args.kwargs
+        self.assertEqual(cutoffs["feedback_cutoff"], "2026-06-22T00:00:00")
+        self.assertEqual(cutoffs["log_cutoff"], "2026-08-21T00:00:00")
+        self.assertEqual(cutoffs["interaction_cutoff"], "2026-08-21T00:00:00")
+        self.assertEqual(result["deleted_feedbacks"], 1)
+        self.assertFalse(result["model_retrained"])
+        reload_recommender.assert_called_once()
+
+    def test_retention_removes_expired_sqlite_and_mirror_records_only(self):
+        from datetime import datetime, timezone
+        from career_ai import retention_service
+
+        now = datetime(2026, 10, 20, tzinfo=timezone.utc)
+        with tempfile.TemporaryDirectory() as tmp:
+            feedback_path = os.path.join(tmp, "feedback.json")
+            interaction_path = os.path.join(tmp, "interactions.json")
+            logs_path = os.path.join(tmp, "prediction_logs.jsonl")
+            with patch.object(db, "DB_PATH", os.path.join(tmp, "retention.db")), \
+                    patch.object(db, "FEEDBACK_JSON", feedback_path), \
+                    patch.object(db, "INTERACTIONS_JSON", interaction_path), \
+                    patch.object(db, "LOGS_JSONL", logs_path), \
+                    patch.object(feedback_store, "FEEDBACK_PATH", feedback_path), \
+                    patch.object(feedback_store, "INTERACTIONS_PATH", interaction_path), \
+                    patch.object(retention_service, "INTERACTIONS_JSON", interaction_path), \
+                    patch.object(retention_service, "PREDICTION_LOGS_JSONL", logs_path):
+                db.init_db()
+                old_timestamp = "2026-01-01T00:00:00"
+                current_timestamp = "2026-10-01T00:00:00"
+                feedbacks = [
+                    {
+                        "id": "old-feedback",
+                        "timestamp": old_timestamp,
+                        "top_group": "Data",
+                        "top_prob": 0.7,
+                        "rating": 3,
+                    },
+                    {
+                        "id": "current-feedback",
+                        "timestamp": current_timestamp,
+                        "top_group": "Data",
+                        "top_prob": 0.8,
+                        "rating": 5,
+                    },
+                ]
+                for feedback in feedbacks:
+                    db.insert_feedback(feedback)
+                for record_id, timestamp in (
+                    ("old-interaction", old_timestamp),
+                    ("current-interaction", current_timestamp),
+                ):
+                    db.insert_interaction({
+                        "id": record_id,
+                        "timestamp": timestamp,
+                        "event_type": "view",
+                        "top_group": "Data",
+                        "duration_seconds": 1,
+                    })
+                    db.insert_prediction_log({
+                        "request_id": record_id,
+                        "timestamp": timestamp,
+                        "model_version": "test",
+                        "predicted_group": "Data",
+                        "top_probability": 0.7,
+                        "latency_ms": 10,
+                    })
+                with open(feedback_path, "w", encoding="utf-8") as file:
+                    json.dump(feedbacks, file)
+                with open(interaction_path, "w", encoding="utf-8") as file:
+                    json.dump([
+                        {"id": "old-interaction", "timestamp": old_timestamp},
+                        {"id": "current-interaction", "timestamp": current_timestamp},
+                    ], file)
+                with open(logs_path, "w", encoding="utf-8") as file:
+                    file.write(json.dumps({"request_id": "old-interaction", "timestamp": old_timestamp}) + "\n")
+                    file.write(json.dumps({"request_id": "current-interaction", "timestamp": current_timestamp}) + "\n")
+
+                with patch.object(
+                    retention_service,
+                    "_rebuild_feedback_training_rows",
+                    side_effect=lambda records: len(records),
+                ), patch(
+                    "career_ai.cbf_recommender.cbf_recommender.reload"
+                ):
+                    result = retention_service.purge_expired_data(now=now)
+
+                self.assertEqual(
+                    [row["id"] for row in db.get_all_feedbacks()],
+                    ["current-feedback"],
+                )
+                with open(feedback_path, encoding="utf-8") as file:
+                    self.assertEqual([row["id"] for row in json.load(file)], ["current-feedback"])
+                with open(interaction_path, encoding="utf-8") as file:
+                    self.assertEqual(
+                        [row["id"] for row in json.load(file)],
+                        ["current-interaction"],
+                    )
+                with open(logs_path, encoding="utf-8") as file:
+                    kept_logs = [json.loads(line) for line in file if line.strip()]
+                self.assertEqual([row["request_id"] for row in kept_logs], ["current-interaction"])
+                self.assertTrue(result["deleted_feedbacks"])
+                self.assertTrue(result["deleted_interactions"])
+                self.assertTrue(result["deleted_prediction_logs"])
+                self.assertFalse(result["model_retrained"])
 
     def test_computer_vision_shows_market_proxy_without_claiming_exact_salary(self):
         from career_ai.catalog_audit import CAREERS_PATH
@@ -412,6 +643,8 @@ class TestEnhancedFeatures(unittest.TestCase):
         # Kiểm tra xem trong top_careers có phân tích unstudied_core không
         top_careers = data.get("top_careers", [])
         self.assertGreaterEqual(len(top_careers), 1)
+        self.assertIn("explanation", top_careers[0])
+        self.assertIn("score_note", top_careers[0]["explanation"])
 
         # 2. Gọi /decision/partial chuyên dụng
         r_part = client.post("/decision/partial", json={"web": 9.0, "db": 8.5})

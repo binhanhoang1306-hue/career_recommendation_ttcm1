@@ -1020,6 +1020,19 @@ def render_admin_portal(meta, error):
 
     # Tab 1: Tổng quan hệ thống
     with tab_overview:
+        st.markdown("#### Lưu giữ và dọn dữ liệu")
+        st.caption(
+            "Phản hồi được giữ 120 ngày; nhật ký tư vấn và tương tác được giữ 60 ngày. "
+            "Dọn dữ liệu không tự huấn luyện lại model."
+        )
+        if st.button("Dọn dữ liệu đã quá hạn ngay", key="run_retention_cleanup"):
+            cleanup_result = _admin_request(
+                "POST", "/admin/maintenance/retention", timeout=30
+            )
+            if cleanup_result is not None:
+                st.success("Đã hoàn tất dọn dữ liệu đến hạn.")
+                st.json(cleanup_result)
+
         col_m1, col_m2 = st.columns(2, gap="medium")
         with col_m1:
             with st.container(border=True):
@@ -1136,12 +1149,17 @@ def render_admin_portal(meta, error):
                     timeout=5,
                 )
                 if result:
-                    if result.get("mirror_synced", True) and result.get("recommender_updated", True):
+                    if (
+                        result.get("mirror_synced", True)
+                        and result.get("training_data_synced", True)
+                        and result.get("recommender_updated", True)
+                    ):
                         st.toast("Đã xóa phản hồi.")
                         st.rerun()
                     else:
                         st.warning(
-                            "Đã xóa phản hồi khỏi SQLite nhưng chưa cập nhật được bản mirror hoặc gợi ý. "
+                            "Đã xóa phản hồi khỏi SQLite nhưng chưa cập nhật được bản mirror, dữ liệu huấn luyện "
+                            "hoặc gợi ý. "
                             "Hãy kiểm tra log máy chủ."
                         )
         else:

@@ -279,6 +279,7 @@ class ContentBasedFilteringRecommender:
                     "career_group": info.get("career_group"),
                     "description": info.get("mo_ta"),
                     "salary": info.get("muc_luong"),
+                    "salary_data": info.get("salary_data"),
                     "trend": info.get("xu_huong_thi_truong"),
                     "region": info.get("khu_vuc", "Việt Nam (Hà Nội, TP.HCM, Đà Nẵng)"),
                     "source": info.get("nguon_du_lieu", "Báo cáo thị trường IT TopCV & ITviec"),
