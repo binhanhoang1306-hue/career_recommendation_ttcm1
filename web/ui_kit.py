@@ -1840,7 +1840,7 @@ div[class*="st-key-fb_rating_star_"] button:focus:not(:focus-visible) {
         min-width: min(280px, calc(100vw - 2rem)) !important;
     }
     [data-testid="stSidebar"] [data-testid="stSidebarHeader"] [data-testid="stSidebarCollapseButton"] {
-        transform: translateY(0.65rem);
+        transform: translateY(1rem);
     }
     [data-testid="stSidebar"][aria-expanded="false"] {
         width: 0 !important;
