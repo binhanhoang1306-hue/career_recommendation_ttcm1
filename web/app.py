@@ -636,8 +636,7 @@ def render_student_portal(meta, error):
         user_skills = {}
         with col_skills:
             st.markdown(
-                "<div class='sub-column-title'><span class='bar-accent'></span><strong>Kỹ năng tự tin</strong></div>"
-                "<div class='sub-column-desc'>Bạn tự tin nhất ở điểm nào?</div>",
+                "<div class='sub-column-title'><span class='bar-accent'></span><strong>Kỹ năng tự tin</strong></div>",
                 unsafe_allow_html=True,
             )
             cols_s = st.columns(2)
@@ -660,8 +659,7 @@ def render_student_portal(meta, error):
 
         with col_interests:
             st.markdown(
-                "<div class='sub-column-title'><span class='bar-accent'></span><strong>Lĩnh vực yêu thích</strong></div>"
-                "<div class='sub-column-desc'>Lĩnh vực nào khiến bạn tò mò?</div>",
+                "<div class='sub-column-title'><span class='bar-accent'></span><strong>Lĩnh vực yêu thích</strong></div>",
                 unsafe_allow_html=True,
             )
             interest_options = meta.get("interest_options", [])
