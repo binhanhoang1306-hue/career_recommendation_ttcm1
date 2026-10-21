@@ -759,8 +759,12 @@ class TestStudentFacingCopy(unittest.TestCase):
 
         result = ui_kit.result_hero("Phát triển Web", 72.0, "Lập trình viên", 79.4, False)
         self.assertIn("fill: none", ui_kit.CSS)
-        self.assertIn("stroke: rgba(255, 255, 255, 0.2)", ui_kit.CSS)
+        self.assertIn("stroke: rgba(196, 205, 255, 0.4)", ui_kit.CSS)
+        self.assertIn("width: 140px", ui_kit.CSS)
         self.assertIn("79.4%", result)
+        self.assertIn("class='res-gauge-inner'", result)
+        self.assertIn("class='res-gauge-center'", result)
+        self.assertIn("<div class='res-gauge-lbl'>Mức độ phù hợp</div>", result)
         self.assertIn("class='res-gauge-bg'", result)
         self.assertIn("class='res-gauge-bar'", result)
 

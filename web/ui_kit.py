@@ -1054,18 +1054,14 @@ a[aria-label="Link to heading"],
 }
 .res-gauge {
     position: relative;
-    width: 130px;
-    height: auto;
-    flex-shrink: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.35rem;
+    width: 140px;
+    height: 140px;
+    flex: 0 0 140px;
 }
 .res-gauge-box {
     position: relative;
-    width: 92px;
-    height: 92px;
+    width: 100%;
+    height: 100%;
     display: grid;
     place-items: center;
 }
@@ -1081,14 +1077,25 @@ a[aria-label="Link to heading"],
     fill: none;
     stroke-width: 8;
 }
+.res-gauge-inner {
+    fill: #171B4A;
+}
 .res-gauge-bg {
-    stroke: rgba(255, 255, 255, 0.2);
+    stroke: rgba(196, 205, 255, 0.4);
 }
 .res-gauge-bar {
-    stroke: #60A5FA;
+    stroke: #A5B4FC;
     stroke-linecap: round;
     transform: rotate(-90deg);
     transform-origin: 50% 50%;
+}
+.res-gauge-center {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 .res-gauge .res-gauge-num {
     position: relative;
@@ -1101,7 +1108,7 @@ a[aria-label="Link to heading"],
 }
 .res-gauge-lbl {
     font-size: 0.72rem;
-    color: rgba(255, 255, 255, 0.82);
+    color: rgba(226, 232, 255, 0.78);
     font-weight: 600;
     text-align: center;
 }
@@ -1888,6 +1895,9 @@ div[class*="st-key-fb_rating_star_"] button:focus:not(:focus-visible) {
         align-items: flex-start;
         padding: 1.7rem 1.6rem;
     }
+    .res-gauge {
+        align-self: center;
+    }
     .res .v {
         font-size: 1.85rem;
     }
@@ -2007,13 +2017,16 @@ def result_hero(
         f"<div class='res-gauge'>"
         f"  <div class='res-gauge-box'>"
         f"    <svg width='92' height='92' viewBox='0 0 92 92'>"
+        f"      <circle class='res-gauge-inner' cx='46' cy='46' r='30'></circle>"
         f"      <circle class='res-gauge-bg' cx='46' cy='46' r='36'></circle>"
         f"      <circle class='res-gauge-bar' cx='46' cy='46' r='36' "
         f"        stroke-dasharray='{circ:.2f}' stroke-dashoffset='{offset:.2f}'></circle>"
         f"    </svg>"
-        f"    <div class='res-gauge-num'>{gauge_pct:.1f}%</div>"
+        f"    <div class='res-gauge-center'>"
+        f"      <div class='res-gauge-num'>{gauge_pct:.1f}%</div>"
+        f"      <div class='res-gauge-lbl'>Mức độ phù hợp</div>"
+        f"    </div>"
         f"  </div>"
-        f"  <div class='res-gauge-lbl'>Mức độ phù hợp</div>"
         f"</div>"
     )
 
