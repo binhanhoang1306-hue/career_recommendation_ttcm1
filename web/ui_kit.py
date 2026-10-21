@@ -687,7 +687,7 @@ a[aria-label="Link to heading"],
 }
 .st-key-sidebar-sticky-top {
     position: relative;
-    margin: 0;
+    margin: -2.5rem 0 0;
     padding: 0.25rem 0 0.5rem;
 }
 .st-key-sidebar-menu-scroll {
@@ -1873,7 +1873,7 @@ div[class*="st-key-fb_rating_star_"] button:focus:not(:focus-visible) {
         width: 0 !important;
     }
     .st-key-sidebar-sticky-top {
-        margin-top: -1.15rem;
+        margin-top: -3.6rem;
     }
     .block-container {
         padding: 1.4rem 1.1rem 2.2rem;
