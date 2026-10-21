@@ -153,6 +153,7 @@ header[data-testid="stHeader"] {
     position: relative !important;
     visibility: visible !important;
     opacity: 1 !important;
+    transform: translateY(1.5rem);
 }
 
 [data-testid="stSidebarCollapseButton"] button {
@@ -1838,9 +1839,6 @@ div[class*="st-key-fb_rating_star_"] button:focus:not(:focus-visible) {
     [data-testid="stSidebar"] {
         width: min(280px, calc(100vw - 2rem)) !important;
         min-width: min(280px, calc(100vw - 2rem)) !important;
-    }
-    [data-testid="stSidebar"] [data-testid="stSidebarHeader"] [data-testid="stSidebarCollapseButton"] {
-        transform: translateY(1.5rem);
     }
     [data-testid="stSidebar"][aria-expanded="false"] {
         width: 0 !important;
