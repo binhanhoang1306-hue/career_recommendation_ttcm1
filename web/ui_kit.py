@@ -763,12 +763,9 @@ a[aria-label="Link to heading"],
 }
 .sidebar-admin-header {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     gap: 0.85rem;
     padding: 0.3rem 0 1.15rem;
-}
-.sidebar-admin-header > div:last-child {
-    padding-top: 0.15rem;
 }
 .sidebar-admin-header .sidebar-tagline {
     margin-top: -0.45rem !important;
