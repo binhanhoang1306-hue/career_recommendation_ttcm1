@@ -331,11 +331,11 @@ class TestEnhancedFeatures(unittest.TestCase):
         with patch.object(
             retention_service.db,
             "delete_expired_records",
-            return_value={"feedbacks": 1, "interactions": 2, "prediction_logs": 3},
+            return_value={"feedbacks": 0, "interactions": 2, "prediction_logs": 3},
         ) as delete_records, patch.object(
             retention_service,
             "_prune_json",
-            side_effect=[1, 2],
+            return_value=1,
         ), patch.object(
             retention_service,
             "_prune_jsonl",
@@ -352,16 +352,14 @@ class TestEnhancedFeatures(unittest.TestCase):
             "career_ai.cbf_recommender.cbf_recommender.reload"
         ) as reload_recommender:
             result = retention_service.purge_expired_data(now=now)
-
         cutoffs = delete_records.call_args.kwargs
-        self.assertEqual(cutoffs["feedback_cutoff"], "2026-06-22T00:00:00")
         self.assertEqual(cutoffs["log_cutoff"], "2026-08-21T00:00:00")
         self.assertEqual(cutoffs["interaction_cutoff"], "2026-08-21T00:00:00")
-        self.assertEqual(result["deleted_feedbacks"], 1)
+        self.assertEqual(result["deleted_feedbacks"], 0)
         self.assertFalse(result["model_retrained"])
-        reload_recommender.assert_called_once()
+        reload_recommender.assert_not_called()
 
-    def test_retention_removes_expired_sqlite_and_mirror_records_only(self):
+    def test_retention_keeps_feedback_and_removes_expired_logs_and_interactions(self):
         from datetime import datetime, timezone
         from career_ai import retention_service
 
@@ -440,10 +438,13 @@ class TestEnhancedFeatures(unittest.TestCase):
 
                 self.assertEqual(
                     [row["id"] for row in db.get_all_feedbacks()],
-                    ["current-feedback"],
+                    ["current-feedback", "old-feedback"],
                 )
                 with open(feedback_path, encoding="utf-8") as file:
-                    self.assertEqual([row["id"] for row in json.load(file)], ["current-feedback"])
+                    self.assertEqual(
+                        [row["id"] for row in json.load(file)],
+                        ["old-feedback", "current-feedback"],
+                    )
                 with open(interaction_path, encoding="utf-8") as file:
                     self.assertEqual(
                         [row["id"] for row in json.load(file)],
@@ -452,7 +453,8 @@ class TestEnhancedFeatures(unittest.TestCase):
                 with open(logs_path, encoding="utf-8") as file:
                     kept_logs = [json.loads(line) for line in file if line.strip()]
                 self.assertEqual([row["request_id"] for row in kept_logs], ["current-interaction"])
-                self.assertTrue(result["deleted_feedbacks"])
+                self.assertEqual(result["deleted_feedbacks"], 0)
+                self.assertEqual(result["deleted_feedback_mirror_records"], 0)
                 self.assertTrue(result["deleted_interactions"])
                 self.assertTrue(result["deleted_prediction_logs"])
                 self.assertFalse(result["model_retrained"])

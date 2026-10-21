@@ -13,7 +13,6 @@ from .storage_paths import data_file
 
 logger = logging.getLogger(__name__)
 
-FEEDBACK_RETENTION_DAYS = 120
 LOG_RETENTION_DAYS = 60
 INTERACTION_RETENTION_DAYS = 60
 INTERACTIONS_JSON = data_file("interactions.json")
@@ -108,34 +107,28 @@ def purge_expired_data(now: datetime | None = None) -> dict:
     if current.tzinfo is not None:
         current = current.astimezone(timezone.utc).replace(tzinfo=None)
 
-    feedback_cutoff = current - timedelta(days=FEEDBACK_RETENTION_DAYS)
     log_cutoff = current - timedelta(days=LOG_RETENTION_DAYS)
     interaction_cutoff = current - timedelta(days=INTERACTION_RETENTION_DAYS)
 
     deleted = db.delete_expired_records(
-        feedback_cutoff=feedback_cutoff.isoformat(timespec="seconds"),
         log_cutoff=log_cutoff.isoformat(timespec="seconds"),
         interaction_cutoff=interaction_cutoff.isoformat(timespec="seconds"),
     )
-    feedback_mirror_removed = _prune_json(feedback_store.FEEDBACK_PATH, feedback_cutoff)
 
     feedbacks = feedback_store.get_all_feedback()
     training_rows = _rebuild_feedback_training_rows(feedbacks)
-    if deleted["feedbacks"] or feedback_mirror_removed:
-        from .cbf_recommender import cbf_recommender
-        cbf_recommender.reload()
 
     interactions_removed = _prune_json(INTERACTIONS_JSON, interaction_cutoff)
     logs_removed = _prune_jsonl(PREDICTION_LOGS_JSONL, log_cutoff)
 
     result = {
-        "feedback_cutoff": feedback_cutoff.isoformat(timespec="seconds"),
+        "feedback_cutoff": None,
         "log_cutoff": log_cutoff.isoformat(timespec="seconds"),
         "interaction_cutoff": interaction_cutoff.isoformat(timespec="seconds"),
         "deleted_feedbacks": deleted["feedbacks"],
         "deleted_interactions": deleted["interactions"],
         "deleted_prediction_logs": deleted["prediction_logs"],
-        "deleted_feedback_mirror_records": feedback_mirror_removed,
+        "deleted_feedback_mirror_records": 0,
         "deleted_interaction_mirror_records": interactions_removed,
         "deleted_prediction_log_mirror_records": logs_removed,
         "remaining_feedback_training_rows": training_rows,
@@ -143,7 +136,7 @@ def purge_expired_data(now: datetime | None = None) -> dict:
     }
     if any((
         deleted["feedbacks"], deleted["interactions"], deleted["prediction_logs"],
-        feedback_mirror_removed, interactions_removed, logs_removed,
+        interactions_removed, logs_removed,
     )):
         logger.info("Retention cleanup completed: %s", result)
     return result

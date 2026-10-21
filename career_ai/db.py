@@ -222,14 +222,10 @@ def delete_feedback(feedback_id: str) -> bool:
 
 
 def delete_expired_records(
-    feedback_cutoff: str, log_cutoff: str, interaction_cutoff: str
+    log_cutoff: str, interaction_cutoff: str
 ) -> dict[str, int]:
-    """Delete rows older than the supplied ISO-8601 cutoffs."""
+    """Delete expired interaction and prediction-log rows."""
     with get_connection() as conn:
-        feedbacks = conn.execute(
-            "DELETE FROM feedbacks WHERE julianday(timestamp) < julianday(?)",
-            (feedback_cutoff,),
-        ).rowcount
         interactions = conn.execute(
             "DELETE FROM interactions WHERE julianday(timestamp) < julianday(?)",
             (interaction_cutoff,),
@@ -239,7 +235,7 @@ def delete_expired_records(
             (log_cutoff,),
         ).rowcount
     return {
-        "feedbacks": feedbacks,
+        "feedbacks": 0,
         "interactions": interactions,
         "prediction_logs": prediction_logs,
     }

@@ -1122,8 +1122,8 @@ def render_admin_portal(meta, error):
     with tab_overview:
         st.markdown("#### Lưu giữ và dọn dữ liệu")
         st.caption(
-            "Phản hồi được giữ 120 ngày; nhật ký tư vấn và tương tác được giữ 60 ngày. "
-            "Dọn dữ liệu không tự huấn luyện lại model."
+            "Phản hồi được giữ cho đến khi quản trị viên chủ động xóa; nhật ký tư vấn và tương tác "
+            "được giữ 60 ngày. Dọn dữ liệu không tự huấn luyện lại model."
         )
         if st.button("Dọn dữ liệu đã quá hạn ngay", key="run_retention_cleanup"):
             cleanup_result = _admin_request(
