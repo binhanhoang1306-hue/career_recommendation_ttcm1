@@ -782,9 +782,11 @@ def admin_stats_endpoint(_admin: HTTPBasicCredentials = Depends(require_admin)):
     liked_count = sum(1 for f in feedbacks if (f.get("liked_careers") and len(f["liked_careers"]) > 0) or f.get("rating", 0) >= 4)
     avg_rating = round(sum(f.get("rating", 5) for f in feedbacks) / max(total_feedbacks, 1), 2) if total_feedbacks else 0.0
 
-    total_predictions = len(logs)
+    total_predictions = db.count_prediction_logs()
     partial_predictions = sum(1 for l in logs if l.get("is_partial"))
-    avg_latency = round(sum(l.get("latency_ms", 0.0) for l in logs) / max(total_predictions, 1), 2) if total_predictions else 0.0
+    avg_latency = round(
+        sum(l.get("latency_ms", 0.0) for l in logs) / len(logs), 2
+    ) if logs else 0.0
 
     # Phân bố nhóm ngành dự đoán
     group_counts = {}

@@ -202,6 +202,25 @@ class TestApiHardening(unittest.TestCase):
         self.assertIn("average_usefulness", survey)
         self.assertEqual(survey["minimum_recommended_sample"], 20)
 
+    def test_admin_stats_count_all_retained_prediction_logs(self):
+        from career_ai import db
+
+        with patch.dict(os.environ, {"ADMIN_USERNAME": "test-admin", "ADMIN_PASSWORD": "test-secret"}), \
+                patch.object(db, "get_all_feedbacks", return_value=[]), \
+                patch.object(db, "get_prediction_logs", return_value=[{
+                    "predicted_group": "Data",
+                    "latency_ms": 100,
+                    "is_partial": False,
+                }]), \
+                patch.object(db, "count_prediction_logs", return_value=623) as count_logs:
+            response = self.client.get(
+                "/admin/stats", auth=("test-admin", "test-secret")
+            )
+
+        self.assertEqual(response.status_code, 200, response.text)
+        self.assertEqual(response.json()["total_predictions"], 623)
+        count_logs.assert_called_once_with()
+
     def test_admin_and_retrain_routes_reject_unauthenticated_requests(self):
         import api.main as api_main
 

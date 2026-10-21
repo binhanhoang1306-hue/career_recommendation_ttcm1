@@ -1105,7 +1105,7 @@ def render_admin_portal(meta, error):
 
     # 4 Thẻ KPI thống kê nhanh
     st.markdown("<div class='kpi-grid'>"
-                + _render_kpi("LƯỢT TƯ VẤN ĐÃ THỰC HIỆN", str(total_preds), "Tổng số phiên tư vấn DSS", "bar")
+                + _render_kpi("LƯỢT TƯ VẤN ĐÃ THỰC HIỆN", str(total_preds), "Số phiên được lưu (60 ngày gần nhất)", "bar")
                 + _render_kpi("PHẢN HỒI ĐÃ NHẬN", str(total_feedbacks), "Ý kiến từ sinh viên", "mail")
                 + _render_kpi("MỨC HÀI LÒNG", f"{satisfaction}%", "Đánh giá tích cực", "smile")
                 + _render_kpi("THỜI GIAN PHẢN HỒI", f"{latency_val:.2f}s", "Độ trễ trung bình", "clock")

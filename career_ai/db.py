@@ -340,5 +340,11 @@ def get_prediction_logs(limit: int = 200) -> list:
         return result
 
 
+def count_prediction_logs() -> int:
+    """Count all prediction logs currently retained in SQLite."""
+    with get_connection() as conn:
+        return conn.execute("SELECT COUNT(*) FROM prediction_logs").fetchone()[0]
+
+
 # Tự động khởi tạo schema khi import module
 init_db()
