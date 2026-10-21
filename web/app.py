@@ -289,13 +289,19 @@ def parse_uploaded_file(uploaded_file, filename, subject_names, subject_keys):
 # CÁC HÀM GỌI API BACKEND
 # ---------------------------------------------------------------------------
 @st.cache_data(ttl=60)
+def _fetch_model_info(api_url: str):
+    """Lấy thông tin mô hình và danh mục; chỉ cache khi API phản hồi thành công."""
+    res = requests.get(f"{api_url}/model-info", timeout=(5, 90))
+    res.raise_for_status()
+    return res.json()
+
+
 def fetch_model_info():
     """Lấy thông tin mô hình và danh mục từ endpoint /model-info."""
     try:
-        res = requests.get(f"{API_URL}/model-info", timeout=4)
-        if res.status_code == 200:
-            return res.json(), None
-        return None, f"API trả về mã lỗi HTTP {res.status_code}"
+        return _fetch_model_info(API_URL), None
+    except requests.exceptions.HTTPError as e:
+        return None, f"API trả về mã lỗi HTTP {e.response.status_code}"
     except requests.exceptions.RequestException as e:
         return None, str(e)
 
@@ -496,7 +502,12 @@ def render_student_portal(meta, error):
     # Kiểm tra backend API
     if not meta:
         st.error(f"Chưa thể kết nối tới Backend API tại `{API_URL}`: {error}")
-        st.info("Hãy đảm bảo dịch vụ FastAPI đang chạy trên cổng 8000: `uvicorn api.main:app --reload --port 8000`")
+        if API_URL.startswith(("http://127.0.0.1", "http://localhost")):
+            st.info("Đang chạy giao diện trên máy cá nhân? Hãy khởi động FastAPI trên cổng 8000.")
+        else:
+            st.info("Dịch vụ trực tuyến có thể đang khởi động lại. Hãy chờ một chút rồi thử kết nối lại; bạn không cần chạy code trên máy.")
+        if st.button("Thử kết nối lại", key="retry_backend_connection"):
+            st.rerun()
         return
 
     # Banner Hero
