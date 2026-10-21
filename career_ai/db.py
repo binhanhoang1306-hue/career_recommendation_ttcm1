@@ -214,6 +214,33 @@ def insert_feedback(record: dict) -> dict:
     return record
 
 
+def restore_feedbacks(records: list[dict]) -> int:
+    """Import missing feedback records without overwriting existing IDs."""
+    with get_connection() as conn:
+        imported = 0
+        for record in records:
+            cursor = conn.execute("""
+                INSERT OR IGNORE INTO feedbacks (
+                    id, timestamp, student_name, top_group, top_prob,
+                    rating, liked_careers, disliked_careers, comment, scores, survey
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (
+                record["id"],
+                record["timestamp"],
+                record.get("student_name", "Sinh viên"),
+                record["top_group"],
+                float(record["top_prob"]),
+                int(record["rating"]),
+                json.dumps(record.get("liked_careers", []), ensure_ascii=False),
+                json.dumps(record.get("disliked_careers", []), ensure_ascii=False),
+                record.get("comment", ""),
+                json.dumps(record.get("scores", {}), ensure_ascii=False),
+                json.dumps(record.get("survey", {}), ensure_ascii=False),
+            ))
+            imported += cursor.rowcount
+    return imported
+
+
 def delete_feedback(feedback_id: str) -> bool:
     """Xóa một phản hồi khỏi SQLite và trả về liệu bản ghi có tồn tại hay không."""
     with get_connection() as conn:

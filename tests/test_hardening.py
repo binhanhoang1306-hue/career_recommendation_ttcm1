@@ -178,6 +178,51 @@ class TestApiHardening(unittest.TestCase):
                 with open(feedback_path, encoding="utf-8") as file:
                     self.assertEqual(json.load(file), [])
 
+    def test_admin_can_restore_feedback_backup_without_overwriting_ids(self):
+        from career_ai import db, feedback_store
+        import api.main as api_main
+
+        with tempfile.TemporaryDirectory() as tmp:
+            with patch.object(db, "DB_PATH", os.path.join(tmp, "feedback.db")), \
+                    patch.object(feedback_store, "FEEDBACK_PATH", os.path.join(tmp, "feedback.json")), \
+                    patch.object(api_main, "rebuild_feedback_training_data"), \
+                    patch.object(api_main.recommender, "reload"):
+                db.init_db()
+                existing = {
+                    "id": "already-present",
+                    "timestamp": "2026-10-20T12:00:00",
+                    "top_group": "Data",
+                    "top_prob": 0.8,
+                    "rating": 5,
+                    "comment": "Keep the original",
+                }
+                db.insert_feedback(existing)
+                backup = {
+                    "feedbacks": [
+                        {**existing, "comment": "Do not overwrite"},
+                        {
+                            "id": "restored-feedback",
+                            "timestamp": "2026-10-20T13:00:00",
+                            "top_group": "Data",
+                            "top_prob": 0.7,
+                            "rating": 4,
+                            "comment": "Restored",
+                        },
+                    ]
+                }
+                with patch.dict(os.environ, {"ADMIN_USERNAME": "test-admin", "ADMIN_PASSWORD": "test-secret"}):
+                    response = self.client.post(
+                        "/admin/feedbacks/restore",
+                        json=backup,
+                        auth=("test-admin", "test-secret"),
+                    )
+
+                self.assertEqual(response.status_code, 200, response.text)
+                self.assertEqual(response.json()["imported_feedbacks"], 1)
+                feedbacks = {record["id"]: record for record in db.get_all_feedbacks()}
+                self.assertEqual(feedbacks["already-present"]["comment"], "Keep the original")
+                self.assertEqual(feedbacks["restored-feedback"]["comment"], "Restored")
+
     def test_feedback_rejects_out_of_range_survey_scores(self):
         import api.main as api_main
 
@@ -230,6 +275,7 @@ class TestApiHardening(unittest.TestCase):
                 ("get", "/admin/auth"),
                 ("get", "/admin/stats"),
                 ("get", "/admin/feedbacks"),
+                ("post", "/admin/feedbacks/restore"),
                 ("get", "/admin/logs"),
                 ("post", "/retrain?force=true"),
             )
@@ -765,6 +811,7 @@ class TestStudentFacingCopy(unittest.TestCase):
         self.assertIn("mountPath: /var/data", render_config)
         self.assertIn("CAREER_AI_DATA_DIR", render_config)
         self.assertIn("value: /var/data", render_config)
+        self.assertIn("plan: starter", render_config)
 
     def test_streamlit_uses_current_width_parameter(self):
         from web import app as web_app

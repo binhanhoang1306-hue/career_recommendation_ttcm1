@@ -25,7 +25,7 @@ import secrets
 
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
-from typing import AsyncIterator, Dict, List, Literal, Optional, Union, ClassVar
+from typing import Any, AsyncIterator, Dict, List, Literal, Optional, Union, ClassVar
 from contextlib import asynccontextmanager
 
 from fastapi import Depends, FastAPI, HTTPException, Request, status, BackgroundTasks
@@ -404,6 +404,24 @@ class FeedbackRequest(BaseModel):
     comment: Optional[str] = ""
     rating: Optional[int] = Field(None, ge=1, le=5)
     survey: Optional[StudentSurveyRequest] = None
+
+
+class FeedbackBackupRecord(BaseModel):
+    id: str = Field(..., min_length=1, max_length=64)
+    timestamp: str = Field(..., min_length=1, max_length=64)
+    student_name: str = "Sinh viên"
+    top_group: str = Field(..., min_length=1, max_length=100)
+    top_prob: float = Field(..., ge=0.0, le=1.0)
+    rating: int = Field(..., ge=1, le=5, strict=True)
+    liked_careers: List[str] = Field(default_factory=list)
+    disliked_careers: List[str] = Field(default_factory=list)
+    comment: str = ""
+    scores: Dict[str, float] = Field(default_factory=dict)
+    survey: Dict[str, Any] = Field(default_factory=dict)
+
+
+class FeedbackBackupRequest(BaseModel):
+    feedbacks: List[FeedbackBackupRecord] = Field(..., max_length=10000)
 
 
 # ---------------------------------------------------------------------------
@@ -817,6 +835,34 @@ def admin_feedbacks_endpoint(limit: int = 50, _admin: HTTPBasicCredentials = Dep
     """Lấy danh sách các phản hồi sinh viên mới nhất từ SQLite."""
     from career_ai import db
     return {"feedbacks": db.get_all_feedbacks(limit=limit)}
+
+
+@app.post("/admin/feedbacks/restore")
+def restore_admin_feedbacks_endpoint(
+    req: FeedbackBackupRequest, _admin: HTTPBasicCredentials = Depends(require_admin)
+):
+    """Restore an exported feedback backup without overwriting existing feedback IDs."""
+    try:
+        imported, mirror_synced = feedback_store.restore_feedbacks(
+            [record.model_dump() for record in req.feedbacks]
+        )
+        if not mirror_synced:
+            raise HTTPException(
+                status_code=500,
+                detail="Đã nhập phản hồi vào SQLite nhưng không đồng bộ được bản mirror.",
+            )
+        rebuild_feedback_training_data(feedback_store.get_all_feedback())
+        recommender.reload()
+    except HTTPException:
+        raise
+    except (OSError, ValueError, sqlite3.Error, json.JSONDecodeError) as exc:
+        logger.exception("Failed to restore feedback backup")
+        raise HTTPException(status_code=500, detail="Không thể khôi phục bản sao lưu phản hồi.") from exc
+    return {
+        "status": "restored",
+        "imported_feedbacks": imported,
+        "total_feedbacks": len(feedback_store.get_all_feedback()),
+    }
 
 
 @app.delete("/admin/feedbacks/{feedback_id}")

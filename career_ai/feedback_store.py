@@ -77,6 +77,19 @@ def get_all_feedback() -> list:
     return db.get_all_feedbacks()
 
 
+def restore_feedbacks(records: list[dict]) -> tuple[int, bool]:
+    """Import missing feedback records and refresh the compatibility mirror."""
+    with _LOCK:
+        imported = db.restore_feedbacks(records)
+        try:
+            _save(FEEDBACK_PATH, db.get_all_feedbacks())
+            mirror_synced = True
+        except (OSError, json.JSONDecodeError):
+            logger.exception("Restored %s feedback records, but JSON mirror update failed", imported)
+            mirror_synced = False
+    return imported, mirror_synced
+
+
 def delete_feedback(feedback_id: str) -> tuple[bool, bool]:
     """Xóa phản hồi và trả về trạng thái xóa SQLite cùng trạng thái mirror JSON."""
     with _LOCK:

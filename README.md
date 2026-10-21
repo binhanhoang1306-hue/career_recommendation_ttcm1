@@ -275,8 +275,27 @@ Dự án đã có sẵn file `render.yaml` chuẩn hóa blueprint:
    - `career-ai-api`: Chạy FastAPI backend (`uvicorn api.main:app --port $PORT`).
    - `career-ai-web`: Chạy Streamlit frontend (`streamlit run web/app.py`).
 4. Nhập biến môi trường bí mật `GROQ_API_KEY`, `ADMIN_USERNAME` và `ADMIN_PASSWORD` cho dịch vụ `career-ai-api` trong Dashboard của Render. Hai biến quản trị được đánh dấu `sync: false`; hãy đặt tên đăng nhập và mật khẩu dài, riêng biệt, không dùng thông tin mặc định hoặc mật khẩu dùng ở nơi khác.
-5. API được gắn Persistent Disk 1 GB ở `/var/data`; `CAREER_AI_DATA_DIR` lưu SQLite, phản hồi, tương tác và prediction logs trên ổ này để dữ liệu còn sau deploy/restart. Persistent Disk yêu cầu gói Render hỗ trợ disk; disk gắn với một instance, vì vậy không scale API thành nhiều instance nếu chưa chuyển dữ liệu sang kho dùng chung.
+5. API dùng gói Render Starter và Persistent Disk 1 GB ở `/var/data`; `CAREER_AI_DATA_DIR` lưu SQLite, phản hồi, tương tác và prediction logs trên ổ này để dữ liệu còn sau deploy/restart. Disk chỉ dùng được với gói trả phí, gắn với một instance; không scale API thành nhiều instance nếu chưa chuyển dữ liệu sang kho dùng chung.
 6. Dịch vụ tự động build và cung cấp 2 đường link HTTPS. Chỉ đăng nhập quản trị qua kết nối HTTPS; không đưa thông tin đăng nhập vào URL, mã nguồn hoặc log.
+
+**Chuyển API hiện có từ Render Free:** filesystem của gói Free là tạm thời; disk mới không tự mang dữ liệu cũ sang. Trước khi áp dụng Blueprint/nâng gói, sao lưu phản hồi từ API hiện tại, dùng PowerShell và thay URL API:
+
+```powershell
+$api = "https://<api-host>"
+$credential = Get-Credential
+$backup = Invoke-RestMethod -Uri "$api/admin/feedbacks?limit=10000" -Credential $credential
+$backup | ConvertTo-Json -Depth 100 | Set-Content -Encoding utf8 feedback-backup.json
+```
+
+Sau khi triển khai phiên bản mới và Persistent Disk đã được mount, khôi phục bản sao lưu vào cùng API:
+
+```powershell
+$backup = Get-Content -Raw feedback-backup.json
+Invoke-RestMethod -Method Post -Uri "$api/admin/feedbacks/restore" `
+  -Credential $credential -ContentType "application/json" -Body $backup
+```
+
+Endpoint khôi phục chỉ dành cho quản trị viên; bản ghi trùng ID được bỏ qua, không ghi đè dữ liệu hiện có. Giữ lại `feedback-backup.json` đến khi xác nhận dashboard hiển thị đủ phản hồi. Bản ghi đã mất trước khi sao lưu chỉ khôi phục được nếu có bản sao lưu khác.
 
 Màn hình quản trị xác thực trực tiếp với API. Các endpoint `/admin/*` và `/retrain` đều yêu cầu HTTP Basic Authentication ở backend; khi chưa cấu hình đủ cả hai biến quản trị, API từ chối truy cập bằng HTTP 503. Với chạy cục bộ, đặt hai biến trong `.env` (sao chép từ `.env.example`) trước khi khởi động API. Tài khoản nhập ở trang đăng nhập được lưu trong phiên Streamlit để gọi các API quản trị và bị xóa khi đăng xuất.
 
