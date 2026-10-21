@@ -757,6 +757,13 @@ class TestStudentFacingCopy(unittest.TestCase):
     def test_career_guidance_uses_plain_language(self):
         from web import ui_kit
 
+        result = ui_kit.result_hero("Phát triển Web", 72.0, "Lập trình viên", 79.4, False)
+        self.assertIn("fill: none", ui_kit.CSS)
+        self.assertIn("stroke: rgba(255, 255, 255, 0.2)", ui_kit.CSS)
+        self.assertIn("79.4%", result)
+        self.assertIn("class='res-gauge-bg'", result)
+        self.assertIn("class='res-gauge-bar'", result)
+
         student_copy = " ".join(
             [
                 ui_kit.hero("Minh Anh"),

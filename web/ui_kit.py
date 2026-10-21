@@ -1055,37 +1055,55 @@ a[aria-label="Link to heading"],
 .res-gauge {
     position: relative;
     width: 130px;
-    height: 130px;
+    height: auto;
     flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35rem;
+}
+.res-gauge-box {
+    position: relative;
+    width: 92px;
+    height: 92px;
     display: grid;
     place-items: center;
 }
-.res-gauge .gauge-svg {
+.res-gauge-box svg {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
 }
-.res-gauge .gauge-center {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    z-index: 1;
+.res-gauge-bg,
+.res-gauge-bar {
+    fill: none;
+    stroke-width: 8;
 }
-.res-gauge .gauge-num {
+.res-gauge-bg {
+    stroke: rgba(255, 255, 255, 0.2);
+}
+.res-gauge-bar {
+    stroke: #60A5FA;
+    stroke-linecap: round;
+    transform: rotate(-90deg);
+    transform-origin: 50% 50%;
+}
+.res-gauge .res-gauge-num {
+    position: relative;
+    z-index: 1;
     font-size: 1.65rem;
     font-weight: 800;
     color: #FFFFFF;
     letter-spacing: -0.02em;
     line-height: 1.1;
 }
-.res-gauge .gauge-sub {
+.res-gauge-lbl {
     font-size: 0.72rem;
-    color: #94A3B8;
+    color: rgba(255, 255, 255, 0.82);
     font-weight: 600;
-    margin-top: 2px;
+    text-align: center;
 }
 .chip {
     display: inline-block;
