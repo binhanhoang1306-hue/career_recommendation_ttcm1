@@ -1839,6 +1839,9 @@ div[class*="st-key-fb_rating_star_"] button:focus:not(:focus-visible) {
         width: min(280px, calc(100vw - 2rem)) !important;
         min-width: min(280px, calc(100vw - 2rem)) !important;
     }
+    [data-testid="stSidebar"] [data-testid="stSidebarHeader"] [data-testid="stSidebarCollapseButton"] {
+        transform: translateY(0.65rem);
+    }
     [data-testid="stSidebar"][aria-expanded="false"] {
         width: 0 !important;
         min-width: 0 !important;
@@ -1848,6 +1851,9 @@ div[class*="st-key-fb_rating_star_"] button:focus:not(:focus-visible) {
     }
     [data-testid="stSidebar"][aria-expanded="false"] > div:first-child {
         width: 0 !important;
+    }
+    .st-key-sidebar-sticky-top {
+        margin-top: -1.15rem;
     }
     .block-container {
         padding: 1.4rem 1.1rem 2.2rem;
