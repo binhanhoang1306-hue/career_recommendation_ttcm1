@@ -1208,6 +1208,10 @@ def render_admin_portal(meta, error):
                     }.get(survey_answers.get("explore_intent"), "-"),
                     "Bình luận": f.get("comment", "") or "-",
                 })
+            df_to_show = pd.DataFrame(fb_df_data)
+            if not df_to_show.empty:
+                df_to_show["Phù hợp"] = df_to_show["Phù hợp"].astype(str)
+                df_to_show["Hữu ích"] = df_to_show["Hữu ích"].astype(str)
             st.dataframe(pd.DataFrame(fb_df_data), width="stretch", hide_index=True)
             selected_feedback = st.selectbox(
                 "Chọn phản hồi cần xóa",
