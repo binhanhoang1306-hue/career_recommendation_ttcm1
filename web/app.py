@@ -273,7 +273,7 @@ def parse_uploaded_file(uploaded_file, filename, subject_names, subject_keys):
 @st.cache_data(ttl=60)
 def _fetch_model_info(api_url: str):
     """Lấy thông tin mô hình và danh mục; chỉ cache khi API phản hồi thành công."""
-    res = requests.get(f"{api_url}/model-info", timeout=(5, 90))
+    res = requests.get(f"{api_url}/model-info", timeout=(5, 15))
     res.raise_for_status()
     return res.json()
 
