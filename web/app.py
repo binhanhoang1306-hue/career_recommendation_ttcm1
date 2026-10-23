@@ -273,7 +273,7 @@ def parse_uploaded_file(uploaded_file, filename, subject_names, subject_keys):
 @st.cache_data(ttl=60)
 def _fetch_model_info(api_url: str):
     """Lấy thông tin mô hình và danh mục; chỉ cache khi API phản hồi thành công."""
-    res = requests.get(f"{api_url}/model-info", timeout=(5, 15))
+    res = requests.get(f"{api_url}/model-info", timeout=(5, 90))
     res.raise_for_status()
     return res.json()
 
@@ -321,15 +321,6 @@ def _admin_request(method: str, path: str, timeout: int):
             st.error(f"Yêu cầu quản trị thất bại (HTTP {response.status_code}).")
             return None
         return response.json()
-    except requests.exceptions.Timeout:
-        if path.startswith("/retrain"):
-            st.error(
-                "FastAPI chưa trả kết quả trong thời gian chờ. Tác vụ cập nhật có thể vẫn đang chạy; "
-                "hãy kiểm tra phiên bản mô hình trước khi bấm cập nhật lần nữa."
-            )
-        else:
-            st.error("Máy chủ quản trị phản hồi quá thời gian chờ.")
-        return None
     except requests.exceptions.RequestException as exc:
         st.error(f"Không thể truy cập chức năng quản trị ({type(exc).__name__}).")
         return None
@@ -1297,7 +1288,7 @@ def render_admin_portal(meta, error):
                     retrain_res = _admin_request(
                         "POST",
                         f"/retrain?force={str(force_retrain).lower()}",
-                        timeout=300,
+                        timeout=35,
                     )
                     if retrain_res and retrain_res.get("status") == "success":
                         st.success(
@@ -1312,15 +1303,11 @@ def render_admin_portal(meta, error):
                                 "Hệ thống vẫn giữ phiên bản hiện tại."
                             )
                         elif status == "waiting":
-                            st.info(retrain_res.get(
-                                "message",
-                                "Chưa đủ phản hồi có điểm môn học và lựa chọn nghề.",
-                            ))
-                        elif status == "no_new_samples":
-                            st.info(retrain_res.get(
-                                "message",
-                                "Chưa có mẫu phản hồi mới để cập nhật mô hình.",
-                            ))
+                            st.info(
+                                "Chưa đủ phản hồi có điểm môn học và lựa chọn nghề: "
+                                f"{retrain_res.get('ready_count', 0)}/"
+                                f"{retrain_res.get('required_count', 0)}."
+                            )
                         else:
                             st.info(retrain_res.get("message", "Chưa thể cập nhật hệ thống lúc này."))
 

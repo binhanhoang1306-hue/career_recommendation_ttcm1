@@ -15,7 +15,6 @@ CƠ CHẾ:
      chỉ tính trên các dòng "derived" nên không bị dịch chuyển bởi dòng phản hồi).
 """
 import json
-import math
 import os
 import sys
 import tempfile
@@ -70,20 +69,7 @@ def _feedback_training_rows(feedbacks: list[dict], careers_meta: dict) -> list[d
     for idx, feedback in enumerate(feedbacks, 1):
         scores = feedback.get("scores")
         liked = feedback.get("liked_careers", [])
-        if not isinstance(scores, dict) or not liked:
-            continue
-
-        normalized_scores = {}
-        for subject in SUBJECTS:
-            value = scores.get(SUBJECT_KEYS[subject], scores.get(subject))
-            try:
-                score = float(value)
-            except (TypeError, ValueError):
-                break
-            if not math.isfinite(score) or not 0.0 <= score <= 10.0:
-                break
-            normalized_scores[SUBJECT_KEYS[subject]] = score
-        if len(normalized_scores) != len(SUBJECTS):
+        if not scores or not liked or len(scores) < len(SUBJECTS):
             continue
 
         confirmed_groups = {
@@ -97,28 +83,12 @@ def _feedback_training_rows(feedbacks: list[dict], careers_meta: dict) -> list[d
                 TARGET_COL: group,
                 LABEL_SOURCE_COL: LABEL_FEEDBACK,
             }
-            row.update(normalized_scores)
+            row.update({
+                SUBJECT_KEYS[subject]: float(scores.get(SUBJECT_KEYS[subject], 7.0))
+                for subject in SUBJECTS
+            })
             new_rows.append(row)
     return new_rows
-
-
-def _training_signature(row: dict) -> tuple:
-    return tuple(float(row[column]) for column in FEATURE_COLS) + (row[TARGET_COL],)
-
-
-def _unseen_feedback_rows(training_df: pd.DataFrame, feedback_rows: list[dict]) -> list[dict]:
-    """Keep only distinct, complete feedback samples not already in the training data."""
-    existing = {
-        _training_signature(row)
-        for row in training_df[FEATURE_COLS + [TARGET_COL]].to_dict("records")
-    }
-    unseen = []
-    for row in feedback_rows:
-        signature = _training_signature(row)
-        if signature not in existing:
-            unseen.append(row)
-            existing.add(signature)
-    return unseen
 
 
 def rebuild_feedback_training_data(feedbacks: list[dict] | None = None) -> int:
@@ -178,22 +148,18 @@ def retrain_from_explicit_feedback() -> dict:
         df_base[LABEL_SOURCE_COL] = LABEL_DERIVED
     df_base[LABEL_SOURCE_COL] = df_base[LABEL_SOURCE_COL].fillna(LABEL_DERIVED)
 
-    # Chỉ bổ sung các mẫu khác biệt, chưa được dùng để huấn luyện.
-    new_rows = _unseen_feedback_rows(
-        df_base, _feedback_training_rows(feedbacks, careers_meta)
-    )
-    df_merged = pd.concat([df_base, pd.DataFrame(new_rows)], ignore_index=True)
-    samples_added = len(new_rows)
-    if samples_added == 0:
-        return {
-            "status": "no_new_samples",
-            "samples_added": 0,
-            "feedback_count": len(_feedback_training_rows(feedbacks, careers_meta)),
-            "message": (
-                "Không có mẫu phản hồi mới đủ 12 điểm và nghề phù hợp để bổ sung. "
-                "Các phản hồi hiện có đã được dùng hoặc trùng hồ sơ điểm và nhóm nghề."
-            ),
-        }
+    # 1. Trích xuất các mẫu học mới từ phản hồi tường minh
+    new_rows = _feedback_training_rows(feedbacks, careers_meta)
+
+    if new_rows:
+        df_new = pd.DataFrame(new_rows)
+        # Hợp nhất và loại bỏ các dòng bị trùng lặp hoàn toàn về điểm và nhóm (giữ dòng gốc, đứng trước)
+        df_merged = pd.concat([df_base, df_new], ignore_index=True)
+        df_merged = df_merged.drop_duplicates(subset=FEATURE_COLS + [TARGET_COL]).reset_index(drop=True)
+        samples_added = len(df_merged) - len(df_base)
+    else:
+        df_merged = df_base
+        samples_added = 0
 
     X = df_merged[FEATURE_COLS]
     y = df_merged[TARGET_COL]
@@ -312,31 +278,13 @@ def check_and_trigger_auto_retrain(min_feedback_count: int = 5, force: bool = Fa
     except Exception:
         return {"status": "error", "message": "Không đọc được file phản hồi."}
 
-    try:
-        with open(CAREERS_PATH, encoding="utf-8") as f:
-            careers_meta = json.load(f)
-        training_df = pd.read_csv(DATA_PATH)
-    except (OSError, json.JSONDecodeError, pd.errors.ParserError) as exc:
-        return {
-            "status": "error",
-            "message": f"Không thể kiểm tra dữ liệu huấn luyện ({type(exc).__name__}).",
-        }
-
-    if LABEL_SOURCE_COL not in training_df.columns:
-        training_df[LABEL_SOURCE_COL] = LABEL_DERIVED
-    training_df[LABEL_SOURCE_COL] = training_df[LABEL_SOURCE_COL].fillna(LABEL_DERIVED)
-    feedback_rows = _feedback_training_rows(feedbacks, careers_meta)
-    ready_count = len(_unseen_feedback_rows(training_df, feedback_rows))
+    ready_count = sum(1 for fb in feedbacks if fb.get("scores") and fb.get("liked_careers"))
     if not force and ready_count < min_feedback_count:
         return {
             "status": "waiting",
             "ready_count": ready_count,
             "required_count": min_feedback_count,
-            "feedback_count": len(feedback_rows),
-            "message": (
-                f"Có {len(feedback_rows)} phản hồi đủ điều kiện, nhưng chỉ {ready_count} "
-                f"mẫu mới chưa được dùng trong huấn luyện; cần {min_feedback_count} mẫu mới."
-            ),
+            "message": f"Chưa đủ mẫu phản hồi để tự động Retrain ({ready_count}/{min_feedback_count}).",
         }
 
     res = retrain_from_explicit_feedback()
