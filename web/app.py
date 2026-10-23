@@ -1,22 +1,4 @@
-# -*- coding: utf-8 -*-
-"""
-web/app.py — Cổng Tư Vấn & Định Hướng Nghề Nghiệp CNTT Chuẩn DSS (Streamlit Client).
 
-Nguyên tắc kiến trúc:
-1. Giao diện KHÔNG nạp model trực tiếp; nó là Web Client kết nối với FastAPI REST API qua HTTP.
-2. Trải nghiệm người dùng tách biệt rõ ràng & hợp lý:
-   - Cổng Dành Cho Sinh Viên: Thiết kế hiện đại, tập trung vào trải nghiệm người dùng,
-     nhập điểm theo nhóm môn học, hỗ trợ hồ sơ mẫu nhanh, upload bảng điểm cá nhân,
-     và báo cáo tư vấn chuyên sâu từ AI (Groq).
-   - Khu Vực Quản Trị Viên (Admin Portal): Được bảo vệ bằng đăng nhập bảo mật,
-     cung cấp thống kê, phân tích phản hồi sinh viên, xem lịch sử tư vấn
-     và điều khiển chu trình tự động Retrain.
-3. Địa chỉ API đọc từ biến môi trường API_URL (mặc định: http://127.0.0.1:8000).
-
-Cách chạy:
-    streamlit run web/app.py
-    hoặc: cd web && streamlit run app.py
-"""
 import html
 import os
 import sys
@@ -1321,11 +1303,15 @@ def render_admin_portal(meta, error):
                                 "Hệ thống vẫn giữ phiên bản hiện tại."
                             )
                         elif status == "waiting":
-                            st.info(
-                                "Chưa đủ phản hồi có điểm môn học và lựa chọn nghề: "
-                                f"{retrain_res.get('ready_count', 0)}/"
-                                f"{retrain_res.get('required_count', 0)}."
-                            )
+                            st.info(retrain_res.get(
+                                "message",
+                                "Chưa đủ phản hồi có điểm môn học và lựa chọn nghề.",
+                            ))
+                        elif status == "no_new_samples":
+                            st.info(retrain_res.get(
+                                "message",
+                                "Chưa có mẫu phản hồi mới để cập nhật mô hình.",
+                            ))
                         else:
                             st.info(retrain_res.get("message", "Chưa thể cập nhật hệ thống lúc này."))
 

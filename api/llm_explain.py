@@ -1,18 +1,4 @@
-# -*- coding: utf-8 -*-
-"""
-api/llm_explain.py — Bước 4: Giải thích kết quả bằng GroqCloud API.
 
-Nguyên tắc thiết kế:
-1. Prompt chỉ chứa số liệu thật do hệ thống tính ra và dữ liệu thị trường tuyển dụng từ nguồn uy tín.
-2. BẢO MẬT & QUYỀN RIÊNG TƯ: Không gửi tên hoặc thông tin nhận dạng sinh viên tới nhà cung cấp.
-3. NGUỒN VÀ KHU VỰC: Chỉ sử dụng nguồn dữ liệu thị trường đã được backend cung cấp; Groq không tự tra cứu web.
-4. TRUNG THỰC VỀ Ý NGHĨA KẾT QUẢ: Điểm phù hợp chỉ phản ánh mức khớp giữa điểm môn học với hồ sơ môn học
-   của từng nghề. Đây là gợi ý tham khảo, không phải dự đoán thành công hay cam kết thu nhập.
-5. KIỂM SOÁT ĐẦU RA (ANTI-FABRICATION):
-   - Cho phép và xác thực các con số học thuật (% tin cậy, % khớp hồ sơ) và các con số thị trường hợp lệ (mức lương, năm cập nhật).
-   - Ngăn chặn các số liệu bịa đặt (tự chế % cơ hội thành công, tự bịa điểm số).
-6. Chịu lỗi: Thiếu GROQ_API_KEY, chạm giới hạn tốc độ, mất mạng, quá thời gian (timeout) -> chuyển sang giải thích theo quy tắc có sẵn dữ liệu thị trường.
-"""
 import logging
 import os
 import re
@@ -57,15 +43,8 @@ _NUM_RE = re.compile(r"\d+[.,]\d+|\d+\s*%")
 
 
 def allowed_numbers(decision_result: dict) -> list:
-    """
-    Tập hợp tất cả số liệu thật được phép xuất hiện trong lời giải thích:
-    1. Số liệu học thuật do hệ thống tính ra (xác suất hiệu chuẩn theo nhãn học, % khớp hồ sơ môn học).
-    2. Các con số trong dữ liệu thị trường được cung cấp cho Top 3 nghề.
-    3. Các hằng số hệ thống thông dụng (1, 2, 3, 5, 7, 10, 12, năm 2024, 2025, 2026).
-    """
     nums = []
 
-    # 1. Số liệu học thuật từ hệ thống
     conf = decision_result.get("confidence")
     if isinstance(conf, (int, float)):
         nums.append(float(conf))
@@ -75,7 +54,6 @@ def allowed_numbers(decision_result: dict) -> list:
         if isinstance(m, (int, float)):
             nums.append(float(m))
 
-        # The prompt also includes numeric facts in market trends and sources.
         market_fields = (
             c.get("career_name"),
             c.get("salary") or c.get("muc_luong"),
@@ -107,10 +85,6 @@ def allowed_numbers(decision_result: dict) -> list:
 
 
 def has_fabricated_numbers(text: str, decision_result: dict, tol: float = 0.6) -> bool:
-    """
-    Kiểm tra xem văn bản có chứa số thập phân hoặc phần trăm giả mạo hay không.
-    Cho phép các số liệu học thuật (% tin cậy, % khớp) và các con số thị trường đã được cung cấp hoặc tra cứu.
-    """
     allowed = allowed_numbers(decision_result)
     for tok in _NUM_RE.findall(text or ""):
         val = float(re.sub(r"[^\d.,]", "", tok).replace(",", "."))
@@ -120,10 +94,6 @@ def has_fabricated_numbers(text: str, decision_result: dict, tol: float = 0.6) -
 
 
 def build_career_prompt(student_input: dict, decision_result: dict) -> str:
-    """
-    Prompt có căn cứ, kết hợp số liệu học thuật hệ thống và dữ liệu thị trường tuyển dụng.
-    Đảm bảo quy tắc bảo mật: Không gửi điểm số hay thông tin nhận dạng cá nhân khi tra cứu thị trường.
-    """
     skills = student_input.get("skills") or {}
     interests = student_input.get("interests") or []
 
@@ -145,7 +115,6 @@ def build_career_prompt(student_input: dict, decision_result: dict) -> str:
     ) or "chưa đánh giá"
     interests_txt = ", ".join(_clean(i, 50) for i in interests[:5]) or "chưa chọn"
 
-    # Thông tin thị trường lao động cho Top các nghề
     market_sections = []
     for c in careers:
         c_name = _clean(c.get("career_name", ""), 80)

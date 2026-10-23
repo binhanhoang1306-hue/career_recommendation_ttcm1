@@ -1,9 +1,4 @@
-# -*- coding: utf-8 -*-
-"""
-Kiểm thử hồi quy cho 6 điểm không nhất quán đã được sửa. Chạy từ thư mục gốc dự án:
 
-    python -m unittest discover -s tests -v
-"""
 import json
 import os
 import shutil

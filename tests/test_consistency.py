@@ -1,8 +1,4 @@
-# -*- coding: utf-8 -*-
-"""
-Kiểm thử FastAPI /decision, logic dùng chung, validation, giám sát và cách khởi động theo tài liệu.
-Chạy: python -m unittest discover -s tests -v
-"""
+
 import os
 import subprocess
 import sys

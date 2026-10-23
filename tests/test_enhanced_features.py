@@ -1,10 +1,4 @@
-# -*- coding: utf-8 -*-
-"""
-tests/test_enhanced_features.py — Kiểm thử các tính năng khắc phục hạn chế:
-  1. CSDL SQLite (ACID) thay thế Flat-file storage.
-  2. Hỗ trợ đánh giá sớm cho sinh viên năm 1-3 (Partial Grades Assessment).
-  3. Tự động hóa chu trình Retrain và Live Reload.
-"""
+
 import json
 import os
 import sqlite3

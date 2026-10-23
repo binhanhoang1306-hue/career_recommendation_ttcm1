@@ -1,9 +1,4 @@
-# -*- coding: utf-8 -*-
-"""
-Kiểm thử: lớp giải thích LLM (trung thực, chịu lỗi, không bịa số liệu), tính nhất quán của model/metadata
-và các điểm bảo mật cơ bản của API. Không cần GROQ_API_KEY thật (mọi lời gọi Groq được giả lập).
-Chạy: python -m unittest discover -s tests -v
-"""
+
 import json
 import os
 import sys

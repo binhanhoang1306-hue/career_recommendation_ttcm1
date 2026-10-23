@@ -1,8 +1,4 @@
-# -*- coding: utf-8 -*-
-"""
-Kiểm thử parser bảng điểm, đầu vào bất thường, chỉ số và đường dẫn.
-Chạy: python -m unittest discover -s tests -v
-"""
+
 import io
 import json
 import os

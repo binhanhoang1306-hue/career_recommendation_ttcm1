@@ -1,10 +1,4 @@
-# -*- coding: utf-8 -*-
-"""
-test_lifecycle.py — Kiểm thử toàn diện 5 giai đoạn vòng đời Model AI trong ứng dụng:
-  [1. Train] -> [2. Export] -> [3. Serve] -> [4. Integrate] -> [5. Monitor]
-     ^                                                                |
-     |_________________ Dữ liệu mới / Model lệch _____________________|
-"""
+
 import json
 import os
 import sys
