@@ -7,6 +7,12 @@ Khắc phục hạn chế:
   - Hỗ trợ giao dịch (Transactions), đảm bảo tính toàn vẹn dữ liệu (ACID).
   - Tự động di chuyển dữ liệu cũ từ JSON/JSONL vào SQLite khi khởi tạo lần đầu.
   - Đồng bộ ngược lại file JSON/JSONL để duy trì tính tương thích ngược tuyệt đối với các script/test cũ.
+
+Hai chế độ lưu trữ (chọn tự động theo biến môi trường):
+  - Có TURSO_DATABASE_URL và TURSO_AUTH_TOKEN -> dùng Turso (SQLite chạy trên mạng),
+    dữ liệu không mất khi máy chủ (Render gói Free) ngủ/khởi động lại.
+  - Không có hai biến trên -> dùng file SQLite cục bộ như cũ (chạy máy local bình thường,
+    không cần cài thư viện libsql).
 """
 import json
 import os
@@ -30,9 +36,136 @@ def get_db_path() -> str:
     return DB_PATH
 
 
+# ---------------------------------------------------------------------------
+# Turso (libsql): lớp bọc để giữ nguyên cách dùng kiểu sqlite3 của phần còn lại
+# ---------------------------------------------------------------------------
+def _turso_settings():
+    """Trả về (url, token) nếu đã cấu hình Turso, ngược lại None. Đọc env mỗi lần gọi."""
+    url = os.environ.get("TURSO_DATABASE_URL", "").strip()
+    token = os.environ.get("TURSO_AUTH_TOKEN", "").strip()
+    if url and token:
+        return url, token
+    return None
+
+
+def using_turso() -> bool:
+    return _turso_settings() is not None
+
+
+class _Row(tuple):
+    """Hàng kết quả vừa truy cập theo chỉ số (row[0]) vừa theo tên cột (row["id"]), dict(row) dùng được.
+
+    libsql trả về tuple thuần và không hỗ trợ conn.row_factory = sqlite3.Row,
+    nên cần lớp này để mã cũ (row["rating"], dict(row)) chạy không đổi.
+    """
+
+    def __new__(cls, columns, values):
+        obj = super().__new__(cls, values)
+        obj._columns = tuple(columns)
+        return obj
+
+    def keys(self):
+        return list(self._columns)
+
+    def __getitem__(self, key):
+        if isinstance(key, str):
+            try:
+                return super().__getitem__(self._columns.index(key))
+            except ValueError:
+                raise IndexError(f"No item with that key: {key}") from None
+        return super().__getitem__(key)
+
+
+class _Cursor:
+    def __init__(self, cursor):
+        self._cursor = cursor
+        self._columns = [d[0] for d in (cursor.description or [])]
+
+    @property
+    def rowcount(self):
+        return self._cursor.rowcount
+
+    @property
+    def description(self):
+        return self._cursor.description
+
+    def _wrap(self, values):
+        return None if values is None else _Row(self._columns, values)
+
+    def fetchone(self):
+        return self._wrap(self._cursor.fetchone())
+
+    def fetchall(self):
+        return [self._wrap(values) for values in self._cursor.fetchall()]
+
+    def __iter__(self):
+        return iter(self.fetchall())
+
+
+class _TursoConnection:
+    """Bọc kết nối libsql; mọi lỗi được đổi thành sqlite3.Error để các `except sqlite3.Error` cũ vẫn bắt được."""
+
+    def __init__(self, raw):
+        self._raw = raw
+
+    def execute(self, sql, params=()):
+        try:
+            return _Cursor(self._raw.execute(sql, params))
+        except sqlite3.Error:
+            raise
+        except Exception as exc:
+            raise sqlite3.OperationalError(f"Turso: {exc}") from exc
+
+    def commit(self):
+        try:
+            self._raw.commit()
+        except sqlite3.Error:
+            raise
+        except Exception as exc:
+            raise sqlite3.OperationalError(f"Turso commit: {exc}") from exc
+
+    def rollback(self):
+        try:
+            self._raw.rollback()
+        except Exception:
+            pass
+
+    def close(self):
+        try:
+            self._raw.close()
+        except Exception:
+            pass
+
+
+def _connect_turso(url: str, token: str) -> _TursoConnection:
+    try:
+        import libsql  # chỉ cần cài trên máy chủ dùng Turso (Render)
+    except ImportError as exc:
+        raise sqlite3.OperationalError(
+            "Đã đặt TURSO_DATABASE_URL nhưng chưa cài thư viện libsql (pip install libsql)."
+        ) from exc
+    try:
+        return _TursoConnection(libsql.connect(database=url, auth_token=token))
+    except Exception as exc:
+        raise sqlite3.OperationalError(f"Không kết nối được Turso: {exc}") from exc
+
+
 @contextmanager
 def get_connection():
-    """Context manager cung cấp kết nối SQLite với WAL mode và timeout an toàn đa luồng."""
+    """Context manager cung cấp kết nối (Turso nếu đã cấu hình, ngược lại SQLite WAL cục bộ)."""
+    settings = _turso_settings()
+    if settings is not None:
+        conn = _connect_turso(*settings)
+        try:
+            yield conn
+            conn.commit()
+        except Exception:
+            conn.rollback()
+            raise
+        finally:
+            conn.close()
+        return
+
     os.makedirs(DATA_DIR, exist_ok=True)
     conn = sqlite3.connect(DB_PATH, timeout=15.0)
     conn.row_factory = sqlite3.Row
