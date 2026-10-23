@@ -321,6 +321,15 @@ def _admin_request(method: str, path: str, timeout: int):
             st.error(f"Yêu cầu quản trị thất bại (HTTP {response.status_code}).")
             return None
         return response.json()
+    except requests.exceptions.Timeout:
+        if path.startswith("/retrain"):
+            st.error(
+                "FastAPI chưa trả kết quả trong thời gian chờ. Tác vụ cập nhật có thể vẫn đang chạy; "
+                "hãy kiểm tra phiên bản mô hình trước khi bấm cập nhật lần nữa."
+            )
+        else:
+            st.error("Máy chủ quản trị phản hồi quá thời gian chờ.")
+        return None
     except requests.exceptions.RequestException as exc:
         st.error(f"Không thể truy cập chức năng quản trị ({type(exc).__name__}).")
         return None
@@ -1288,7 +1297,7 @@ def render_admin_portal(meta, error):
                     retrain_res = _admin_request(
                         "POST",
                         f"/retrain?force={str(force_retrain).lower()}",
-                        timeout=35,
+                        timeout=300,
                     )
                     if retrain_res and retrain_res.get("status") == "success":
                         st.success(
