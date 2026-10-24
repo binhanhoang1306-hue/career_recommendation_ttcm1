@@ -890,6 +890,33 @@ def debug_valid_careers():
     except Exception as exc:
         return {"error": str(exc)}
     
+    @app.get("/debug/db-check")
+def debug_db_check():
+    from career_ai import db
+    import os
+    
+    turso_url = os.environ.get("TURSO_DATABASE_URL", "")
+    turso_token = os.environ.get("TURSO_AUTH_TOKEN", "")
+    
+    info = {
+        "using_turso_env": db.using_turso(),
+        "has_url": bool(turso_url),
+        "has_token": bool(turso_token),
+        "url_preview": turso_url[:15] + "..." if turso_url else "MISSING",
+    }
+    
+    try:
+        with db.get_connection() as conn:
+            cursor = conn.execute("SELECT COUNT(*) FROM feedbacks")
+            count = cursor.fetchone()[0]
+            info["status"] = "SUCCESS"
+            info["feedbacks_count"] = count
+    except Exception as exc:
+        info["status"] = "ERROR"
+        info["error_type"] = type(exc).__name__
+        info["error_detail"] = str(exc)
+        
+    return info
 @app.delete("/admin/feedbacks/{feedback_id}")
 def delete_admin_feedback_endpoint(
     feedback_id: str, _admin: HTTPBasicCredentials = Depends(require_admin)
