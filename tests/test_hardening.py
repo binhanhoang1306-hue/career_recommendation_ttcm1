@@ -935,7 +935,9 @@ class TestStudentFacingCopy(unittest.TestCase):
 
         with open(web_app.__file__, encoding="utf-8") as file:
             source = file.read()
-        feedback_section = source.split("# Phản hồi từ sinh viên", 1)[1].split(
+        feedback_section = source.split(
+            'with st.container(key="feedback-panel", border=True):', 1
+        )[1].split(
             "def _send_feedback", 1
         )[0]
 

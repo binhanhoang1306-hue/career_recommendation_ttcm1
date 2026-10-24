@@ -8,7 +8,6 @@ import time
 import requests
 import streamlit as st
 import pandas as pd
-# Thiết lập cấu hình trang
 st.set_page_config(
     page_title="AI Career Compass — Cổng Định Hướng Nghề Nghiệp CNTT",
     layout="wide",
@@ -24,17 +23,16 @@ if not api_url:
 
 API_URL = (api_url or "http://127.0.0.1:8000").strip().rstrip("/")
 if not API_URL.startswith(("http://", "https://")):
-    API_URL = "http://" + API_URL  # Render chỉ cấp host:port, không kèm scheme
+    API_URL = "http://" + API_URL
 
 try:
-    import ui_kit as ui  # CSS + thành phần HTML/SVG của giao diện hiện đại (web/ui_kit.py)
+    import ui_kit as ui
 except ModuleNotFoundError:
     sys.path.insert(0, os.path.dirname(__file__))
     import ui_kit as ui
 
 st.markdown(ui.CSS, unsafe_allow_html=True)
 
-# Phân nhóm 4 khối môn học cho trải nghiệm nhập liệu trực quan
 SUBJECT_CATEGORIES = {
     "sys": {
         "title": "Mạng & Hệ Thống",
@@ -59,9 +57,6 @@ SUBJECT_CATEGORIES = {
 }
 
 
-# ---------------------------------------------------------------------------
-# CÁC HÀM XỬ LÝ PARSER BẢNG ĐIỂM (GIỮ NGUYÊN TƯƠNG THÍCH VỚI BỘ TEST)
-# ---------------------------------------------------------------------------
 def _normalize_text(value):
     """Chuẩn hoá chuỗi để so khớp tên môn học giữa Excel/CSV và SUBJECTS."""
     import unicodedata
@@ -174,7 +169,6 @@ def parse_uploaded_scores(df, subject_names, subject_keys):
 
     scores = {}
 
-    # 1) Dạng ngang: cột tên môn hoặc mã môn là tên cột; lấy điểm từ cột đó.
     for subj in subject_names:
         if subject_keys.get(subj) in scores:
             continue
@@ -267,9 +261,6 @@ def parse_uploaded_file(uploaded_file, filename, subject_names, subject_keys):
     return best_scores, max_columns
 
 
-# ---------------------------------------------------------------------------
-# CÁC HÀM GỌI API BACKEND
-# ---------------------------------------------------------------------------
 @st.cache_data(ttl=60)
 def _fetch_model_info(api_url: str):
     """Lấy thông tin mô hình và danh mục; chỉ cache khi API phản hồi thành công."""
@@ -343,12 +334,9 @@ def fetch_admin_logs(limit: int = 50):
     return result.get("logs", []) if result else []
 
 
-# ---------------------------------------------------------------------------
-# QUẢN LÝ TRẠNG THÁI (SESSION STATE)
-# ---------------------------------------------------------------------------
 def _init_session():
     if "view_mode" not in st.session_state:
-        st.session_state["view_mode"] = "student"  # 'student' hoặc 'admin'
+        st.session_state["view_mode"] = "student"
     if "admin_authenticated" not in st.session_state:
         st.session_state["admin_authenticated"] = False
     if "user_scores" not in st.session_state:
@@ -362,12 +350,8 @@ def _init_session():
         st.session_state["explore_career_group"] = None
 
 
-# ---------------------------------------------------------------------------
-# GIAO DIỆN CHÍNH
-# ---------------------------------------------------------------------------
 def main():
     _init_session()
-    # Áp dụng điểm đã tải lên trước khi tạo bất kỳ widget nào trong lần chạy này.
     if "pending_file_scores" in st.session_state:
         pending = st.session_state.pop("pending_file_scores")
         for k, v in pending.items():
@@ -375,7 +359,6 @@ def main():
 
     meta, error = fetch_model_info()
 
-    # Xử lý điều hướng giữa Cổng Sinh Viên và Cổng Quản Trị
     view_mode = st.session_state.get("view_mode", "student")
 
     if view_mode == "admin":
@@ -402,9 +385,6 @@ def render_career_group(group, career_catalog):
     st.markdown(ui.career_explorer_grid(careers), unsafe_allow_html=True)
 
 
-# ---------------------------------------------------------------------------
-# 1. CỔNG DÀNH CHO SINH VIÊN (STUDENT PORTAL)
-# ---------------------------------------------------------------------------
 def render_student_portal(meta, error):
     career_catalog = []
     catalog_error = None
@@ -481,7 +461,6 @@ def render_student_portal(meta, error):
         render_career_group(selected_group, career_catalog)
         return
 
-    # Kiểm tra backend API
     if not meta:
         st.error(f"Chưa thể kết nối tới Backend API tại `{API_URL}`: {error}")
         if API_URL.startswith(("http://127.0.0.1", "http://localhost")):
@@ -492,10 +471,8 @@ def render_student_portal(meta, error):
             st.rerun()
         return
 
-    # Banner Hero
     st.markdown(ui.hero("Sinh viên"), unsafe_allow_html=True)
 
-    # ------------------ BƯỚC 1: THÔNG TIN SINH VIÊN ------------------
     profile_intro, profile_form = st.columns([0.9, 1.8], gap="large", vertical_alignment="top")
     with profile_intro:
         st.markdown(
@@ -536,7 +513,6 @@ def render_student_portal(meta, error):
                 unsafe_allow_html=True,
             )
 
-    # ------------------ BƯỚC 2: BẢNG ĐIỂM HỌC PHẦN ------------------
     st.write("")
     with st.container(border=True, key="student-grade-card"):
         st.markdown(ui.section(2, "Những môn bạn đã học", "Nhập điểm các môn đã có kết quả. Môn chưa học cứ để trống, hoặc tải lên bảng điểm của bạn."), unsafe_allow_html=True)
@@ -602,19 +578,16 @@ def render_student_portal(meta, error):
                     except Exception as e:
                         st.error(f"Lỗi khi đọc file: {str(e)}")
                 else:
-                    # File đã được xử lý xong, hiển thị kết quả và bảng xem trước
                     last_scores = st.session_state.get("last_parsed_scores", {})
                     st.success(f"Đã thêm điểm của {len(last_scores)} môn từ bảng điểm.")
                     input_scores.update(last_scores)
                     preview_data = [{"Môn học": key_to_name.get(k, k), "Điểm trích xuất": v} for k, v in last_scores.items()]
                     st.dataframe(pd.DataFrame(preview_data), width="stretch", hide_index=True)
             else:
-                # Người dùng đã gỡ file
                 st.session_state.pop("last_uploaded_sig", None)
                 st.session_state.pop("last_uploaded_name", None)
                 st.session_state.pop("last_parsed_scores", None)
 
-    # ------------------ BƯỚC 3: KỸ NĂNG MỀM & SỞ THÍCH ------------------
     st.write("")
     with st.container(border=True, key="student-interests-card"):
         st.markdown(ui.section(3, "Điều bạn yêu thích & làm tốt", "Chọn những điều thể hiện con người và mối quan tâm của bạn."), unsafe_allow_html=True)
@@ -676,7 +649,7 @@ def render_student_portal(meta, error):
         "Tên của bạn không cần thiết cho việc tư vấn."
     )
 
-    # ------------------ NÚT HÀNH ĐỘNG PHÂN TÍCH ------------------
+
     st.write("")
     submit_button = st.button("Khám phá hướng đi phù hợp", type="primary", width="stretch", icon=":material/arrow_forward:")
 
@@ -704,16 +677,13 @@ def render_student_portal(meta, error):
             except requests.exceptions.RequestException as ex:
                 st.session_state["error"] = f"Không thể kết nối đến máy chủ API: {ex}"
 
-    # Hiển thị lỗi hoặc Kết quả
+
     if st.session_state.get("error"):
         st.error(st.session_state["error"])
     elif st.session_state.get("result"):
         render_results(st.session_state["result"])
 
 
-# ---------------------------------------------------------------------------
-# HIỂN THỊ KẾT QUẢ TƯ VẤN (DSS RESULTS)
-# ---------------------------------------------------------------------------
 def render_results(r: dict):
     d, scores = r["data"], r["scores"]
     top = d.get("top_careers", []) or []
@@ -729,7 +699,6 @@ def render_results(r: dict):
             "Khi hành trình học tập tiếp tục, bạn có thể quay lại để khám phá thêm."
         )
 
-    # Thẻ Hero kết quả
     st.markdown(
         ui.result_hero(
             d.get("predicted_group", ""),
@@ -742,14 +711,12 @@ def render_results(r: dict):
         ),
         unsafe_allow_html=True,
     )
-    # Hồ sơ môn học và các lĩnh vực nổi bật
     c1, c2 = st.columns(2, gap="medium")
     with c1:
         st.markdown(ui.radar_svg(scores), unsafe_allow_html=True)
     with c2:
         st.markdown(ui.prob_bars(d.get("probabilities_model_only", {})), unsafe_allow_html=True)
 
-    # Lời khuyên cá nhân hóa
     st.write("")
     st.markdown(ui.section(4, "Một vài lời dành riêng cho bạn", "Góc nhìn tham khảo về những điểm mạnh và hướng phát triển có thể phù hợp."), unsafe_allow_html=True)
     st.markdown(
@@ -762,12 +729,10 @@ def render_results(r: dict):
         unsafe_allow_html=True,
     )
 
-    # Các lựa chọn nghề nghiệp
     st.write("")
     st.markdown(ui.section(5, "Những nghề đáng để khám phá", "Một vài lựa chọn để bạn tìm hiểu thêm, không phải khuôn mẫu hay giới hạn."), unsafe_allow_html=True)
     st.markdown(ui.career_grid(top), unsafe_allow_html=True)
 
-    # Khuyến nghị môn học kỳ tới (nếu có môn cốt lõi chưa học)
     unstudied_all = []
     for c in top:
         for u in c.get("unstudied_core", []):
@@ -778,7 +743,6 @@ def render_results(r: dict):
             f"**Có thể tìm hiểu thêm:** Những môn như **{', '.join(unstudied_all)}** sẽ giúp bạn khám phá sâu hơn các hướng nghề này."
         )
 
-    # Phân tích Thế mạnh & Môn cần cải thiện
     st.write("")
     st.markdown(ui.section(6, "Thế mạnh & những điều có thể bồi đắp"), unsafe_allow_html=True)
     a, b = st.columns(2, gap="medium")
@@ -787,7 +751,6 @@ def render_results(r: dict):
     with b:
         st.markdown(ui.tags(d.get("improvements", []), "todo", "Hãy tiếp tục nuôi dưỡng những điều bạn yêu thích.", "Có thể tìm hiểu thêm"), unsafe_allow_html=True)
 
-    # Phản hồi từ sinh viên
     st.write("")
     with st.container(key="feedback-panel", border=True):
         st.markdown(
@@ -968,9 +931,6 @@ def _send_feedback(
         st.error(f"Không thể gửi phản hồi tới máy chủ: {exc}")
 
 
-# ---------------------------------------------------------------------------
-# 2. KHU VỰC ĐĂNG NHẬP QUẢN TRỊ VIÊN (ADMIN LOGIN)
-# ---------------------------------------------------------------------------
 def render_admin_login():
     """Giao diện đăng nhập đồng bộ với cổng sinh viên."""
     with st.sidebar:
@@ -1021,9 +981,6 @@ def render_admin_login():
                 except requests.exceptions.RequestException as exc:
                     st.error(f"Không thể kết nối máy chủ xác thực ({type(exc).__name__}).")
 
-# ---------------------------------------------------------------------------
-# 3. BẢNG ĐIỀU KHIỂN QUẢN TRỊ VIÊN (ADMIN PORTAL DASHBOARD)
-# ---------------------------------------------------------------------------
 def render_admin_portal(meta, error):
     """Trang Dashboard Quản Trị với đầy đủ công cụ giám sát, feedback và retrain."""
     with st.sidebar:
@@ -1085,7 +1042,6 @@ def render_admin_portal(meta, error):
         except TypeError:
             return ui.kpi_card(t, v, s)
 
-    # 4 Thẻ KPI thống kê nhanh
     st.markdown("<div class='kpi-grid'>"
                 + _render_kpi("LƯỢT TƯ VẤN ĐÃ THỰC HIỆN", str(total_preds), "Số phiên được lưu (60 ngày gần nhất)", "bar")
                 + _render_kpi("PHẢN HỒI ĐÃ NHẬN", str(total_feedbacks), "Ý kiến từ sinh viên", "mail")
@@ -1100,7 +1056,6 @@ def render_admin_portal(meta, error):
         "Cập nhật hệ thống",
     ])
 
-    # Tab 1: Tổng quan hệ thống
     with tab_overview:
         st.markdown("#### Lưu giữ và dọn dữ liệu")
         st.caption(
@@ -1136,7 +1091,6 @@ def render_admin_portal(meta, error):
                 else:
                     st.info("Chưa có đủ lượt tư vấn để hiển thị.")
 
-    # Tab 2: Quản lý Phản hồi Sinh viên
     with tab_feedbacks:
         survey = stats.get("student_survey", {})
         survey_count = survey.get("response_count", 0)
@@ -1253,7 +1207,6 @@ def render_admin_portal(meta, error):
         else:
             st.info("Chưa có phản hồi nào được ghi nhận.")
 
-    # Tab 3: Lịch sử tư vấn
     with tab_logs:
         st.markdown("#### Các lượt tư vấn gần đây")
         logs_list = fetch_admin_logs(limit=100)
@@ -1272,7 +1225,6 @@ def render_admin_portal(meta, error):
         else:
             st.info("Chưa có lượt tư vấn nào được ghi nhận.")
 
-    # Tab 4: Cập nhật hệ thống từ phản hồi
     with tab_retrain:
         st.markdown("#### Cập nhật hệ thống từ phản hồi")
         st.write("""
