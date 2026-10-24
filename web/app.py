@@ -970,7 +970,7 @@ def _send_feedback(
         "survey": survey or {},
     }
     try:
-        response = requests.post(f"{API_URL}/feedback", json=payload, timeout=5)
+        response = requests.post(f"{API_URL}/feedback", json=payload, timeout=20)
         if response.status_code == 201:
             result = response.json()
             if result.get("recommender_updated", True) and result.get("mirror_synced", True):
