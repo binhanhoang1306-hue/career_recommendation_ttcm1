@@ -1082,7 +1082,7 @@ a[aria-label="Link to heading"],
 }
 .res-gauge-bar {
     stroke: #A5B4FC;
-    stroke-linecap: round;
+    stroke-linecap: butt;
     transform: rotate(-90deg);
     transform-origin: 50% 50%;
 }

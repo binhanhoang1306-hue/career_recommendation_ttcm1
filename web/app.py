@@ -862,7 +862,7 @@ def render_results(r: dict):
         f_col1, f_col2 = st.columns(2, gap="medium")
         with f_col1:
             st.button(
-                "Phù hợp với mình",
+                "Phù hợp",
                 key="fb_like",
                 type="primary" if st.session_state.get("fb_liked") is True else "secondary",
                 width="stretch",
