@@ -6,3 +6,4 @@ __pycache__/
 *.pyc
 data/prediction_logs.jsonl
 *.zip
+.env.example

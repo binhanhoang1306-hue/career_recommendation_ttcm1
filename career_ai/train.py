@@ -1,18 +1,4 @@
-# -*- coding: utf-8 -*-
-"""
-train.py — Huấn luyện & so sánh 3 thuật toán phân loại nhóm nghề (Tầng 1), tự động
-chọn mô hình có F1 5-fold CV cao nhất để triển khai và lưu vào models/current/.
 
-VỀ Ý NGHĨA CỦA CÁC CHỈ SỐ (đọc kỹ trước khi đưa vào báo cáo):
-  * Nhãn `career_group` trong data/students.csv được SUY RA từ chính 12 điểm môn học
-    bằng công thức (domain_knowledge.dominant_group) — là nhãn giả (pseudo-label).
-    Vì vậy Accuracy/F1 ở bảng so sánh chỉ đo "mô hình xấp xỉ lại công thức gán nhãn
-    tốt đến đâu", KHÔNG phải độ chính xác dự đoán nghề nghiệp thực tế.
-  * Chỉ số độc lập duy nhất là `validate_on_feedback()`: mô hình (chỉ học từ nhãn suy
-    ra) được kiểm tra trên nhóm nghề mà NGƯỜI DÙNG thật đã xác nhận "phù hợp".
-  * Bảng so sánh chỉ dùng các dòng nhãn suy ra (label_source == "derived"). Khi lưu mô
-    hình triển khai, dữ liệu huấn luyện gồm cả các dòng do phản hồi người dùng bổ sung.
-"""
 import json
 import os
 import sys
