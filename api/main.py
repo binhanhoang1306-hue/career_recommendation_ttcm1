@@ -890,7 +890,7 @@ def debug_valid_careers():
     except Exception as exc:
         return {"error": str(exc)}
     
-    @app.get("/debug/db-check")
+@app.get("/debug/db-check")
 def debug_db_check():
     from career_ai import db
     import os
