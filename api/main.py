@@ -832,9 +832,25 @@ def admin_stats_endpoint(_admin: HTTPBasicCredentials = Depends(require_admin)):
 
 @app.get("/admin/feedbacks")
 def admin_feedbacks_endpoint(limit: int = 50, _admin: HTTPBasicCredentials = Depends(require_admin)):
-    """Lấy danh sách các phản hồi sinh viên mới nhất từ SQLite."""
+    """
+    Lấy danh sách các phản hồi sinh viên mới nhất từ SQLite/Turso.
+    Tự động fallback và bắt lỗi chi tiết nếu kết nối CSDL bị gián đoạn.
+    """
     from career_ai import db
-    return {"feedbacks": db.get_all_feedbacks(limit=limit)}
+    try:
+        feedbacks = db.get_all_feedbacks(limit=limit)
+        return {
+            "status": "success",
+            "count": len(feedbacks),
+            "using_turso": db.using_turso(),
+            "feedbacks": feedbacks
+        }
+    except Exception as exc:
+        print(f"[API][LỖI ADMIN FEEDBACKS]: {exc}")
+        raise HTTPException(
+            status_code=500, 
+            detail=f"Không thể truy vấn CSDL: {str(exc)}"
+        ) from exc
 
 
 @app.post("/admin/feedbacks/restore")
