@@ -880,7 +880,16 @@ def restore_admin_feedbacks_endpoint(
         "total_feedbacks": len(feedback_store.get_all_feedback()),
     }
 
-
+@app.get("/debug/valid-careers")
+def debug_valid_careers():
+    try:
+        return {
+            "career_ids": getattr(recommender, "career_ids", []),
+            "career_groups": CAREER_GROUP_LIST
+        }
+    except Exception as exc:
+        return {"error": str(exc)}
+    
 @app.delete("/admin/feedbacks/{feedback_id}")
 def delete_admin_feedback_endpoint(
     feedback_id: str, _admin: HTTPBasicCredentials = Depends(require_admin)
