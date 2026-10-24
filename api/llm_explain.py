@@ -77,7 +77,6 @@ def allowed_numbers(decision_result: dict) -> list:
             except ValueError:
                 pass
 
-    # 3. Các mốc hằng số thông dụng
     for fixed in [1, 2, 3, 5, 7, 10, 12, 2024, 2025, 2026]:
         nums.append(float(fixed))
 

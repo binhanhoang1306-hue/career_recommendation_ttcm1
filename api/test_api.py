@@ -1,14 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-api/test_api.py — Bước 5: Chạy thử và kiểm tra API (PDF Mục 3.8).
 
-Kịch bản kiểm thử toàn diện:
-- Kiểm tra các ca hợp lệ (sinh viên chuyên hướng AI, Bảo mật, Web).
-- Kiểm tra các ca không hợp lệ: điểm âm, điểm > 10, thiếu trường môn học, sai kiểu dữ liệu.
-- So sánh HTTP status code nhận được với mã mong đợi.
-- Đo thời gian phản hồi (ms) cho từng ca.
-- Tự động phát hiện nếu server đang chạy trên cổng 8000 (dùng requests), hoặc fallback dùng TestClient.
-"""
 import os
 import sys
 import time
@@ -26,7 +17,6 @@ if PROJECT_ROOT not in sys.path:
 
 API_URL = os.environ.get("API_URL", "http://127.0.0.1:8000")
 
-# Các bộ dữ liệu kiểm thử
 TEST_CASES = [
     {
         "name": "Health check",
@@ -178,7 +168,6 @@ TEST_CASES = [
 
 
 def run_tests():
-    # Kiểm tra xem server có đang chạy trực tiếp trên port hay không
     server_online = False
     try:
         r = requests.get(f"{API_URL}/health", timeout=1.5)
@@ -241,7 +230,6 @@ def run_tests():
         status_tag = "[OK ]" if is_ok else "[FAIL]"
         print(f"{status_tag} {name:<40} HTTP {status_code} (mong đợi {exp_status}) - {latency_ms:>3} ms")
 
-        # In thêm thông tin chi tiết nếu là ca hợp lệ
         if status_code == 200 and "predicted_group" in body:
             pred_group = body.get("predicted_group")
             top1_c = body.get("top_careers", [{}])[0].get("career_name", "N/A")

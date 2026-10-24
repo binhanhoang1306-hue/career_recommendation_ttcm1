@@ -1,18 +1,4 @@
-# -*- coding: utf-8 -*-
-"""
-api/main.py — Bước 2: Xây dựng REST API bằng FastAPI (PDF Mục 3.4).
 
-API có các nhiệm vụ chính:
-1. Nạp model một lần ở cấp module khi khởi động (không nạp lại trong mỗi request).
-2. Đọc metadata cấu hình từ models/current/metadata.json.
-3. Khai báo và kiểm tra dữ liệu đầu vào bằng Pydantic (ràng buộc 12 môn [0.0, 10.0], từ chối lỗi với mã 422).
-4. Các endpoints:
-   - GET  /health      : Sức khỏe dịch vụ, model version, uptime.
-   - GET  /model-info  : Cung cấp metadata, schema đầu vào, danh mục môn học, nhóm nghề để Web render động.
-   - POST /predict     : Suy luận phân loại nhóm nghề (ML Inference thuần túy).
-   - POST /decision    : Hệ hỗ trợ quyết định toàn diện (ML Tầng 1 + CBF Tầng 2 + Groq LLM diễn giải).
-5. Kích hoạt CORSMiddleware để hỗ trợ giao diện Web Streamlit.
-"""
 import asyncio
 import logging
 import os
@@ -39,7 +25,6 @@ import pandas as pd
 import numpy as np
 import joblib
 
-# Thiết lập đường dẫn thư mục gốc
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.dirname(CURRENT_DIR) if os.path.basename(CURRENT_DIR) == "api" else CURRENT_DIR
 
@@ -50,8 +35,6 @@ from dotenv import load_dotenv
 
 load_dotenv(os.path.join(PROJECT_ROOT, ".env"))
 
-# Các module dùng chung (CBF, feedback_store, monitor_service...) đọc data/ bằng đường dẫn tương đối so với thư mục gốc.
-# Chuyển thư mục làm việc về gốc để API chạy đúng dù khởi động từ api/ (như PDF) hay từ thư mục gốc.
 os.chdir(PROJECT_ROOT)
 
 from career_ai.domain_knowledge import (
@@ -170,7 +153,6 @@ FEATURE_RANGES = {
 } or {c: [0.0, 10.0] for c in FEATURE_COLS}
 CAREER_GROUP_LIST = META.get("target_schema", {}).get("classes") or CAREER_GROUPS
 _ev = META.get("evaluation_metrics", {})
-# Giữ tên khóa cũ (f1_score, f1_cv_5fold) để giao diện Web không phải sửa.
 METRICS_PUBLIC = {
     "accuracy": _ev.get("accuracy"),
     "precision": _ev.get("precision"),
@@ -237,9 +219,6 @@ def reload_model():
 register_reload_callback(reload_model)
 
 
-# ---------------------------------------------------------------------------
-# 2. KHAI BÁO VÀ KIỂM TRA DỮ LIỆU ĐẦU VÀO BẰNG PYDANTIC
-# ---------------------------------------------------------------------------
 class SubjectScoresInput(BaseModel):
     """Điểm 12 môn học bắt buộc trong khoảng [0.0, 10.0]."""
     sec: float = Field(..., ge=0.0, le=10.0, description="An toàn và bảo mật HTTT")
@@ -283,25 +262,21 @@ class PredictRequest(BaseModel):
         if not isinstance(data, dict):
             return data
         
-        # Nếu đã có trường scores bọc bên ngoài
         scores_dict = data.get("scores")
         flat_data = {k: v for k, v in data.items() if k not in ("scores", "allow_partial", "completed_subjects", "missing_subjects")}
         allow_partial = bool(data.get("allow_partial") if data.get("allow_partial") is not None else getattr(cls, "_default_allow_partial", False))
         data["allow_partial"] = allow_partial
         
         extracted = {}
-        # Ưu tiên lấy từ scores nếu có
         if isinstance(scores_dict, dict):
             for k, v in scores_dict.items():
                 norm_k = SUBJECT_KEYS.get(k, k)
                 extracted[norm_k] = v
-        # Lấy bổ sung từ flat_data
         for k, v in flat_data.items():
             norm_k = SUBJECT_KEYS.get(k, k)
             if norm_k in FEATURE_COLS and v is not None:
                 extracted[norm_k] = v
 
-        # Kiểm tra khoảng giá trị [0.0, 10.0] và kiểu dữ liệu cho các môn được truyền lên
         for k, val in list(extracted.items()):
             if k not in FEATURE_COLS:
                 continue
@@ -311,7 +286,7 @@ class PredictRequest(BaseModel):
                 fval = float(val)
             except (ValueError, TypeError):
                 raise ValueError(f"Điểm môn '{KEY_TO_SUBJECT.get(k, k)}' phải là số hợp lệ, nhận được: {val}")
-            if not math.isfinite(fval):  # NaN/Infinity lọt qua phép so sánh khoảng và gây lỗi 500
+            if not math.isfinite(fval): 
                 raise ValueError(f"Điểm môn '{KEY_TO_SUBJECT.get(k, k)}' phải là số hữu hạn")
             if fval < 0.0 or fval > 10.0:
                 raise ValueError(f"Điểm môn '{KEY_TO_SUBJECT.get(k, k)}' phải nằm trong khoảng [0.0, 10.0], nhận được: {fval}")
@@ -321,15 +296,12 @@ class PredictRequest(BaseModel):
         missing = [f for f in FEATURE_COLS if f not in extracted]
 
         if not allow_partial:
-            # Kiểm tra đầy đủ 12 môn
             if missing:
                 missing_names = [KEY_TO_SUBJECT.get(m, m) for m in missing]
                 raise ValueError(f"Thiếu điểm các môn học: {', '.join(missing_names)}")
         else:
-            # Chế độ đánh giá sớm: yêu cầu tối thiểu 1 môn
             if len(provided_keys) == 0:
                 raise ValueError("Cần cung cấp điểm của ít nhất 1 môn học để thực hiện phân tích định hướng.")
-            # Điền giá trị trung bình toàn trường cho các môn khuyết (Imputation)
             from career_ai.domain_knowledge import SUBJECT_STATS
             for m in missing:
                 subj_name = KEY_TO_SUBJECT.get(m, m)
@@ -550,12 +522,10 @@ def decision_endpoint(req: DecisionRequest):
     interests = req.interests or []
     student_name = "Sinh viên"
 
-    # Quy đổi điểm về dạng tên môn tiếng Việt để chuyển cho CBF
     subject_scores_vn = {KEY_TO_SUBJECT[k]: scores[k] for k in FEATURE_COLS}
 
-    # 1. Dự đoán Tầng 1 (mô hình học máy) rồi điều chỉnh theo sở thích/kỹ năng mềm.
     ml_result = _predict_raw(scores)
-    skill_levels = clean_skill_levels(skills)  # "Chưa đánh giá" bị bỏ qua, không cộng/trừ điểm
+    skill_levels = clean_skill_levels(skills)  
     raw_ranked = [(g, p / 100.0) for g, p in ml_result["sorted_groups"]]
     ranked_groups = apply_interest_and_skill_boost(raw_ranked, interests, skill_levels)
     adjusted = bool(interests or skill_levels)
@@ -564,7 +534,6 @@ def decision_endpoint(req: DecisionRequest):
     preference_adjusted_score = round(top_prob * 100, 2)
     probabilities_adjusted = {g: round(p * 100, 2) for g, p in ranked_groups}
 
-    # 2. Khuyến nghị Tầng 2: CBF
     missing_vn = req.missing_subjects or []
     completed_vn = req.completed_subjects or []
     is_partial = bool(req.allow_partial and missing_vn)
@@ -577,12 +546,10 @@ def decision_endpoint(req: DecisionRequest):
         missing_subjects=missing_vn,
     )
 
-    # 3. Phân tích điểm mạnh & điểm cần cải thiện tổng thể
     sorted_scores = sorted(subject_scores_vn.items(), key=lambda kv: kv[1], reverse=True)
     strengths = [f"{s} ({val}đ)" for s, val in sorted_scores if val >= 7.5 and s not in missing_vn][:4]
     improvements = [f"{s} ({val}đ)" for s, val in sorted_scores[::-1] if val < 6.5 and s not in missing_vn][:3]
 
-    # Định dạng kết quả Top 3 nghề
     formatted_top_careers = []
     for c in top_careers:
         formatted_top_careers.append({
@@ -616,7 +583,6 @@ def decision_endpoint(req: DecisionRequest):
             "is_group_fill": c.get("is_group_fill", False),
         })
 
-    # Tóm tắt khuyến nghị
     top_career_name = formatted_top_careers[0]["career_name"] if formatted_top_careers else ""
     partial_note = f" (Định hướng sơ bộ dựa trên {len(completed_vn)}/12 môn đã học)" if is_partial else ""
     rec_summary = (
@@ -660,7 +626,6 @@ def decision_endpoint(req: DecisionRequest):
 
     latency = round((time.time() - t0) * 1000, 2)
 
-    # Giai đoạn 5 (Monitor): ghi nhật ký lượt dự đoán vào SQLite + JSONL để phát hiện drift.
     try:
         log_prediction(
             input_scores=scores if req.store_scores_in_logs else {},
@@ -669,7 +634,7 @@ def decision_endpoint(req: DecisionRequest):
             model_version=MODEL_VERSION, latency_ms=latency, source="fastapi",
             is_partial=is_partial,
         )
-    except OSError as e:  # lỗi ghi log không được làm hỏng phản hồi
+    except OSError as e: 
         print(f"[API][CẢNH BÁO] Không ghi được log giám sát: {type(e).__name__}")
 
     return {
@@ -760,7 +725,6 @@ def submit_feedback(req: FeedbackRequest, background_tasks: BackgroundTasks = No
     else:
         print("[API][CẢNH BÁO] Đã lưu phản hồi vào SQLite nhưng chưa cập nhật được bộ gợi ý.")
 
-    # Tự động kích hoạt kiểm tra Retrain trong nền nếu có phản hồi tích cực kèm bảng điểm
     if req.liked and req.include_scores and req.scores and background_tasks is not None:
         background_tasks.add_task(check_and_trigger_auto_retrain, min_feedback_count=5)
 
@@ -790,10 +754,8 @@ def retrain_endpoint(
     Endpoint kích hoạt chu trình Huấn luyện lại (Retrain Loop) dưới dạng Background Task.
     Trả về phản hồi lập tức cho client và thực hiện retrain dưới nền.
     """
-    # Đẩy tác vụ retrain vào hàng đợi chạy ngầm
     background_tasks.add_task(run_retrain_task, force)
 
-    # Trả về kết quả ngay lập tức (< 1s) tránh bị timeout
     return {
         "status": "accepted",
         "message": "Đã tiếp nhận yêu cầu retrain thành công. Tiến trình đang chạy ngầm ở backend.",

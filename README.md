@@ -115,7 +115,6 @@ career_recommendation_v2/
 ├── Procfile                      # File cấu hình tiến trình PaaS
 ├── start.sh                      # Kịch bản khởi chạy đồng thời API và Web
 ├── requirements.txt              # Danh sách thư viện phụ thuộc
-├── .env.example                  # Mẫu biến môi trường (tự tạo .env từ file này; KHÔNG nộp/commit .env)
 └── README.md                     # Tài liệu hướng dẫn sử dụng và triển khai
 ```
 

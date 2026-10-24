@@ -103,7 +103,7 @@ class TestDecisionApi(unittest.TestCase):
         cls.api = TestClient(fastapi_app)
         cls._tmp = tempfile.TemporaryDirectory()
         cls._old_logs = monitor_service.LOGS_FILE
-        monitor_service.LOGS_FILE = os.path.join(cls._tmp.name, "logs.jsonl")  # không ghi vào data/ thật
+        monitor_service.LOGS_FILE = os.path.join(cls._tmp.name, "logs.jsonl")  
 
     @classmethod
     def tearDownClass(cls):

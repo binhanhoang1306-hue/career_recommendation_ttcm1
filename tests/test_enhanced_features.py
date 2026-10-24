@@ -623,12 +623,10 @@ class TestEnhancedFeatures(unittest.TestCase):
             "Hệ quản trị CSDL": 8.0,
         }
 
-        # Validate thông thường (allow_partial=False) phải từ chối
         valid, msg, _ = validate_input_scores(partial_scores, allow_partial=False)
         self.assertFalse(valid)
         self.assertIn("Thiếu điểm", msg)
 
-        # Validate với allow_partial=True phải thành công và điền đủ 12 môn
         valid_p, msg_p, filled = validate_input_scores(partial_scores, allow_partial=True)
         self.assertTrue(valid_p)
         self.assertEqual(len(filled), 12)
@@ -636,7 +634,6 @@ class TestEnhancedFeatures(unittest.TestCase):
         self.assertEqual(filled["java"], 8.5)
         self.assertEqual(filled["db"], 8.0)
 
-        # Kiểm tra hàm helper impute_missing_scores
         full_s, comp, miss = impute_missing_scores(partial_scores)
         self.assertEqual(len(comp), 3)
         self.assertEqual(len(miss), 9)
@@ -655,7 +652,6 @@ class TestEnhancedFeatures(unittest.TestCase):
             "allow_partial": True,
         }
 
-        # 1. Gọi /decision với allow_partial=True
         r = client.post("/decision", json=partial_body)
         self.assertEqual(r.status_code, 200, r.text)
         data = r.json()
@@ -664,18 +660,15 @@ class TestEnhancedFeatures(unittest.TestCase):
         self.assertIn("missing_subjects", data)
         self.assertEqual(len(data["missing_subjects"]), 8)
 
-        # Kiểm tra xem trong top_careers có phân tích unstudied_core không
         top_careers = data.get("top_careers", [])
         self.assertGreaterEqual(len(top_careers), 1)
         self.assertIn("explanation", top_careers[0])
         self.assertIn("score_note", top_careers[0]["explanation"])
 
-        # 2. Gọi /decision/partial chuyên dụng
         r_part = client.post("/decision/partial", json={"web": 9.0, "db": 8.5})
         self.assertEqual(r_part.status_code, 200)
         self.assertTrue(r_part.json().get("is_partial_assessment"))
 
-        # 3. Gửi thiếu môn mà KHÔNG bật allow_partial phải bị 422
         r_fail = client.post("/decision", json={"web": 9.0, "db": 8.5, "allow_partial": False})
         self.assertEqual(r_fail.status_code, 422)
 
@@ -690,7 +683,6 @@ class TestEnhancedFeatures(unittest.TestCase):
         notify_model_reloaded()
         self.assertIn(True, reloaded)
 
-        # Kiểm tra check_and_trigger_auto_retrain khi chưa đủ feedback
         status_info = check_and_trigger_auto_retrain(min_feedback_count=999, force=False)
         self.assertIn(status_info.get("status"), ["waiting", "skipped", "error"])
 
