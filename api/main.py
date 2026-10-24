@@ -22,6 +22,7 @@ import time
 import json
 import math
 import secrets
+from fastapi import BackgroundTasks, Depends, FastAPI
 
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
@@ -770,16 +771,34 @@ def submit_feedback(req: FeedbackRequest, background_tasks: BackgroundTasks = No
         "mirror_synced": mirror_synced,
     }
 
-
+def run_retrain_task(force: bool):
+    """Hàm chạy ngầm quá trình retrain trong nền."""
+    try:
+        print(f"[RETRAIN BACKGROUND] Bắt đầu chạy tiến trình retrain (force={force})...")
+        res = check_and_trigger_auto_retrain(min_feedback_count=5, force=force)
+        print(f"[RETRAIN BACKGROUND] Hoàn tất retrain: {res}")
+    except Exception as exc:
+        print(f"[RETRAIN BACKGROUND][LỖI] Tiến trình retrain thất bại: {exc}")
+        
 @app.post("/retrain")
-def retrain_endpoint(force: bool = False, _admin: HTTPBasicCredentials = Depends(require_admin)):
+def retrain_endpoint(
+    background_tasks: BackgroundTasks,
+    force: bool = False,
+    _admin: HTTPBasicCredentials = Depends(require_admin),
+):
     """
-    Endpoint kích hoạt chu trình Huấn luyện lại (Retrain Loop):
-    Đọc phản hồi từ SQLite/JSON -> Lọc mẫu hợp lệ -> Clone & Train pipeline ->
-    Kiểm tra Quality Gate -> Export Model Package -> Live-reload API không cần restart.
+    Endpoint kích hoạt chu trình Huấn luyện lại (Retrain Loop) dưới dạng Background Task.
+    Trả về phản hồi lập tức cho client và thực hiện retrain dưới nền.
     """
-    res = check_and_trigger_auto_retrain(min_feedback_count=5, force=force)
-    return res
+    # Đẩy tác vụ retrain vào hàng đợi chạy ngầm
+    background_tasks.add_task(run_retrain_task, force)
+
+    # Trả về kết quả ngay lập tức (< 1s) tránh bị timeout
+    return {
+        "status": "accepted",
+        "message": "Đã tiếp nhận yêu cầu retrain thành công. Tiến trình đang chạy ngầm ở backend.",
+        "force": force,
+    }
 
 
 @app.get("/admin/auth")
